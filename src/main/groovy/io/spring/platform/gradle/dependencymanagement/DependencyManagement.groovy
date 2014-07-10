@@ -18,9 +18,7 @@ package io.spring.platform.gradle.dependencymanagement
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.DependencyResolveDetails
-import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.mvn3.org.apache.maven.model.Model
 import org.gradle.mvn3.org.apache.maven.model.Repository
 import org.gradle.mvn3.org.apache.maven.model.building.DefaultModelBuilderFactory
@@ -62,6 +60,9 @@ class DependencyManagement {
 	}
 
 	void resolve() {
+		def existingVersions = [:]
+		existingVersions << versions
+
 		def modelBuilder = new DefaultModelBuilderFactory().newInstance()
 		modelBuilder.modelInterpolator = new ProjectPropertiesModelInterpolator(project)
 
@@ -71,9 +72,11 @@ class DependencyManagement {
 			request.modelResolver = new StandardModelResolver()
 			def result = modelBuilder.build(request)
 			result.effectiveModel.dependencyManagement.dependencies.each { dependency ->
-				versions[dependency.groupId + ":" + dependency.artifactId] = dependency.version
+				versions["$dependency.groupId:$dependency.artifactId" as String] = dependency.version
 			}
 		}
+
+		versions << existingVersions
 	}
 
 	private static class ProjectPropertiesModelInterpolator extends StringSearchModelInterpolator {

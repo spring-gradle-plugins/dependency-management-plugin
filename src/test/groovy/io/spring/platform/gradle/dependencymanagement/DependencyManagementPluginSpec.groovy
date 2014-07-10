@@ -1,7 +1,6 @@
 package io.spring.platform.gradle.dependencymanagement;
 
 import org.gradle.api.Project
-import org.gradle.api.logging.LogLevel;
 import org.gradle.testfixtures.ProjectBuilder
 
 import spock.lang.Specification
@@ -82,5 +81,43 @@ public class DependencyManagementPluginSpec extends Specification {
 			then: 'Dependency management has been applied'
 				files.size() == 2
 				files.collect { it.name }.containsAll(['spring-core-4.0.4.RELEASE.jar', 'commons-logging-1.1.2.jar'])
+	}
+
+	def "Versions of direct dependencies take precedence over direct dependency management"() {
+		given: 'A project with a version on a direct dependency and dependency management for the dependency'
+			project.apply plugin: 'dependency-management'
+			project.apply plugin: 'java'
+			project.dependencyManagement {
+				dependencies {
+					'org.springframework:spring-core' '4.0.4.RELEASE'
+				}
+			}
+			project.dependencies {
+				compile 'org.springframework:spring-core:4.0.6.RELEASE'
+			}
+			when: 'A configuration is resolved'
+				def files = project.configurations.compile.resolve()
+			then: 'Dependency management is not applied to the versioned dependency'
+				files.size() == 2
+				files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.3.jar'])
+	}
+
+	def "Versions of direct dependencies take precedence over dependency management in an imported bom"() {
+		given: 'A project with a version on a direct dependency and imported dependency management for the dependency'
+			project.apply plugin: 'dependency-management'
+			project.apply plugin: 'java'
+			project.dependencyManagement {
+				imports {
+					mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+				}
+			}
+			project.dependencies {
+				compile 'org.springframework:spring-core:4.0.4.RELEASE'
+			}
+			when: 'A configuration is resolved'
+				def files = project.configurations.compile.resolve()
+			then: 'Dependency management is not applied to the versioned dependency'
+				files.size() == 2
+				files.collect { it.name }.containsAll(['spring-core-4.0.4.RELEASE.jar', 'commons-logging-1.1.3.jar'])
 	}
 }

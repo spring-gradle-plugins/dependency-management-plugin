@@ -20,6 +20,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencyResolveDetails
+import org.gradle.api.artifacts.ModuleDependency
 
 
 class DependencyManagementPlugin implements Plugin<Project> {
@@ -37,6 +38,16 @@ class DependencyManagementPlugin implements Plugin<Project> {
 			extension.configuration = configuration
 			extension.dependencies = project.dependencies
 			extension.dependencyManagement = dependencyManagement
+		}
+
+		project.configurations.all { Configuration c ->
+			c.incoming.beforeResolve {
+				dependencies.findAll { it in ModuleDependency }.each {
+					if (it.version) {
+						dependencyManagement.versions["$it.group:$it.name"] = it.version
+					}
+				}
+			}
 		}
 
 		project.configurations.all {
