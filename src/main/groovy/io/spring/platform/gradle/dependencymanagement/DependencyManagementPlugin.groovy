@@ -24,24 +24,25 @@ import org.gradle.api.artifacts.DependencyResolveDetails
 
 class DependencyManagementPlugin implements Plugin<Project> {
 
-	DependencyManagement versionManagement
+	DependencyManagement dependencyManagement
 
 	@Override
 	public void apply(Project project) {
 		Configuration configuration = project.getConfigurations().detachedConfiguration()
 
-		versionManagement = new DependencyManagement(configuration: configuration, project: project)
+		dependencyManagement = new DependencyManagement(configuration: configuration, project: project)
 
 		project.extensions.add("dependencyManagement", DependencyManagementExtension)
-		project.extensions.configure(DependencyManagementExtension) {
-			it.configuration = configuration
-			it.dependencies = project.dependencies
+		project.extensions.configure(DependencyManagementExtension) { DependencyManagementExtension extension ->
+			extension.configuration = configuration
+			extension.dependencies = project.dependencies
+			extension.dependencyManagement = dependencyManagement
 		}
 
 		project.configurations.all {
 			resolutionStrategy {
 				eachDependency { DependencyResolveDetails details ->
-					versionManagement.apply(details)
+					dependencyManagement.apply(details)
 				}
 			}
 		}

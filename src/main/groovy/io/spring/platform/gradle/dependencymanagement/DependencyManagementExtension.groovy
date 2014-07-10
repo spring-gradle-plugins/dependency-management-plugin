@@ -18,6 +18,8 @@ package io.spring.platform.gradle.dependencymanagement
 
 public class DependencyManagementExtension {
 
+	def dependencyManagement
+
 	def configuration
 
 	def dependencies
@@ -28,7 +30,21 @@ public class DependencyManagementExtension {
 		closure.call()
 	}
 
+	void dependencies(Closure closure) {
+		closure.setResolveStrategy(Closure.DELEGATE_ONLY)
+		closure.delegate = new DependenciesHandler()
+		closure.call()
+	}
+
 	void mavenBom(String coordinates) {
 		configuration.dependencies.add(dependencies.create(coordinates + '@pom'))
+	}
+
+	private class DependenciesHandler {
+
+	}
+
+	def methodMissing(String name, args) {
+		dependencyManagement.versions[name] = args[0]
 	}
 }

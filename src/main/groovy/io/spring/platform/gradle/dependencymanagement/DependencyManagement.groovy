@@ -43,7 +43,7 @@ class DependencyManagement {
 
 	private boolean resolved
 
-	private Map versions = [:]
+	Map versions = [:]
 
 	void apply(DependencyResolveDetails details) {
 		resolveIfNecessary()

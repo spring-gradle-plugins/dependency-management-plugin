@@ -1,6 +1,8 @@
 # Dependency management plugin
 
-A Gradle plugin that provides Maven-like dependency management
+A Gradle plugin that provides Maven-like dependency management. Based on the configured dependency
+management metadata, the plugin will control the versions of your project's direct and transitive
+dependencies.
 
 ## Requirements
 
@@ -15,7 +17,7 @@ your local Maven repository:
 ./gradlew build install
 ```
 
-With that done, you can then use the plugin in your Gradle builds:
+With that done, you can then use the plugin in your Gradle builds.
 
 ```
 buildscript {
@@ -35,20 +37,75 @@ apply plugin: 'dependency-management'
 apply plugin: 'java'
 
 dependencyManagement {
-	imports {
-		mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
-	}
+	…
 }
 
 dependencies {
-	compile 'org.springframework.integration:spring-integration-core'
+	…
 }
-
 ```
 
-The plugin will provide a version for the `spring-integration-core` dependency. It will also look
-at every transitive dependency, and where dependency management for that dependency is provided, it
-will update its version:
+With this basic configuration in place, you're ready to configure the project's dependency
+management and declare its dependencies.
+
+## Dependency management configuration
+
+You have two options for configuring the plugin's dependency management. You can use the plugin's
+DSL to configure dependency management directly, or you can import one or more existing Maven boms.
+
+### Dependency management DSL
+
+The DSL allows you to declare dependency management in the form `'groupId:artifactId' 'version'`.
+For example:
+
+```
+dependencyManagement {
+     dependencies {
+          'org.springframework:spring-core' '4.0.3.RELEASE'
+          'commons-logging:commons-logging' '1.1.2'
+     }
+}
+
+dependencies {
+     compile 'org.springframework:spring-core'
+}
+```
+
+This configuration will cause all dependencies (direct or transitive) on `spring-core` and
+`commons-logging` to have the versions `4.0.3.RELEASE` and `1.1.2` respectively:
+
+```
+$ gradle dependencies --configuration compile
+:dependencies
+
+------------------------------------------------------------
+Root project
+------------------------------------------------------------
+
+compile - Compile classpath for source set 'main'.
+\--- org.springframework:spring-core: -> 4.0.3.RELEASE
+     \--- commons-logging:commons-logging:1.1.3 -> 1.1.2
+```
+
+### Importing a Maven bom
+
+The plugin also allows you to import an existing Maven bom to utilise its dependency management.
+For example:
+
+```
+dependencyManagement {
+     imports {
+          mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+     }
+}
+
+dependencies {
+     compile 'org.springframework.integration:spring-integration-core'
+}
+```
+
+This configuration will apply the [versions in the Spring IO Platform bom][1] to the project's
+dependencies:
 
 ```
 $ gradle dependencies --configuration compile
@@ -83,11 +140,10 @@ compile - Compile classpath for source set 'main'.
      \--- org.springframework:spring-aop:4.0.5.RELEASE -> 4.0.6.RELEASE (*)
 ```
 
-In the output above, you can see that the version of `spring-integration-core` has been set to
-`4.0.2.RELEASE` and the versions of all of the Spring Framework dependencies have been changed to
-`4.0.6.RELEASE`.
+It's provided a version of `4.0.2.RELEASE` for the `spring-integration-core` dependency. It has
+also set the version of all of the Spring Framework dependencies to `4.0.6.RELEASE`
 
-### Overridding versions in a bom
+#### Overridding versions in a bom
 
 When the bom is being processed, Gradle's properties are used as a source during the property
 resolution process. If the bom is written to use properties for its versions, this allows you to
@@ -144,3 +200,5 @@ compile - Compile classpath for source set 'main'.
      +--- org.springframework:spring-context:4.0.5.RELEASE -> 4.0.4.RELEASE (*)
      \--- org.springframework:spring-aop:4.0.5.RELEASE -> 4.0.4.RELEASE (*)
 ```
+
+[1]: (http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions)
