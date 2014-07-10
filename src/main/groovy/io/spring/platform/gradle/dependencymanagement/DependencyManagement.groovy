@@ -16,24 +16,28 @@
 
 package io.spring.platform.gradle.dependencymanagement
 
+import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.mvn3.org.apache.maven.model.Model
 import org.gradle.mvn3.org.apache.maven.model.Repository
 import org.gradle.mvn3.org.apache.maven.model.building.DefaultModelBuilderFactory
 import org.gradle.mvn3.org.apache.maven.model.building.DefaultModelBuildingRequest
 import org.gradle.mvn3.org.apache.maven.model.building.FileModelSource
+import org.gradle.mvn3.org.apache.maven.model.building.ModelBuildingRequest
+import org.gradle.mvn3.org.apache.maven.model.building.ModelProblemCollector
 import org.gradle.mvn3.org.apache.maven.model.building.ModelSource
-import org.gradle.mvn3.org.apache.maven.model.resolution.InvalidRepositoryException
+import org.gradle.mvn3.org.apache.maven.model.interpolation.StringSearchModelInterpolator
 import org.gradle.mvn3.org.apache.maven.model.resolution.ModelResolver
 import org.gradle.mvn3.org.apache.maven.model.resolution.UnresolvableModelException
+import org.gradle.mvn3.org.codehaus.plexus.interpolation.MapBasedValueSource
+import org.gradle.mvn3.org.codehaus.plexus.interpolation.ValueSource
 
 class DependencyManagement {
 
-	DependencyHandler dependencies
-
-	ConfigurationContainer configurations
+	Project project
 
 	Configuration configuration
 
@@ -58,8 +62,10 @@ class DependencyManagement {
 	}
 
 	void resolve() {
+		def modelBuilder = new DefaultModelBuilderFactory().newInstance()
+		modelBuilder.modelInterpolator = new ProjectPropertiesModelInterpolator(project)
+
 		configuration.resolve().each { File file ->
-			def modelBuilder = new DefaultModelBuilderFactory().newInstance()
 			def request = new DefaultModelBuildingRequest()
 			request.setModelSource(new FileModelSource(file))
 			request.modelResolver = new StandardModelResolver()
@@ -70,22 +76,37 @@ class DependencyManagement {
 		}
 	}
 
+	private static class ProjectPropertiesModelInterpolator extends StringSearchModelInterpolator {
+
+		private final Project project
+
+		ProjectPropertiesModelInterpolator(Project project) {
+			this.project = project
+		}
+
+		List<ValueSource> createValueSources(Model model, File projectDir, ModelBuildingRequest request, ModelProblemCollector collector) {
+			List valueSources = [new MapBasedValueSource(project.properties)]
+			valueSources.addAll(super.createValueSources(model, projectDir, request, collector))
+			valueSources
+		}
+	}
+
 	private class StandardModelResolver implements ModelResolver {
 
 		@Override
-		public ModelSource resolveModel(String groupId, String artifactId, String version)
+		ModelSource resolveModel(String groupId, String artifactId, String version)
 				throws UnresolvableModelException {
-			def dependency = dependencies.create("$groupId:$artifactId:$version@pom")
-			def configuration = configurations.detachedConfiguration(dependency)
+			def dependency = project.dependencies.create("$groupId:$artifactId:$version@pom")
+			def configuration = project.configurations.detachedConfiguration(dependency)
 			new FileModelSource(configuration.resolve()[0])
 		}
 
 		@Override
-		public void addRepository(Repository repository) {
+		void addRepository(Repository repository) {
 		}
 
 		@Override
-		public ModelResolver newCopy() {
+		ModelResolver newCopy() {
 			this
 		}
 	}

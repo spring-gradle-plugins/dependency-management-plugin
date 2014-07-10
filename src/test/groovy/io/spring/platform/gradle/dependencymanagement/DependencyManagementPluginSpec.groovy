@@ -42,4 +42,25 @@ public class DependencyManagementPluginSpec extends Specification {
 			files.size() == 2
 			files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.3.jar'])
 	}
+
+	def "Dependency management versions can be overridden"() {
+		given: 'An appropriately configured project'
+			project.apply plugin: 'dependency-management'
+			project.apply plugin: 'java'
+			project.ext['spring.version'] = '4.0.5.RELEASE'
+			project.dependencyManagement {
+				imports {
+					mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+				}
+			}
+			project.dependencies {
+				compile 'org.springframework:spring-core'
+			}
+		when: 'A configuration is resolved'
+			def files = project.configurations.compile.resolve()
+		then: 'Dependency management has been applied'
+			'4.0.5.RELEASE' == project.properties['spring.version']
+			files.size() == 2
+			files.collect { it.name }.containsAll(['spring-core-4.0.5.RELEASE.jar', 'commons-logging-1.1.3.jar'])
+	}
 }

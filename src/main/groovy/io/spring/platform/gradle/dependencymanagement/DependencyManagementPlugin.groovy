@@ -30,9 +30,7 @@ class DependencyManagementPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		Configuration configuration = project.getConfigurations().detachedConfiguration()
 
-		versionManagement = new DependencyManagement(configuration: configuration,
-				configurations: project.configurations,
-				dependencies: project.dependencies)
+		versionManagement = new DependencyManagement(configuration: configuration, project: project)
 
 		project.extensions.add("dependencyManagement", DependencyManagementExtension)
 		project.extensions.configure(DependencyManagementExtension) {
