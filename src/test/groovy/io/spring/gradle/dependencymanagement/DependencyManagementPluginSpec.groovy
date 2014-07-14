@@ -1,4 +1,4 @@
-package io.spring.platform.gradle.dependencymanagement;
+package io.spring.gradle.dependencymanagement
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -18,14 +18,14 @@ public class DependencyManagementPluginSpec extends Specification {
 
 	def "Plugin provides the dependency management extension"() {
 		when: 'The plugin is applied'
-			project.apply plugin: DependencyManagementPlugin
+			project.apply plugin: 'io.spring.dependency-management'
 		then: 'The extension is available'
 			project.dependencyManagement
 	}
 
 	def "An imported bom can be used to apply dependency management"() {
 		given: 'A project that imports a bom'
-			project.apply plugin: 'dependency-management'
+			project.apply plugin: 'io.spring.dependency-management'
 			project.apply plugin: 'java'
 			project.dependencyManagement {
 				imports {
@@ -44,7 +44,7 @@ public class DependencyManagementPluginSpec extends Specification {
 
 	def "An imported bom's versions can be overridden"() {
 		given: 'A project that overrides a version of an imported bom'
-			project.apply plugin: 'dependency-management'
+			project.apply plugin: 'io.spring.dependency-management'
 			project.apply plugin: 'java'
 			project.ext['spring.version'] = '4.0.5.RELEASE'
 			project.dependencyManagement {
@@ -65,7 +65,7 @@ public class DependencyManagementPluginSpec extends Specification {
 
 	def "Dependency management can be declared in the build"() {
 		given: 'A project with inline dependency management'
-			project.apply plugin: 'dependency-management'
+			project.apply plugin: 'io.spring.dependency-management'
 			project.apply plugin: 'java'
 			project.dependencyManagement {
 				dependencies {
@@ -85,7 +85,7 @@ public class DependencyManagementPluginSpec extends Specification {
 
 	def "Versions of direct dependencies take precedence over direct dependency management"() {
 		given: 'A project with a version on a direct dependency and dependency management for the dependency'
-			project.apply plugin: 'dependency-management'
+			project.apply plugin: 'io.spring.dependency-management'
 			project.apply plugin: 'java'
 			project.dependencyManagement {
 				dependencies {
@@ -104,7 +104,7 @@ public class DependencyManagementPluginSpec extends Specification {
 
 	def "Versions of direct dependencies take precedence over dependency management in an imported bom"() {
 		given: 'A project with a version on a direct dependency and imported dependency management for the dependency'
-			project.apply plugin: 'dependency-management'
+			project.apply plugin: 'io.spring.dependency-management'
 			project.apply plugin: 'java'
 			project.dependencyManagement {
 				imports {

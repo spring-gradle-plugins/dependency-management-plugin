@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.spring.platform.gradle.dependencymanagement
+package io.spring.gradle.dependencymanagement
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration

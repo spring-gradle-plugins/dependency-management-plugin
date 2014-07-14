@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.spring.platform.gradle.dependencymanagement
+package io.spring.gradle.dependencymanagement
 
 public class DependencyManagementExtension {
 

@@ -25,7 +25,7 @@ buildscript {
 		mavenLocal()
 	}
 	dependencies {
-		classpath 'io.spring.platform.gradle:dependency-management-plugin:0.1.0.BUILD-SNAPSHOT'
+		classpath 'io.spring.gradle:dependency-management-plugin:0.1.0.BUILD-SNAPSHOT'
 	}
 }
 
@@ -33,7 +33,7 @@ repositories {
 	mavenCentral()
 }
 
-apply plugin: 'dependency-management'
+apply plugin: 'io.spring.dependency-management'
 apply plugin: 'java'
 
 dependencyManagement {
