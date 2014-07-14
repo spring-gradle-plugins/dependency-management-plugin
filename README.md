@@ -52,6 +52,8 @@ management and declare its dependencies.
 
 You have two options for configuring the plugin's dependency management. You can use the plugin's
 DSL to configure dependency management directly, or you can import one or more existing Maven boms.
+Dependency management can be applied to every configuration (the default) or to one or more specific
+configurations.
 
 ### Dependency management DSL
 
@@ -199,6 +201,42 @@ compile - Compile classpath for source set 'main'.
      |    \--- org.springframework:spring-core:4.0.4.RELEASE (*)
      +--- org.springframework:spring-context:4.0.5.RELEASE -> 4.0.4.RELEASE (*)
      \--- org.springframework:spring-aop:4.0.5.RELEASE -> 4.0.4.RELEASE (*)
+```
+
+### Dependency management for specific configurations
+
+To target dependency management at a single configuration, you nest the dependency management
+within a block named after the configuration. For example, the following will apply dependency
+management to the compile configuration:
+
+```
+project.dependencyManagement {
+     compile {
+          dependencies {
+               …
+          }
+          imports {
+               …
+          }
+     }
+}
+```
+
+To target dependency management at multiple configurations, you use `configurations` to list the
+configurations to which the dependency management should be applied. For example, the following
+will apply dependency management to the compile and custom configurations:
+
+```
+project.dependencyManagement {
+     configurations(compile, custom) {
+          dependencies {
+               …
+          }
+          imports {
+               …
+          }
+     }
+}
 ```
 
 [1]: (http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions)

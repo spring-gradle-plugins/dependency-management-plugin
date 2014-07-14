@@ -76,11 +76,11 @@ public class DependencyManagementPluginSpec extends Specification {
 			project.dependencies {
 				compile 'org.springframework:spring-core'
 			}
-			when: 'A configuration is resolved'
+		when: 'A configuration is resolved'
 				def files = project.configurations.compile.resolve()
-			then: 'Dependency management has been applied'
-				files.size() == 2
-				files.collect { it.name }.containsAll(['spring-core-4.0.4.RELEASE.jar', 'commons-logging-1.1.2.jar'])
+		then: 'Dependency management has been applied'
+			files.size() == 2
+			files.collect { it.name }.containsAll(['spring-core-4.0.4.RELEASE.jar', 'commons-logging-1.1.2.jar'])
 	}
 
 	def "Versions of direct dependencies take precedence over direct dependency management"() {
@@ -95,11 +95,11 @@ public class DependencyManagementPluginSpec extends Specification {
 			project.dependencies {
 				compile 'org.springframework:spring-core:4.0.6.RELEASE'
 			}
-			when: 'A configuration is resolved'
-				def files = project.configurations.compile.resolve()
-			then: 'Dependency management is not applied to the versioned dependency'
-				files.size() == 2
-				files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.3.jar'])
+		when: 'A configuration is resolved'
+			def files = project.configurations.compile.resolve()
+		then: 'Dependency management is not applied to the versioned dependency'
+			files.size() == 2
+			files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.3.jar'])
 	}
 
 	def "Versions of direct dependencies take precedence over dependency management in an imported bom"() {
@@ -114,10 +114,105 @@ public class DependencyManagementPluginSpec extends Specification {
 			project.dependencies {
 				compile 'org.springframework:spring-core:4.0.4.RELEASE'
 			}
-			when: 'A configuration is resolved'
-				def files = project.configurations.compile.resolve()
-			then: 'Dependency management is not applied to the versioned dependency'
-				files.size() == 2
-				files.collect { it.name }.containsAll(['spring-core-4.0.4.RELEASE.jar', 'commons-logging-1.1.3.jar'])
+		when: 'A configuration is resolved'
+			def files = project.configurations.compile.resolve()
+		then: 'Dependency management is not applied to the versioned dependency'
+			files.size() == 2
+			files.collect { it.name }.containsAll(['spring-core-4.0.4.RELEASE.jar', 'commons-logging-1.1.3.jar'])
+	}
+
+	def "Dependency management can be applied to a specific configuration"() {
+		given: "A project with two configurations and dependency management for one of them"
+			project.apply plugin: 'io.spring.dependency-management'
+			project.apply plugin: 'java'
+
+			project.configurations {
+				managed
+				unmanaged
+			}
+
+			project.dependencyManagement {
+				managed {
+					dependencies {
+						'commons-logging:commons-logging' '1.1.2'
+					}
+				}
+			}
+
+			project.dependencies {
+				managed 'org.springframework:spring-core:4.0.6.RELEASE'
+				unmanaged 'org.springframework:spring-core:4.0.6.RELEASE'
+			}
+		when: 'The configurations are resolved'
+			def managedFiles = project.configurations.managed.resolve()
+			def unmanagedFiles = project.configurations.unmanaged.resolve()
+		then: 'Dependency management is only applied to the managed configuration'
+			managedFiles.size() == 2
+			managedFiles.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.2.jar'])
+			unmanagedFiles.size() == 2
+			unmanagedFiles.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.3.jar'])
+	}
+
+	def "Dependency management can be applied to multiple specific configurations"() {
+		given: "A project with three configurations and dependency management for two of them"
+			project.apply plugin: 'io.spring.dependency-management'
+			project.apply plugin: 'java'
+
+			project.configurations {
+				managed1
+				managed2
+				unmanaged
+			}
+
+			project.dependencyManagement {
+				configurations(managed1, managed2) {
+					dependencies {
+						'commons-logging:commons-logging' '1.1.2'
+					}
+				}
+			}
+
+			project.dependencies {
+				managed1 'org.springframework:spring-core:4.0.6.RELEASE'
+				managed2 'org.springframework:spring-core:4.0.6.RELEASE'
+				unmanaged 'org.springframework:spring-core:4.0.6.RELEASE'
+			}
+		when: 'The configurations are resolved'
+			def managed1Files = project.configurations.managed1.resolve()
+			def managed2Files = project.configurations.managed2.resolve()
+			def unmanagedFiles = project.configurations.unmanaged.resolve()
+		then: 'Dependency management is only applied to the managed configurations'
+			managed1Files.size() == 2
+			managed1Files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.2.jar'])
+			managed2Files.size() == 2
+			managed2Files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.2.jar'])
+			unmanagedFiles.size() == 2
+			unmanagedFiles.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.3.jar'])
+	}
+
+	def "Configuration-specific dependency management takes precedence over global dependency management"() {
+		given: "A project with global and configuration-specific dependency management"
+			project.apply plugin: 'io.spring.dependency-management'
+			project.apply plugin: 'java'
+
+			project.dependencyManagement {
+				dependencies {
+					'commons-logging:commons-logging' '1.1.2'
+				}
+				compile {
+					dependencies {
+						'commons-logging:commons-logging' '1.1.1'
+					}
+				}
+			}
+
+			project.dependencies {
+				compile 'org.springframework:spring-core:4.0.6.RELEASE'
+			}
+		when: 'The configuration is resolved'
+			def files = project.configurations.compile.resolve()
+		then: 'The configuration-specific dependency management has taken precedence'
+			files.size() == 2
+			files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.1.jar'])
 	}
 }

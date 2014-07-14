@@ -16,35 +16,42 @@
 
 package io.spring.gradle.dependencymanagement
 
+import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+
 public class DependencyManagementExtension {
 
-	def dependencyManagement
+	DependencyManagementContainer dependencyManagementContainer
 
-	def configuration
-
-	def dependencies
+	Project project
 
 	void imports(Closure closure) {
-		closure.setResolveStrategy(Closure.DELEGATE_FIRST)
-		closure.delegate = this
-		closure.call()
+		new DependencyManagementHandler(dependencyManagementContainer.globalDependencyManagement).imports(closure)
 	}
 
 	void dependencies(Closure closure) {
-		closure.setResolveStrategy(Closure.DELEGATE_ONLY)
-		closure.delegate = new DependenciesHandler()
-		closure.call()
-	}
-
-	void mavenBom(String coordinates) {
-		configuration.dependencies.add(dependencies.create(coordinates + '@pom'))
-	}
-
-	private class DependenciesHandler {
-
+		new DependencyManagementHandler(dependencyManagementContainer.globalDependencyManagement).dependencies(closure)
 	}
 
 	def methodMissing(String name, args) {
-		dependencyManagement.versions[name] = args[0]
+		Closure closure
+		if ("configurations" == name) {
+			closure = args.last()
+			def handlers = args.take(args.size() - 1).collect { configuration ->
+				new DependencyManagementHandler(dependencyManagementContainer.dependencyManagementForConfiguration(configuration))
+			}
+			closure.delegate = new CompoundDependencyManagementHandler(handlers)
+		} else {
+			Configuration configuration = project.configurations.getAt(name)
+			closure = args[0]
+			closure.delegate = new DependencyManagementHandler(dependencyManagementContainer.dependencyManagementForConfiguration(configuration))
+		}
+
+		closure.resolveStrategy = Closure.DELEGATE_ONLY
+		closure.call()
+	}
+
+	def propertyMissing(String name) {
+		project.configurations.getAt(name)
 	}
 }

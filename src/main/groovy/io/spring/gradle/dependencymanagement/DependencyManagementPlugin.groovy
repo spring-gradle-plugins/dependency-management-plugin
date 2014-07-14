@@ -25,35 +25,30 @@ import org.gradle.api.artifacts.ModuleDependency
 
 class DependencyManagementPlugin implements Plugin<Project> {
 
-	DependencyManagement dependencyManagement
-
 	@Override
 	public void apply(Project project) {
-		Configuration configuration = project.getConfigurations().detachedConfiguration()
-
-		dependencyManagement = new DependencyManagement(configuration: configuration, project: project)
+		DependencyManagementContainer dependencyManagementContainer = new DependencyManagementContainer(project)
 
 		project.extensions.add("dependencyManagement", DependencyManagementExtension)
 		project.extensions.configure(DependencyManagementExtension) { DependencyManagementExtension extension ->
-			extension.configuration = configuration
-			extension.dependencies = project.dependencies
-			extension.dependencyManagement = dependencyManagement
+			extension.dependencyManagementContainer = dependencyManagementContainer
+			extension.project = project
 		}
 
 		project.configurations.all { Configuration c ->
 			c.incoming.beforeResolve {
 				dependencies.findAll { it in ModuleDependency }.each {
 					if (it.version) {
-						dependencyManagement.versions["$it.group:$it.name"] = it.version
+						dependencyManagementContainer.dependencyManagementForConfiguration(c).versions["$it.group:$it.name"] = it.version
 					}
 				}
 			}
 		}
 
-		project.configurations.all {
+		project.configurations.all { Configuration c ->
 			resolutionStrategy {
 				eachDependency { DependencyResolveDetails details ->
-					dependencyManagement.apply(details)
+					dependencyManagementContainer.dependencyManagementForConfiguration(c).apply(details)
 				}
 			}
 		}

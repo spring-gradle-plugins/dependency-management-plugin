@@ -35,13 +35,25 @@ import org.gradle.mvn3.org.codehaus.plexus.interpolation.ValueSource
 
 class DependencyManagement {
 
-	Project project
+	private final Project project
 
-	Configuration configuration
+	private final Configuration configuration
+
+	private final DependencyManagement delegate
 
 	private boolean resolved
 
 	Map versions = [:]
+
+	def DependencyManagement(Project project, DependencyManagement delegate) {
+		this.project = project
+		this.delegate = delegate
+		this.configuration = this.project.configurations.detachedConfiguration()
+	}
+
+	void importBom(bomCoordinates) {
+		configuration.dependencies.add(project.dependencies.create(bomCoordinates + '@pom'))
+	}
 
 	void apply(DependencyResolveDetails details) {
 		resolveIfNecessary()
@@ -49,6 +61,8 @@ class DependencyManagement {
 		def version = versions[id]
 		if (version) {
 			details.useVersion(version)
+		} else if (delegate) {
+			delegate.apply(details)
 		}
 	}
 
