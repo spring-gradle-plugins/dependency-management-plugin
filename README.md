@@ -10,39 +10,21 @@ dependencies.
 
 ## Using the plugin
 
-The plugin isn't available in a repository, so you'll have to build it and install it into
-your local Maven repository:
-
-```
-./gradlew build install
-```
-
-With that done, you can then use the plugin in your Gradle builds.
+The plugin is available from http://repo.spring.io where you can see [all the available versions]
+[1]. The plugin has not yet been released so you should use `0.1.0.BUILD-SNAPSHOT`:
 
 ```
 buildscript {
 	repositories {
-		mavenLocal()
+		maven { url 'http://repo.spring.io/plugins-snapshot'}
 	}
 	dependencies {
 		classpath 'io.spring.gradle:dependency-management-plugin:0.1.0.BUILD-SNAPSHOT'
 	}
 }
 
-repositories {
-	mavenCentral()
-}
-
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'java'
 
-dependencyManagement {
-	…
-}
-
-dependencies {
-	…
-}
 ```
 
 With this basic configuration in place, you're ready to configure the project's dependency
@@ -50,7 +32,7 @@ management and declare its dependencies.
 
 ## Dependency management configuration
 
-You have two options for configuring the plugin's dependency management. You can use the plugin's
+You have two options for configuring the plugin's dependency management: use the plugin's
 DSL to configure dependency management directly, or you can import one or more existing Maven boms.
 Dependency management can be applied to every configuration (the default) or to one or more specific
 configurations.
@@ -106,7 +88,7 @@ dependencies {
 }
 ```
 
-This configuration will apply the [versions in the Spring IO Platform bom][1] to the project's
+This configuration will apply the [versions in the Spring IO Platform bom][2] to the project's
 dependencies:
 
 ```
@@ -152,8 +134,8 @@ resolution process. If the bom is written to use properties for its versions, th
 override a version.
 
 Building on the example above, the Spring IO Platform bom that is used contains a property
-named `spring.version`. This property is determines the version of all of the Spring Framework
-modules and, by default, its value is `4.0.6.RELEASE`. It can be overridden by configuring the
+named `spring.version`. This property determines the version of all of the Spring Framework modules
+and, by default, its value is `4.0.6.RELEASE`. It can be overridden by configuring the
 `spring.version` property via any of the mechanisms that Gradle provides. For example, you may
 choose to configure it in your `build.gradle` script:
 
@@ -167,8 +149,8 @@ Or in `gradle.properties`
 spring.version=4.0.4.RELEASE
 ```
 
-Whereever you configure it, the version of Spring Framework that's provided will now match the
-value of the property:
+Wherever you configure it, the version of any Spring Framework modules will now match the value of
+the property:
 
 ```
 gradle dependencies --configuration compile
@@ -239,4 +221,5 @@ project.dependencyManagement {
 }
 ```
 
-[1]: (http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions)
+[1]: http://repo.spring.io/plugins-snapshot/io/spring/gradle/dependency-management-plugin/
+[2]: (http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions)
