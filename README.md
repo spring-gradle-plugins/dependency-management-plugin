@@ -11,7 +11,7 @@ dependencies.
 ## Using the plugin
 
 The plugin is available from http://repo.spring.io where you can see [all the available versions]
-[1]. The plugin has not yet been released so you should use `0.1.0.BUILD-SNAPSHOT`:
+[1]. The latest release is `0.1.0.RELEASE`. You can use it as follows:
 
 ```
 buildscript {
@@ -19,7 +19,7 @@ buildscript {
 		maven { url 'http://repo.spring.io/plugins-snapshot'}
 	}
 	dependencies {
-		classpath 'io.spring.gradle:dependency-management-plugin:0.1.0.BUILD-SNAPSHOT'
+		classpath 'io.spring.gradle:dependency-management-plugin:0.1.0.RELEASE'
 	}
 }
 
@@ -221,5 +221,5 @@ project.dependencyManagement {
 }
 ```
 
-[1]: http://repo.spring.io/plugins-snapshot/io/spring/gradle/dependency-management-plugin/
-[2]: (http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions)
+[1]: http://repo.spring.io/plugins-snapshot/io/spring/gradle/dependency-management-plugin
+[2]: http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions
