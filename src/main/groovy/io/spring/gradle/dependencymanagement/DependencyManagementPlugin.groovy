@@ -16,6 +16,7 @@
 
 package io.spring.gradle.dependencymanagement
 
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -30,10 +31,12 @@ class DependencyManagementPlugin implements Plugin<Project> {
 		DependencyManagementContainer dependencyManagementContainer = new DependencyManagementContainer(project)
 
 		project.extensions.add("dependencyManagement", DependencyManagementExtension)
-		project.extensions.configure(DependencyManagementExtension) { DependencyManagementExtension extension ->
-			extension.dependencyManagementContainer = dependencyManagementContainer
-			extension.project = project
-		}
+		project.extensions.configure(DependencyManagementExtension, new Action() {
+			void execute(extension) {
+				extension.dependencyManagementContainer = dependencyManagementContainer
+				extension.project = project
+			}
+		})
 
 		project.configurations.all { Configuration c ->
 			c.incoming.beforeResolve {

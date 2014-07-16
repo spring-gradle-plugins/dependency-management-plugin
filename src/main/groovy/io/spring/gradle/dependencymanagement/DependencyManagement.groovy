@@ -115,7 +115,7 @@ class DependencyManagement {
 				throws UnresolvableModelException {
 			def dependency = project.dependencies.create("$groupId:$artifactId:$version@pom")
 			def configuration = project.configurations.detachedConfiguration(dependency)
-			new FileModelSource(configuration.resolve()[0])
+			new FileModelSource(configuration.resolve().iterator().next())
 		}
 
 		@Override
