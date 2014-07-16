@@ -1,5 +1,6 @@
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'maven'
 
 apply from: 'gradle-api-source.gradle'
