@@ -28,6 +28,8 @@ import org.gradle.mvn3.org.apache.maven.model.building.ModelBuildingRequest
 import org.gradle.mvn3.org.apache.maven.model.building.ModelProblemCollector
 import org.gradle.mvn3.org.apache.maven.model.building.ModelSource
 import org.gradle.mvn3.org.apache.maven.model.interpolation.StringSearchModelInterpolator
+import org.gradle.mvn3.org.apache.maven.model.path.DefaultPathTranslator
+import org.gradle.mvn3.org.apache.maven.model.path.DefaultUrlNormalizer
 import org.gradle.mvn3.org.apache.maven.model.resolution.ModelResolver
 import org.gradle.mvn3.org.apache.maven.model.resolution.UnresolvableModelException
 import org.gradle.mvn3.org.codehaus.plexus.interpolation.MapBasedValueSource
@@ -99,6 +101,8 @@ class DependencyManagement {
 
 		ProjectPropertiesModelInterpolator(Project project) {
 			this.project = project
+			setUrlNormalizer(new DefaultUrlNormalizer());
+			setPathTranslator(new DefaultPathTranslator());
 		}
 
 		List<ValueSource> createValueSources(Model model, File projectDir, ModelBuildingRequest request, ModelProblemCollector collector) {
