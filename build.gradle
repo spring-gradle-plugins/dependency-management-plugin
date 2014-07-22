@@ -23,6 +23,10 @@ dependencies {
 	}
 }
 
+tasks.findByPath('artifactoryPublish')?.configure {
+	properties = ['gradle-plugin' : "io.spring.dependency-management:$group:$name"]
+}
+
 task wrapper(type: Wrapper) {
 	gradleVersion = '1.12'
 	distributionUrl = 'http://services.gradle.org/distributions/gradle-1.12-all.zip'
