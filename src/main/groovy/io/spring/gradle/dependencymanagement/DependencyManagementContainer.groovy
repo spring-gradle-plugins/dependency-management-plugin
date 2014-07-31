@@ -27,12 +27,11 @@ public class DependencyManagementContainer {
 	private Map configurationDependencyManagement = [:]
 
 	DependencyManagementContainer(Project project) {
-		this.globalDependencyManagement = new DependencyManagement(project, null)
+		this.globalDependencyManagement = new DependencyManagement(project)
 		this.project = project
 	}
 
 	DependencyManagement dependencyManagementForConfiguration(configuration) {
-		def dependencyManagement = configurationDependencyManagement.get(configuration, new DependencyManagement(project, globalDependencyManagement))
-		dependencyManagement
+		configurationDependencyManagement.get(configuration, new DependencyManagement(project))
 	}
 }

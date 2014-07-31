@@ -102,6 +102,30 @@ public class DependencyManagementPluginSpec extends Specification {
 			files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.3.jar'])
 	}
 
+	def "Direct project dependencies take precedence over dependency management"() {
+		given: 'A project with a project dependency and dependency management for the dependency'
+			def child = new ProjectBuilder().withName('child').withParent(project).build()
+			child.group = 'test'
+			child.version = '1.1.0'
+			child.apply plugin: 'java'
+
+			project.apply plugin: 'io.spring.dependency-management'
+			project.apply plugin: 'java'
+			project.dependencyManagement {
+				dependencies {
+					'test:child' '1.0.0'
+				}
+			}
+			project.dependencies {
+				compile project([path:':child'])
+			}
+		when: 'A configuration is resolved'
+			def files = project.configurations.compile.resolve()
+		then: 'Dependency management is not applied to the project dependency'
+			files.size() == 1
+			files.collect { it.name }.containsAll(['child-1.1.0.jar'])
+	}
+
 	def "Versions of direct dependencies take precedence over dependency management in an imported bom"() {
 		given: 'A project with a version on a direct dependency and imported dependency management for the dependency'
 			project.apply plugin: 'io.spring.dependency-management'
@@ -214,6 +238,50 @@ public class DependencyManagementPluginSpec extends Specification {
 		then: 'The configuration-specific dependency management has taken precedence'
 			files.size() == 2
 			files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.1.jar'])
+	}
+
+	def "Configuration-specific dependency management is inherited by extending configurations"() {
+		given: "A project with global and configuration-specific dependency management"
+			project.apply plugin: 'io.spring.dependency-management'
+			project.apply plugin: 'java'
+
+			project.dependencyManagement {
+				compile {
+					dependencies {
+						'commons-logging:commons-logging' '1.1.1'
+					}
+				}
+			}
+
+			project.dependencies {
+				testRuntime 'commons-logging:commons-logging'
+			}
+		when: 'The extending configuration is resolved'
+			def files = project.configurations.testRuntime.resolve()
+		then: 'The configuration-specific dependency management has been inherited'
+			files.size() == 1
+			files.collect { it.name }.containsAll(['commons-logging-1.1.1.jar'])
+	}
+
+	def "A version on a direct dependency provides dependency management to extending configurations"() {
+		given: "A project with global dependency management and a versioned dependency in the compile configuration"
+			project.apply plugin: 'io.spring.dependency-management'
+			project.apply plugin: 'java'
+
+			project.dependencyManagement {
+				dependencies {
+					'commons-logging:commons-logging' '1.1.1'
+				}
+			}
+
+			project.dependencies {
+				compile 'commons-logging:commons-logging:1.1.3'
+			}
+		when: 'An extending configuration is resolved'
+			def files = project.configurations.testRuntime.resolve()
+		then: 'The dependency management provided by the direct dependency has been inherited'
+			files.size() == 1
+			files.collect { it.name }.containsAll(['commons-logging-1.1.3.jar'])
 	}
 
 	def "The JBoss Java EE bom can be imported and used for dependency management (see gh-3)"() {

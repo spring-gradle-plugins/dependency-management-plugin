@@ -41,15 +41,12 @@ class DependencyManagement {
 
 	private final Configuration configuration
 
-	private final DependencyManagement delegate
-
 	private boolean resolved
 
 	Map versions = [:]
 
-	def DependencyManagement(Project project, DependencyManagement delegate) {
+	def DependencyManagement(Project project) {
 		this.project = project
-		this.delegate = delegate
 		this.configuration = this.project.configurations.detachedConfiguration()
 	}
 
@@ -57,14 +54,15 @@ class DependencyManagement {
 		configuration.dependencies.add(project.dependencies.create(bomCoordinates + '@pom'))
 	}
 
-	void apply(DependencyResolveDetails details) {
+	boolean apply(DependencyResolveDetails details) {
 		resolveIfNecessary()
 		def id = details.requested.group + ":" + details.requested.name
 		def version = versions[id]
 		if (version) {
 			details.useVersion(version)
-		} else if (delegate) {
-			delegate.apply(details)
+			true
+		} else {
+		    false
 		}
 	}
 

@@ -38,11 +38,13 @@ class DependencyManagementPlugin implements Plugin<Project> {
 			}
 		})
 
-		project.configurations.all { Configuration c ->
-			c.incoming.beforeResolve {
-				dependencies.findAll { it in ModuleDependency }.each {
-					if (it.version) {
-						dependencyManagementContainer.dependencyManagementForConfiguration(c).versions["$it.group:$it.name"] = it.version
+		project.configurations.all { Configuration root ->
+			root.incoming.beforeResolve {
+				root.hierarchy.each { Configuration configuration ->
+					configuration.incoming.dependencies.findAll { it in ModuleDependency }.each {
+						if (it.version) {
+							dependencyManagementContainer.dependencyManagementForConfiguration(configuration).versions["$it.group:$it.name"] = it.version
+						}
 					}
 				}
 			}
@@ -51,7 +53,15 @@ class DependencyManagementPlugin implements Plugin<Project> {
 		project.configurations.all { Configuration c ->
 			resolutionStrategy {
 				eachDependency { DependencyResolveDetails details ->
-					dependencyManagementContainer.dependencyManagementForConfiguration(c).apply(details)
+					def hierarchy = c.hierarchy.iterator()
+					def applied = false
+					while (hierarchy.hasNext() && !applied) {
+						def configInHierarchy = hierarchy.next()
+						applied = dependencyManagementContainer.dependencyManagementForConfiguration(configInHierarchy).apply(details)
+					}
+					if (!applied) {
+						dependencyManagementContainer.globalDependencyManagement.apply(details)
+					}
 				}
 			}
 		}
