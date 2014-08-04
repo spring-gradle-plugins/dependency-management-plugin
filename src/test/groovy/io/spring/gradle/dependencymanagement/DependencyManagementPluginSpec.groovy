@@ -286,20 +286,20 @@ public class DependencyManagementPluginSpec extends Specification {
 
 	def "The JBoss Java EE bom can be imported and used for dependency management (see gh-3)"() {
 		given: 'A project that imports the JBoss bom'
-		project.apply plugin: 'io.spring.dependency-management'
-		project.apply plugin: 'java'
-		project.dependencyManagement {
-			imports {
-				mavenBom 'org.jboss.spec:jboss-javaee-6.0:1.0.0.Final'
+			project.apply plugin: 'io.spring.dependency-management'
+			project.apply plugin: 'java'
+			project.dependencyManagement {
+				imports {
+					mavenBom 'org.jboss.spec:jboss-javaee-6.0:1.0.0.Final'
+				}
 			}
-		}
-		project.dependencies {
-			compile 'org.jboss.spec.javax.el:jboss-el-api_2.2_spec'
-		}
-	when: 'A configuration is resolved'
-		def files = project.configurations.compile.resolve()
-	then: "The bom's dependency management has been applied"
-		files.size() == 1
-		files.iterator().next().name == 'jboss-el-api_2.2_spec-1.0.0.Final.jar'
+			project.dependencies {
+				compile 'org.jboss.spec.javax.el:jboss-el-api_2.2_spec'
+			}
+		when: 'A configuration is resolved'
+			def files = project.configurations.compile.resolve()
+		then: "The bom's dependency management has been applied"
+			files.size() == 1
+			files.iterator().next().name == 'jboss-el-api_2.2_spec-1.0.0.Final.jar'
 	}
 }
