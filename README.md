@@ -71,6 +71,21 @@ compile - Compile classpath for source set 'main'.
      \--- commons-logging:commons-logging:1.1.3 -> 1.1.2
 ```
 
+When you want to provide dependency management for multiple modules with the same group and
+version you should use a dependency set. Using a dependency set removes the need to specify
+the same group and version multiple times:
+
+```
+dependencyManagement {
+     dependencies {
+          dependencySet(group:'org.slf4j', version: '1.7.7') {
+               entry 'slf4j-api'
+               entry 'slf4j-simple'
+          }
+     }
+}
+```
+
 ### Importing a Maven bom
 
 The plugin also allows you to import an existing Maven bom to utilise its dependency management.

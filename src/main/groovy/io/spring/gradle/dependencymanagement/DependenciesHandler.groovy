@@ -16,15 +16,51 @@
 
 package io.spring.gradle.dependencymanagement
 
+import org.gradle.api.GradleException
+
 public class DependenciesHandler {
 
-	private DependencyManagement dependencyManagement
+	private final DependencyManagement dependencyManagement
 
 	DependenciesHandler(DependencyManagement dependencyManagement) {
 		this.dependencyManagement = dependencyManagement
 	}
 
+	def dependencySet(Map setSpecification, Closure closure) {
+        def group = setSpecification['group']
+        def version = setSpecification['version']
+
+        if (hasText(group) && hasText(version)) {
+            closure.setResolveStrategy(Closure.DELEGATE_ONLY)
+            closure.delegate = new DependencySetHandler(group, version)
+            closure.call()
+        } else {
+            throw new GradleException("A dependency set requires both a group and a version")
+        }
+	}
+
 	def methodMissing(String name, args) {
 		dependencyManagement.versions[name] = args[0]
 	}
+
+    def hasText(String string) {
+        return string != null && string.trim().length() > 0
+    }
+
+    private class DependencySetHandler {
+
+        private final String group
+
+        private final String version
+
+        DependencySetHandler(String group, String version) {
+            this.group = group
+            this.version = version
+        }
+
+        def entry(String entry) {
+            String name = "$group:$entry"
+            dependencyManagement.versions[name] = version
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package io.spring.gradle.dependencymanagement
 
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 
@@ -302,4 +303,57 @@ public class DependencyManagementPluginSpec extends Specification {
 			files.size() == 1
 			files.iterator().next().name == 'jboss-el-api_2.2_spec-1.0.0.Final.jar'
 	}
+
+	def 'A dependency set can be used to provide dependency management for multiple modules with the same group and version'() {
+		given: 'A project with dependency management that uses a dependency set'
+			project.apply plugin: 'io.spring.dependency-management'
+			project.apply plugin: 'java'
+			project.dependencyManagement {
+				dependencies {
+					dependencySet(group: 'org.slf4j', version: '1.7.7') {
+						entry 'slf4j-api'
+						entry 'slf4j-simple'
+					}
+				}
+			}
+			project.dependencies {
+				compile 'org.slf4j:slf4j-api'
+				compile 'org.slf4j:slf4j-simple'
+			}
+		when: 'The configuration is resolved'
+			def files = project.configurations.compile.resolve()
+		then: 'The dependency management has been applied'
+			files.size() == 2
+            files.collect { it.name }.containsAll(['slf4j-api-1.7.7.jar', 'slf4j-simple-1.7.7.jar'])
+	}
+
+    def 'The build fails if a dependency set is configured without a group'() {
+        given: 'A project'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'A dependency set is declared with a version but not group'
+            project.dependencyManagement {
+                dependencies {
+                    dependencySet(version: '1.7.7') {}
+                }
+            }
+        then: 'An exception with an appropriate message is thrown'
+            def e = thrown(GradleException)
+            e.message == 'A dependency set requires both a group and a version'
+    }
+
+    def 'The build fails if a dependency set is configured without a version'() {
+        given: 'A project'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'A dependency set is declared with a group but not version'
+            project.dependencyManagement {
+                dependencies {
+                    dependencySet(group: 'org.slf4j') {}
+                }
+            }
+        then: 'An exception with an appropriate message is thrown'
+            def e = thrown(GradleException)
+            e.message == 'A dependency set requires both a group and a version'
+    }
 }
