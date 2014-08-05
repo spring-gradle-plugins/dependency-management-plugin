@@ -4,6 +4,7 @@ apply plugin: 'idea'
 apply plugin: 'maven'
 
 apply from: 'gradle-api-source.gradle'
+apply from: 'publish-maven.gradle'
 
 repositories {
 	mavenCentral()
