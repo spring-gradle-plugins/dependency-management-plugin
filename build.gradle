@@ -24,7 +24,10 @@ dependencies {
 }
 
 tasks.findByPath('artifactoryPublish')?.configure {
-	properties = ['gradle-plugin' : "io.spring.dependency-management:${project.group}:${project.name}"]
+	properties = [
+		'gradle-plugin' : "io.spring.dependency-management:${project.group}:${project.name}",
+		'bintray.package' : "${project.group}:dependency-management"
+	]
 }
 
 task wrapper(type: Wrapper) {
