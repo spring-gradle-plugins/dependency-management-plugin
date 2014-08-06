@@ -50,11 +50,6 @@ class DependencyManagementPlugin implements Plugin<Project> {
 			}
 		}
 
-        project.rootProject.allprojects {
-            dependencyManagementContainer.globalDependencyManagement.versions["$it.group:$it.name"] = it.version
-            println dependencyManagementContainer.globalDependencyManagement.versions
-        }
-
         def allProjectIds = []
         project.rootProject.allprojects { allProjectIds << ("$it.group:$it.name" as String) }
 
@@ -70,8 +65,6 @@ class DependencyManagementPlugin implements Plugin<Project> {
                             applied = dependencyManagementContainer.dependencyManagementForConfiguration(configInHierarchy).apply(details)
                         }
                         if (!applied) {
-                            println "Applying global dependency management to $details.requested.group $details.requested.name"
-                            println dependencyManagementContainer.globalDependencyManagement.versions
                             dependencyManagementContainer.globalDependencyManagement.apply(details)
                         }
                     }
