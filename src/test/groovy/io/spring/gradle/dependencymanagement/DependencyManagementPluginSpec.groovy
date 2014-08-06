@@ -127,6 +127,40 @@ public class DependencyManagementPluginSpec extends Specification {
 			files.collect { it.name }.containsAll(['child-1.1.0.jar'])
 	}
 
+    def "Transitive project dependencies take precedence over dependency management"() {
+        given: 'A project with a transitive project dependency and dependency management for the dependency'
+
+            def child = new ProjectBuilder().withName('child').withParent(project).build()
+            child.group = 'test'
+            child.version = '1.1.0'
+            child.apply plugin: 'java'
+
+            def grandchild = new ProjectBuilder().withName('grandchild').withParent(project).build()
+            grandchild.group = 'test'
+            grandchild.version = '1.1.0'
+            grandchild.apply plugin: 'java'
+
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.dependencyManagement {
+                dependencies {
+                    'test:child' '1.0.0'
+                    'test:grandchild' '1.0.0'
+                }
+            }
+            project.dependencies {
+                compile project([path:':child'])
+            }
+            child.dependencies {
+                compile project([path:':grandchild'])
+            }
+        when: 'A configuration is resolved'
+            def files = project.configurations.compile.resolve()
+        then: 'Dependency management is not applied to the project dependencies'
+            files.size() == 2
+            files.collect { it.name }.containsAll(['child-1.1.0.jar', 'grandchild-1.1.0.jar'])
+    }
+
 	def "Versions of direct dependencies take precedence over dependency management in an imported bom"() {
 		given: 'A project with a version on a direct dependency and imported dependency management for the dependency'
 			project.apply plugin: 'io.spring.dependency-management'

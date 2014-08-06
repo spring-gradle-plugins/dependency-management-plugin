@@ -50,18 +50,31 @@ class DependencyManagementPlugin implements Plugin<Project> {
 			}
 		}
 
+        project.rootProject.allprojects {
+            dependencyManagementContainer.globalDependencyManagement.versions["$it.group:$it.name"] = it.version
+            println dependencyManagementContainer.globalDependencyManagement.versions
+        }
+
+        def allProjectIds = []
+        project.rootProject.allprojects { allProjectIds << ("$it.group:$it.name" as String) }
+
 		project.configurations.all { Configuration c ->
 			resolutionStrategy {
 				eachDependency { DependencyResolveDetails details ->
-					def hierarchy = c.hierarchy.iterator()
-					def applied = false
-					while (hierarchy.hasNext() && !applied) {
-						def configInHierarchy = hierarchy.next()
-						applied = dependencyManagementContainer.dependencyManagementForConfiguration(configInHierarchy).apply(details)
-					}
-					if (!applied) {
-						dependencyManagementContainer.globalDependencyManagement.apply(details)
-					}
+                    String id = "$details.requested.group:$details.requested.name"
+                    if (!allProjectIds.contains(id)) {
+                        def hierarchy = c.hierarchy.iterator()
+                        def applied = false
+                        while (hierarchy.hasNext() && !applied) {
+                            def configInHierarchy = hierarchy.next()
+                            applied = dependencyManagementContainer.dependencyManagementForConfiguration(configInHierarchy).apply(details)
+                        }
+                        if (!applied) {
+                            println "Applying global dependency management to $details.requested.group $details.requested.name"
+                            println dependencyManagementContainer.globalDependencyManagement.versions
+                            dependencyManagementContainer.globalDependencyManagement.apply(details)
+                        }
+                    }
 				}
 			}
 		}
