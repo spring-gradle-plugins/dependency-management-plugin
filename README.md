@@ -42,7 +42,7 @@ configurations.
 The DSL allows you to declare dependency management in the form `'groupId:artifactId' 'version'`.
 For example:
 
-```
+```groovy
 dependencyManagement {
      dependencies {
           'org.springframework:spring-core' '4.0.3.RELEASE'
@@ -75,7 +75,7 @@ When you want to provide dependency management for multiple modules with the sam
 version you should use a dependency set. Using a dependency set removes the need to specify
 the same group and version multiple times:
 
-```
+```groovy
 dependencyManagement {
      dependencies {
           dependencySet(group:'org.slf4j', version: '1.7.7') {
@@ -91,7 +91,7 @@ dependencyManagement {
 The plugin also allows you to import an existing Maven bom to utilise its dependency management.
 For example:
 
-```
+```groovy
 dependencyManagement {
      imports {
           mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
@@ -154,7 +154,7 @@ and, by default, its value is `4.0.6.RELEASE`. It can be overridden by configuri
 `spring.version` property via any of the mechanisms that Gradle provides. For example, you may
 choose to configure it in your `build.gradle` script:
 
-```
+```groovy
 ext['spring.version'] = '4.0.4.RELEASE'
 ```
 
@@ -206,8 +206,8 @@ To target dependency management at a single configuration, you nest the dependen
 within a block named after the configuration. For example, the following will apply dependency
 management to the compile configuration:
 
-```
-project.dependencyManagement {
+```groovy
+dependencyManagement {
      compile {
           dependencies {
                …
@@ -223,8 +223,8 @@ To target dependency management at multiple configurations, you use `configurati
 configurations to which the dependency management should be applied. For example, the following
 will apply dependency management to the compile and custom configurations:
 
-```
-project.dependencyManagement {
+```groovy
+dependencyManagement {
      configurations(compile, custom) {
           dependencies {
                …
@@ -234,6 +234,21 @@ project.dependencyManagement {
           }
      }
 }
+```
+
+## Accessing the managed versions
+
+The plugin provides an API for accessing the versions provided by the configured dependency
+management. Accessing versions from global dependency management:
+
+```groovy
+dependencyManagement.getManagedVersion('org.springframework', 'spring-core')
+```
+
+Accessing versions from configuration-specific dependency management:
+
+```groovy
+dependencyManagement.forConfiguration('compile').getManagedVersion('org.springframework', 'spring-core')
 ```
 
 [1]: http://repo.spring.io/plugins-snapshot/io/spring/gradle/dependency-management-plugin

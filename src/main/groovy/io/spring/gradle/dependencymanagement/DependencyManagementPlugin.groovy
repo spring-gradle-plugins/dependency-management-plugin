@@ -27,7 +27,7 @@ import org.gradle.api.artifacts.ModuleDependency
 class DependencyManagementPlugin implements Plugin<Project> {
 
 	@Override
-	public void apply(Project project) {
+	void apply(Project project) {
 		DependencyManagementContainer dependencyManagementContainer = new DependencyManagementContainer(project)
 
 		project.extensions.add("dependencyManagement", DependencyManagementExtension)
@@ -43,7 +43,7 @@ class DependencyManagementPlugin implements Plugin<Project> {
 				root.hierarchy.each { Configuration configuration ->
 					configuration.incoming.dependencies.findAll { it in ModuleDependency }.each {
 						if (it.version) {
-							dependencyManagementContainer.dependencyManagementForConfiguration(configuration).versions["$it.group:$it.name"] = it.version
+                            dependencyManagementContainer.addManagedVersion(configuration, it.group, it.name, it.version)
 						}
 					}
 				}
@@ -58,14 +58,9 @@ class DependencyManagementPlugin implements Plugin<Project> {
 				eachDependency { DependencyResolveDetails details ->
                     String id = "$details.requested.group:$details.requested.name"
                     if (!allProjectIds.contains(id)) {
-                        def hierarchy = c.hierarchy.iterator()
-                        def applied = false
-                        while (hierarchy.hasNext() && !applied) {
-                            def configInHierarchy = hierarchy.next()
-                            applied = dependencyManagementContainer.dependencyManagementForConfiguration(configInHierarchy).apply(details)
-                        }
-                        if (!applied) {
-                            dependencyManagementContainer.globalDependencyManagement.apply(details)
+                        String version = dependencyManagementContainer.getManagedVersion(c, details.requested.group, details.requested.name)
+                        if (version) {
+                            details.useVersion(version)
                         }
                     }
 				}

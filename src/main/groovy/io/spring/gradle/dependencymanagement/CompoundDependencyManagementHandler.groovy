@@ -16,7 +16,7 @@
 
 package io.spring.gradle.dependencymanagement;
 
-public class CompoundDependencyManagementHandler {
+class CompoundDependencyManagementHandler {
 
 	List delegates
 

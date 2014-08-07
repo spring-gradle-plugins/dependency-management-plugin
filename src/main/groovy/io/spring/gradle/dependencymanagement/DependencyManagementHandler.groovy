@@ -16,13 +16,22 @@
 
 package io.spring.gradle.dependencymanagement
 
+import org.gradle.api.artifacts.Configuration
+
 
 class DependencyManagementHandler {
 
-	private DependencyManagement dependencyManagement
+	private DependencyManagementContainer container
 
-	DependencyManagementHandler(DependencyManagement dependencyManagement) {
-		this.dependencyManagement = dependencyManagement
+    private Configuration configuration
+
+    DependencyManagementHandler(DependencyManagementContainer container) {
+        this(container, null)
+    }
+
+	DependencyManagementHandler(DependencyManagementContainer container, Configuration configuration) {
+		this.container = container
+        this.configuration = configuration
 	}
 
 	void imports(Closure closure) {
@@ -33,13 +42,13 @@ class DependencyManagementHandler {
 
 	void dependencies(Closure closure) {
 		closure.setResolveStrategy(Closure.DELEGATE_ONLY)
-		closure.delegate = new DependenciesHandler(dependencyManagement)
+		closure.delegate = new DependenciesHandler(container, configuration)
 		closure.call()
 	}
 
 	class ImportsHandler {
 		void mavenBom(String coordinates) {
-			dependencyManagement.importBom(coordinates)
+			container.importBom(configuration, coordinates)
 		}
 	}
 }

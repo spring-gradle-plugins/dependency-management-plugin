@@ -390,4 +390,40 @@ public class DependencyManagementPluginSpec extends Specification {
             def e = thrown(GradleException)
             e.message == 'A dependency set requires both a group and a version'
     }
+
+    def 'Managed versions can be accessed programatically'() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'Dependency management is configured'
+            project.dependencyManagement {
+                imports {
+                    mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+                }
+                testRuntime {
+                    dependencies {
+                        'com.foo:bar' '1.2.3'
+                    }
+                }
+                dependencies {
+                    dependencySet(group:'com.alpha', version: '1.0') {
+                        entry 'bravo'
+                        entry 'charlie'
+                    }
+                }
+            }
+        then: 'The managed versions can be accessed'
+            project.dependencyManagement.versions.forConfiguration('compile').getManagedVersion('org.springframework', 'spring-core') == '4.0.6.RELEASE'
+            project.dependencyManagement.versions.forConfiguration('testRuntime').getManagedVersion('org.springframework', 'spring-core') == '4.0.6.RELEASE'
+            project.dependencyManagement.versions.getManagedVersion('org.springframework', 'spring-core') == '4.0.6.RELEASE'
+            project.dependencyManagement.versions.forConfiguration('compile').getManagedVersion('com.foo', 'bar') == null
+            project.dependencyManagement.versions.forConfiguration('testRuntime').getManagedVersion('com.foo', 'bar') == '1.2.3'
+            project.dependencyManagement.versions.getManagedVersion('com.foo', 'bar') == null
+            project.dependencyManagement.versions.forConfiguration('compile').getManagedVersion('com.alpha', 'bravo') == '1.0'
+            project.dependencyManagement.versions.forConfiguration('testRuntime').getManagedVersion('com.alpha', 'bravo') == '1.0'
+            project.dependencyManagement.versions.getManagedVersion('com.alpha', 'bravo') == '1.0'
+            project.dependencyManagement.versions.forConfiguration('compile').getManagedVersion('com.alpha', 'charlie') == '1.0'
+            project.dependencyManagement.versions.forConfiguration('testRuntime').getManagedVersion('com.alpha', 'charlie') == '1.0'
+            project.dependencyManagement.versions.getManagedVersion('com.alpha', 'charlie') == '1.0'
+    }
 }

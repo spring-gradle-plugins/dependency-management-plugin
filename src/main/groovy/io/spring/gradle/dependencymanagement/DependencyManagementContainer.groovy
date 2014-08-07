@@ -17,21 +17,45 @@
 package io.spring.gradle.dependencymanagement;
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 
-public class DependencyManagementContainer {
+class DependencyManagementContainer {
 
-	final DependencyManagement globalDependencyManagement
+	private final DependencyManagement globalDependencyManagement
 
-	private Project project
+	private final Project project
 
-	private Map configurationDependencyManagement = [:]
+	private final Map<Configuration, DependencyManagement> configurationDependencyManagement = [:]
 
 	DependencyManagementContainer(Project project) {
 		this.globalDependencyManagement = new DependencyManagement(project)
 		this.project = project
 	}
 
-	DependencyManagement dependencyManagementForConfiguration(configuration) {
-		configurationDependencyManagement.get(configuration, new DependencyManagement(project))
-	}
+    void addManagedVersion(Configuration configuration, String group, String name, String version) {
+        dependencyManagementForConfiguration(configuration).addManagedVersion(group, name, version)
+    }
+
+    void importBom(Configuration configuration, String coordinates) {
+        dependencyManagementForConfiguration(configuration).importBom(coordinates)
+    }
+
+    String getManagedVersion(Configuration configuration, String group, String name) {
+        String version = null
+        if (configuration) {
+            version = configuration.hierarchy.findResult { dependencyManagementForConfiguration(it).getManagedVersion(group, name)}
+        }
+        if (version == null) {
+            version = globalDependencyManagement.getManagedVersion(group, name)
+        }
+        version
+    }
+
+    private DependencyManagement dependencyManagementForConfiguration(Configuration configuration) {
+        if (!configuration) {
+            globalDependencyManagement
+        } else {
+            configurationDependencyManagement.get(configuration, new DependencyManagement(project))
+        }
+    }
 }

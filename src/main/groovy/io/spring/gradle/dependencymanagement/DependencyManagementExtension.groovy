@@ -19,32 +19,48 @@ package io.spring.gradle.dependencymanagement
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 
-public class DependencyManagementExtension {
+class DependencyManagementExtension {
 
-	DependencyManagementContainer dependencyManagementContainer
+	protected DependencyManagementContainer dependencyManagementContainer
 
-	Project project
+	protected Project project
+
+    VersionHandler versions
+
+    protected setDependencyManagementContainer(DependencyManagementContainer container) {
+        this.dependencyManagementContainer = container;
+        this.versions = new VersionHandler(container, null)
+    }
 
 	void imports(Closure closure) {
-		new DependencyManagementHandler(dependencyManagementContainer.globalDependencyManagement).imports(closure)
+		new DependencyManagementHandler(dependencyManagementContainer).imports(closure)
 	}
 
 	void dependencies(Closure closure) {
-		new DependencyManagementHandler(dependencyManagementContainer.globalDependencyManagement).dependencies(closure)
+		new DependencyManagementHandler(dependencyManagementContainer).dependencies(closure)
 	}
+
+    VersionHandler forConfiguration(String configurationName) {
+        return new VersionHandler(dependencyManagementContainer, project.configurations.getByName(configurationName))
+    }
+
+    String getManagedVersion(String group, String name) {
+        return new VersionHandler(dependencyManagementContainer, null).getManagedVersion(group, name)
+    }
 
 	def methodMissing(String name, args) {
 		Closure closure
 		if ("configurations" == name) {
 			closure = args.last()
-			def handlers = args.take(args.size() - 1).collect { configuration ->
-				new DependencyManagementHandler(dependencyManagementContainer.dependencyManagementForConfiguration(configuration))
+            def dependencyManagementContainer = this.dependencyManagementContainer
+			List handlers = args.take(args.size() - 1).collect { Configuration configuration ->
+				new DependencyManagementHandler(dependencyManagementContainer, configuration)
 			}
 			closure.delegate = new CompoundDependencyManagementHandler(handlers)
 		} else {
 			Configuration configuration = project.configurations.getAt(name)
 			closure = args[0]
-			closure.delegate = new DependencyManagementHandler(dependencyManagementContainer.dependencyManagementForConfiguration(configuration))
+			closure.delegate = new DependencyManagementHandler(dependencyManagementContainer, configuration)
 		}
 
 		closure.resolveStrategy = Closure.DELEGATE_ONLY
@@ -54,4 +70,24 @@ public class DependencyManagementExtension {
 	def propertyMissing(String name) {
 		project.configurations.getAt(name)
 	}
+
+    private class VersionHandler {
+
+        private final DependencyManagementContainer container
+
+        private final Configuration configuration
+
+        VersionHandler(DependencyManagementContainer container, Configuration configuration) {
+            this.container = container
+            this.configuration = configuration
+        }
+
+        String getManagedVersion(String group, String name) {
+            container.getManagedVersion(configuration, group, name)
+        }
+
+        VersionHandler forConfiguration(String configurationName) {
+            return new VersionHandler(this.container, project.configurations.getByName(configurationName))
+        }
+    }
 }

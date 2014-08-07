@@ -43,7 +43,7 @@ class DependencyManagement {
 
 	private boolean resolved
 
-	Map versions = [:]
+	private Map versions = [:]
 
 	def DependencyManagement(Project project) {
 		this.project = project
@@ -54,10 +54,21 @@ class DependencyManagement {
 		configuration.dependencies.add(project.dependencies.create(bomCoordinates + '@pom'))
 	}
 
+    void addManagedVersion(String group, String name, String version) {
+        versions[createKey(group, name)] = version;
+    }
+
+    String getManagedVersion(String group, String name) {
+        resolveIfNecessary()
+        versions[createKey(group, name)]
+    }
+
+    private String createKey(String group, String name) {
+        "$group:$name"
+    }
+
 	boolean apply(DependencyResolveDetails details) {
-		resolveIfNecessary()
-		def id = details.requested.group + ":" + details.requested.name
-		def version = versions[id]
+		String version = getManagedVersion(details.requested.group, details.requested.name)
 		if (version) {
 			details.useVersion(version)
 			true
@@ -66,14 +77,14 @@ class DependencyManagement {
 		}
 	}
 
-	void resolveIfNecessary() {
+	private void resolveIfNecessary() {
 		if (!resolved) {
 			resolve()
 		}
 		resolved = true
 	}
 
-	void resolve() {
+	private void resolve() {
 		def existingVersions = [:]
 		existingVersions << versions
 

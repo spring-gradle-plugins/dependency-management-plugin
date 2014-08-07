@@ -17,13 +17,17 @@
 package io.spring.gradle.dependencymanagement
 
 import org.gradle.api.GradleException
+import org.gradle.api.artifacts.Configuration
 
-public class DependenciesHandler {
+class DependenciesHandler {
 
-	private final DependencyManagement dependencyManagement
+	private final DependencyManagementContainer container
 
-	DependenciesHandler(DependencyManagement dependencyManagement) {
-		this.dependencyManagement = dependencyManagement
+    private final Configuration configuration
+
+	DependenciesHandler(DependencyManagementContainer container, Configuration configuration) {
+		this.container = container
+        this.configuration = configuration
 	}
 
 	def dependencySet(Map setSpecification, Closure closure) {
@@ -40,7 +44,8 @@ public class DependenciesHandler {
 	}
 
 	def methodMissing(String name, args) {
-		dependencyManagement.versions[name] = args[0]
+        String[] components = name.split(':')
+		container.addManagedVersion(configuration, components[0], components[1], args[0])
 	}
 
     def hasText(String string) {
@@ -59,8 +64,7 @@ public class DependenciesHandler {
         }
 
         def entry(String entry) {
-            String name = "$group:$entry"
-            dependencyManagement.versions[name] = version
+            container.addManagedVersion(configuration, group, entry, version)
         }
     }
 }
