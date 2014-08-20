@@ -131,21 +131,23 @@ public class DependencyManagementPluginSpec extends Specification {
         given: 'A project with a transitive project dependency and dependency management for the dependency'
 
             def child = new ProjectBuilder().withName('child').withParent(project).build()
+            def grandchild = new ProjectBuilder().withName('grandchild').withParent(project).build()
+
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+
+            grandchild.group = 'test-other'
+            grandchild.version = '1.1.0'
+            grandchild.apply plugin: 'java'
+
             child.group = 'test'
             child.version = '1.1.0'
             child.apply plugin: 'java'
 
-            def grandchild = new ProjectBuilder().withName('grandchild').withParent(project).build()
-            grandchild.group = 'test'
-            grandchild.version = '1.1.0'
-            grandchild.apply plugin: 'java'
-
-            project.apply plugin: 'io.spring.dependency-management'
-            project.apply plugin: 'java'
             project.dependencyManagement {
                 dependencies {
                     'test:child' '1.0.0'
-                    'test:grandchild' '1.0.0'
+                    'test-other:grandchild' '1.0.0'
                 }
             }
             project.dependencies {

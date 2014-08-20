@@ -50,21 +50,25 @@ class DependencyManagementPlugin implements Plugin<Project> {
 			}
 		}
 
-        def allProjectIds = []
-        project.rootProject.allprojects { allProjectIds << ("$it.group:$it.name" as String) }
+
 
 		project.configurations.all { Configuration c ->
-			resolutionStrategy {
-				eachDependency { DependencyResolveDetails details ->
-                    String id = "$details.requested.group:$details.requested.name"
-                    if (!allProjectIds.contains(id)) {
-                        String version = dependencyManagementContainer.getManagedVersion(c, details.requested.group, details.requested.name)
-                        if (version) {
-                            details.useVersion(version)
-                        }
+			resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+                String id = "$details.requested.group:$details.requested.name"
+
+                if (!isDependencyOnLocalProject(project, details)) {
+                    String version = dependencyManagementContainer.getManagedVersion(c, details.requested.group, details.requested.name)
+                    if (version) {
+                        details.useVersion(version)
                     }
-				}
-			}
+                }
+            }
 		}
 	}
+
+    private static boolean isDependencyOnLocalProject(Project project, DependencyResolveDetails details) {
+        project.rootProject.allprojects
+                .collect { "$it.group:$it.name" as String }
+                .contains("$details.requested.group:$details.requested.name" as String)
+    }
 }
