@@ -1,4 +1,4 @@
-# Dependency management plugin
+# Dependency management plugin [![Build status][2]][1]
 
 A Gradle plugin that provides Maven-like dependency management. Based on the configured dependency
 management metadata, the plugin will control the versions of your project's direct and transitive
@@ -11,7 +11,7 @@ dependencies.
 ## Using the plugin
 
 The plugin is available from http://repo.spring.io where you can see [all the available versions]
-[1]. The latest release is `0.1.0.RELEASE`. You can use it as follows:
+[3]. The latest release is `0.1.0.RELEASE`. You can use it as follows:
 
 ```
 buildscript {
@@ -103,7 +103,7 @@ dependencies {
 }
 ```
 
-This configuration will apply the [versions in the Spring IO Platform bom][2] to the project's
+This configuration will apply the [versions in the Spring IO Platform bom][4] to the project's
 dependencies:
 
 ```
@@ -251,5 +251,7 @@ Accessing versions from configuration-specific dependency management:
 dependencyManagement.forConfiguration('compile').getManagedVersion('org.springframework', 'spring-core')
 ```
 
-[1]: http://repo.spring.io/plugins-snapshot/io/spring/gradle/dependency-management-plugin
-[2]: http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions
+[1]: https://build.spring.io/browse/GRADLEPLUGINS-DMP
+[2]: https://build.spring.io/plugins/servlet/buildStatusImage/GRADLEPLUGINS-DMP (Build status)
+[3]: http://repo.spring.io/plugins-snapshot/io/spring/gradle/dependency-management-plugin
+[4]: http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions
