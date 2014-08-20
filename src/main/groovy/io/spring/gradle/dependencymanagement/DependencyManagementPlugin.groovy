@@ -54,8 +54,6 @@ class DependencyManagementPlugin implements Plugin<Project> {
 
 		project.configurations.all { Configuration c ->
 			resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-                String id = "$details.requested.group:$details.requested.name"
-
                 if (!isDependencyOnLocalProject(project, details)) {
                     String version = dependencyManagementContainer.getManagedVersion(c, details.requested.group, details.requested.name)
                     if (version) {
