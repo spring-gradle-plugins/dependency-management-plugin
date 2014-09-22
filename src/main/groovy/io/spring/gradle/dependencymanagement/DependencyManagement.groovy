@@ -35,20 +35,31 @@ import org.gradle.mvn3.org.apache.maven.model.resolution.UnresolvableModelExcept
 import org.gradle.mvn3.org.codehaus.plexus.interpolation.MapBasedValueSource
 import org.gradle.mvn3.org.codehaus.plexus.interpolation.PropertiesBasedValueSource
 import org.gradle.mvn3.org.codehaus.plexus.interpolation.ValueSource
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class DependencyManagement {
+
+    private final Logger log = LoggerFactory.getLogger(DependencyManagement)
 
 	private final Project project
 
 	private final Configuration configuration
 
+    private final Configuration targetConfiguration
+
 	private boolean resolved
 
 	private Map versions = [:]
 
-	def DependencyManagement(Project project) {
+    def DependencyManagement(Project project) {
+        this(project, null)
+    }
+
+	def DependencyManagement(Project project, Configuration targetConfiguration) {
 		this.project = project
 		this.configuration = this.project.configurations.detachedConfiguration()
+        this.targetConfiguration = targetConfiguration
 	}
 
 	void importBom(bomCoordinates) {
@@ -86,13 +97,21 @@ class DependencyManagement {
 	}
 
 	private void resolve() {
+        if (targetConfiguration) {
+            log.info("Resolving dependency management for configuration '{}' of project '{}'", targetConfiguration.name, project.name)
+        } else {
+            log.info("Resolving global dependency management for project '{}'", project.name)
+        }
 		def existingVersions = [:]
 		existingVersions << versions
+
+        log.debug("Preserving existing versions: {}", existingVersions)
 
 		def modelBuilder = new DefaultModelBuilderFactory().newInstance()
 		modelBuilder.modelInterpolator = new ProjectPropertiesModelInterpolator(project)
 
 		configuration.resolve().each { File file ->
+            log.debug("Processing '{}'", file)
 			def request = new DefaultModelBuildingRequest()
 			request.setModelSource(new FileModelSource(file))
 			request.modelResolver = new StandardModelResolver()
@@ -103,6 +122,8 @@ class DependencyManagement {
 		}
 
 		versions << existingVersions
+
+        log.info("Resolved versions: {}", versions)
 	}
 
 	private static class ProjectPropertiesModelInterpolator extends StringSearchModelInterpolator {

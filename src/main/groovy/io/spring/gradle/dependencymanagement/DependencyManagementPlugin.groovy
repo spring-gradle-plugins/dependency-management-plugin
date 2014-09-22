@@ -22,9 +22,13 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.api.artifacts.ModuleDependency
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 
 class DependencyManagementPlugin implements Plugin<Project> {
+
+    private final Logger log = LoggerFactory.getLogger(DependencyManagementPlugin)
 
 	@Override
 	void apply(Project project) {
@@ -43,6 +47,7 @@ class DependencyManagementPlugin implements Plugin<Project> {
 				root.hierarchy.each { Configuration configuration ->
 					configuration.incoming.dependencies.findAll { it in ModuleDependency }.each {
 						if (it.version) {
+                            log.debug("Adding managed version in configuration '{}' for dependency '{}'", configuration.name, it)
                             dependencyManagementContainer.addManagedVersion(configuration, it.group, it.name, it.version)
 						}
 					}
@@ -53,12 +58,19 @@ class DependencyManagementPlugin implements Plugin<Project> {
 
 
 		project.configurations.all { Configuration c ->
+            log.info("Applying dependency management to configuration '{}' in project '{}'", c.name, project.name)
 			resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+                log.debug("Processing dependency '{}'", details.requested)
                 if (!isDependencyOnLocalProject(project, details)) {
                     String version = dependencyManagementContainer.getManagedVersion(c, details.requested.group, details.requested.name)
                     if (version) {
+                        log.info("Using version '{}' for dependency '{}'", version, details.requested)
                         details.useVersion(version)
+                    } else {
+                        log.debug("No dependency management for dependency '{}'", details.requested)
                     }
+                } else {
+                    log.debug("'{}' is a local project dependency. Dependency management has not been applied", details.requested)
                 }
             }
 		}

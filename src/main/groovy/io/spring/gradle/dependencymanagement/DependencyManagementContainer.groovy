@@ -18,8 +18,12 @@ package io.spring.gradle.dependencymanagement;
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class DependencyManagementContainer {
+
+    private final Logger log = LoggerFactory.getLogger(DependencyManagementContainer)
 
 	private final DependencyManagement globalDependencyManagement
 
@@ -43,10 +47,19 @@ class DependencyManagementContainer {
     String getManagedVersion(Configuration configuration, String group, String name) {
         String version = null
         if (configuration) {
-            version = configuration.hierarchy.findResult { dependencyManagementForConfiguration(it).getManagedVersion(group, name)}
+            version = configuration.hierarchy.findResult {
+                def managedVersion = dependencyManagementForConfiguration(it).getManagedVersion(group, name)
+                if (managedVersion) {
+                    log.debug("Found managed version '{}' for dependency '{}:{}' in dependency management for configuration '{}'", managedVersion, group, name, it.name)
+                }
+                managedVersion
+            }
         }
         if (version == null) {
             version = globalDependencyManagement.getManagedVersion(group, name)
+            if (version) {
+                log.debug("Found managed version '{}' for dependency '{}:{}' in global dependency management", version, group, name)
+            }
         }
         version
     }
@@ -55,7 +68,7 @@ class DependencyManagementContainer {
         if (!configuration) {
             globalDependencyManagement
         } else {
-            configurationDependencyManagement.get(configuration, new DependencyManagement(project))
+            configurationDependencyManagement.get(configuration, new DependencyManagement(project, configuration))
         }
     }
 }
