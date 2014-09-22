@@ -19,6 +19,10 @@ package io.spring.gradle.dependencymanagement
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.Configuration
 
+/**
+ * Internal handler for the {@code dependencies} block of the dependency management DSL
+ * @author Andy Wilkinson
+ */
 class DependenciesHandler {
 
 	private final DependencyManagementContainer container

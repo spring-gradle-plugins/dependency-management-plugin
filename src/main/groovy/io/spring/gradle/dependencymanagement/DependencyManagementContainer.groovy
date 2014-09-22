@@ -21,6 +21,11 @@ import org.gradle.api.artifacts.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+/**
+ * Container object for a Gradle build project's dependency management, handling the project's global and
+ * configuration-specific dependency management
+ * @author Andy Wilkinson
+ */
 class DependencyManagementContainer {
 
     private final Logger log = LoggerFactory.getLogger(DependencyManagementContainer)

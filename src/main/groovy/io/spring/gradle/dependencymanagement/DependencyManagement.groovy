@@ -38,6 +38,10 @@ import org.gradle.mvn3.org.codehaus.plexus.interpolation.ValueSource
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+/**
+ * Encapsulates dependency management information for a particular configuration in a Gradle project
+ * @author Andy Wilkinson
+ */
 class DependencyManagement {
 
     private final Logger log = LoggerFactory.getLogger(DependencyManagement)

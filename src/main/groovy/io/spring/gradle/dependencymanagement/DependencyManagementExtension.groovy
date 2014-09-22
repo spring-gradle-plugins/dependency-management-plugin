@@ -19,6 +19,10 @@ package io.spring.gradle.dependencymanagement
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 
+/**
+ * Extension object that provides the dependency management plugin's DSL
+ * @author Andy Wilkinson
+ */
 class DependencyManagementExtension {
 
 	protected DependencyManagementContainer dependencyManagementContainer

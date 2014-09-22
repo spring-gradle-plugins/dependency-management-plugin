@@ -18,7 +18,10 @@ package io.spring.gradle.dependencymanagement
 
 import org.gradle.api.artifacts.Configuration
 
-
+/**
+ * Internal handler for the dependency management DSL
+ * @author Andy Wilkinson
+ */
 class DependencyManagementHandler {
 
 	private DependencyManagementContainer container
@@ -46,7 +49,8 @@ class DependencyManagementHandler {
 		closure.call()
 	}
 
-	class ImportsHandler {
+	private class ImportsHandler {
+
 		void mavenBom(String coordinates) {
 			container.importBom(configuration, coordinates)
 		}

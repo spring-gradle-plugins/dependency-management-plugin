@@ -25,7 +25,10 @@ import org.gradle.api.artifacts.ModuleDependency
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-
+/**
+ * Main class for the dependency management plugin
+ * @author Andy Wilkinson
+ */
 class DependencyManagementPlugin implements Plugin<Project> {
 
     private final Logger log = LoggerFactory.getLogger(DependencyManagementPlugin)
