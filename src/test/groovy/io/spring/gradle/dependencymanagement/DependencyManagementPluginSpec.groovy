@@ -428,4 +428,18 @@ public class DependencyManagementPluginSpec extends Specification {
             project.dependencyManagement.versions.forConfiguration('testRuntime').getManagedVersion('com.alpha', 'charlie') == '1.0'
             project.dependencyManagement.versions.getManagedVersion('com.alpha', 'charlie') == '1.0'
     }
+
+    def 'Bom that references java home can be imported'() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'A bom that references java home is imported'
+            project.dependencyManagement {
+                imports {
+                    mavenBom 'org.jboss:jboss-parent:11'
+                }
+            }
+        then: 'Its dependency management can be accessed'
+            project.dependencyManagement.versions.getManagedVersion('com.sun', 'tools') == '1.6'
+    }
 }
