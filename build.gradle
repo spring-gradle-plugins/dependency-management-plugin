@@ -31,6 +31,15 @@ tasks.findByPath('artifactoryPublish')?.configure {
 	]
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+artifacts {
+	archives sourcesJar
+}
+
 task wrapper(type: Wrapper) {
 	gradleVersion = '1.12'
 	distributionUrl = 'http://services.gradle.org/distributions/gradle-1.12-all.zip'
