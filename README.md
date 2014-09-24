@@ -10,21 +10,30 @@ dependencies.
 
 ## Using the plugin
 
-The plugin is available from http://repo.spring.io where you can see [all the available versions]
-[3]. The latest release is `0.1.0.RELEASE`. You can use it as follows:
+The plugin is [available from Gradle's plugin portal][3]. The latest release is `0.2.1.RELEASE`.
+
+With Gradle 2.1, you can use it as follows:
+
+```
+plugins {
+    id "io.spring.dependency-management" version "0.2.1.RELEASE"
+}
+
+```
+
+Alternatively, on earlier versions of Gradle:
 
 ```
 buildscript {
-	repositories {
-		maven { url 'http://repo.spring.io/plugins-snapshot'}
-	}
-	dependencies {
-		classpath 'io.spring.gradle:dependency-management-plugin:0.1.0.RELEASE'
-	}
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:0.2.1.RELEASE"
+    }
 }
 
-apply plugin: 'io.spring.dependency-management'
-
+apply plugin: "io.spring.dependency-management"
 ```
 
 With this basic configuration in place, you're ready to configure the project's dependency
@@ -253,5 +262,5 @@ dependencyManagement.forConfiguration('compile').getManagedVersion('org.springfr
 
 [1]: https://build.spring.io/browse/GRADLEPLUGINS-DMP
 [2]: https://build.spring.io/plugins/servlet/buildStatusImage/GRADLEPLUGINS-DMP (Build status)
-[3]: http://repo.spring.io/plugins-snapshot/io/spring/gradle/dependency-management-plugin
+[3]: http://plugins.gradle.org/plugin/io.spring.dependency-management
 [4]: http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions
