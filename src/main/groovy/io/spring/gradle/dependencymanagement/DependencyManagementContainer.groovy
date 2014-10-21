@@ -32,7 +32,7 @@ class DependencyManagementContainer {
 
 	private final DependencyManagement globalDependencyManagement
 
-	private final Project project
+	final Project project
 
 	private final Map<Configuration, DependencyManagement> configurationDependencyManagement = [:]
 

@@ -20,6 +20,7 @@ import org.gradle.api.artifacts.Configuration
 
 /**
  * Internal handler for the dependency management DSL
+ *
  * @author Andy Wilkinson
  */
 class DependencyManagementHandler {
@@ -38,21 +39,14 @@ class DependencyManagementHandler {
 	}
 
 	void imports(Closure closure) {
-		closure.setResolveStrategy(Closure.DELEGATE_ONLY)
-		closure.delegate = new ImportsHandler()
+		closure.setResolveStrategy(Closure.DELEGATE_FIRST)
+		closure.delegate = new ImportsHandler(this.container, this.configuration)
 		closure.call()
 	}
 
 	void dependencies(Closure closure) {
-		closure.setResolveStrategy(Closure.DELEGATE_ONLY)
-		closure.delegate = new DependenciesHandler(container, configuration)
+		closure.setResolveStrategy(Closure.DELEGATE_FIRST)
+		closure.delegate = new DependenciesHandler(this.container, this.configuration)
 		closure.call()
-	}
-
-	private class ImportsHandler {
-
-		void mavenBom(String coordinates) {
-			container.importBom(configuration, coordinates)
-		}
 	}
 }

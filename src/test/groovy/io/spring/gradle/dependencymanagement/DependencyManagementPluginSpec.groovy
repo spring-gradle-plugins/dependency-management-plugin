@@ -442,4 +442,44 @@ public class DependencyManagementPluginSpec extends Specification {
         then: 'Its dependency management can be accessed'
             project.dependencyManagement.versions.getManagedVersion('com.sun', 'tools') == '1.6'
     }
+
+    def 'Dependency versions can be defined using properties'() {
+        given: 'A project with the plugin applied and a version property'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.ext['springVersion'] = '4.1.1.RELEASE'
+            project.ext['slf4jVersion'] = '1.7.7'
+        when: 'Dependency management that contains a dependency that references the property is declared'
+            project.dependencyManagement {
+                dependencies {
+                    "org.springframework:spring-core" springVersion
+                    "org.springframework:spring-beans" "$springVersion"
+                    "org.springframework:spring-tx" project.ext['springVersion']
+                    dependencySet(group: 'org.slf4j', version: slf4jVersion) {
+                        entry 'slf4j-api'
+                    }
+                }
+            }
+        then: 'The expected version has been applied'
+            project.dependencyManagement.versions.getManagedVersion('org.springframework', 'spring-core') == '4.1.1.RELEASE'
+            project.dependencyManagement.versions.getManagedVersion('org.springframework', 'spring-tx') == '4.1.1.RELEASE'
+            project.dependencyManagement.versions.getManagedVersion('org.slf4j', 'slf4j-api') == '1.7.7'
+
+    }
+
+    def 'The import of a bom can reference a property'() {
+        given: 'A project with the plugin applied and a version property'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.ext['platformVersion'] = '1.0.1.RELEASE'
+        when: 'Dependency management that imports a bom using a property for its version is declared'
+            project.dependencyManagement {
+                imports {
+                    mavenBom "io.spring.platform:platform-bom:$platformVersion"
+                }
+            }
+        then: 'The dependency management from the bom has been applied'
+            project.dependencyManagement.versions.getManagedVersion('org.springframework', 'spring-core') == '4.0.6.RELEASE'
+
+    }
 }

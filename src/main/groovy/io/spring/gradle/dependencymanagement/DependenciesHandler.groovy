@@ -39,13 +39,17 @@ class DependenciesHandler {
         def version = setSpecification['version']
 
         if (hasText(group) && hasText(version)) {
-            closure.setResolveStrategy(Closure.DELEGATE_ONLY)
+            closure.setResolveStrategy(Closure.DELEGATE_FIRST)
             closure.delegate = new DependencySetHandler(group, version)
             closure.call()
         } else {
             throw new GradleException("A dependency set requires both a group and a version")
         }
 	}
+
+    def propertyMissing(String name) {
+        this.container.project.property(name)
+    }
 
 	def methodMissing(String name, args) {
         String[] components = name.split(':')
