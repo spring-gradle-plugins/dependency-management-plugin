@@ -340,6 +340,22 @@ public class DependencyManagementPluginSpec extends Specification {
 			files.iterator().next().name == 'jboss-el-api_2.2_spec-1.0.0.Final.jar'
 	}
 
+    def "The Spring Cloud Starter Parent bom can be imported and used for dependency management"() {
+        given: 'A project that imports the Spring Cloud Starter Parent bom'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.repositories {
+                maven { url 'https://repo.spring.io/libs-milestone' }
+            }
+            project.dependencyManagement {
+                imports {
+                    mavenBom 'org.springframework.cloud:spring-cloud-starter-parent:1.0.0.M3'
+                }
+            }
+        expect: "The bom's versions are available"
+            project.dependencyManagement.versions.forConfiguration('compile').getManagedVersion('org.springframework.cloud', 'spring-cloud-starter-eureka-server') == '1.0.0.M3'
+    }
+
 	def 'A dependency set can be used to provide dependency management for multiple modules with the same group and version'() {
 		given: 'A project with dependency management that uses a dependency set'
 			project.apply plugin: 'io.spring.dependency-management'

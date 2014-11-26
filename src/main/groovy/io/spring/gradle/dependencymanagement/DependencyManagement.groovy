@@ -24,7 +24,9 @@ import org.gradle.mvn3.org.apache.maven.model.Repository
 import org.gradle.mvn3.org.apache.maven.model.building.DefaultModelBuilderFactory
 import org.gradle.mvn3.org.apache.maven.model.building.DefaultModelBuildingRequest
 import org.gradle.mvn3.org.apache.maven.model.building.FileModelSource
+import org.gradle.mvn3.org.apache.maven.model.building.ModelBuildingException
 import org.gradle.mvn3.org.apache.maven.model.building.ModelBuildingRequest
+import org.gradle.mvn3.org.apache.maven.model.building.ModelProblem
 import org.gradle.mvn3.org.apache.maven.model.building.ModelProblemCollector
 import org.gradle.mvn3.org.apache.maven.model.building.ModelSource
 import org.gradle.mvn3.org.apache.maven.model.interpolation.StringSearchModelInterpolator
@@ -117,18 +119,40 @@ class DependencyManagement {
 		configuration.resolve().each { File file ->
             log.debug("Processing '{}'", file)
 			def request = new DefaultModelBuildingRequest()
+            request.setSystemProperties(System.getProperties())
 			request.setModelSource(new FileModelSource(file))
 			request.modelResolver = new StandardModelResolver()
-			def result = modelBuilder.build(request)
-			result.effectiveModel.dependencyManagement.dependencies.each { dependency ->
-				versions["$dependency.groupId:$dependency.artifactId" as String] = dependency.version
-			}
+            try {
+                def result = modelBuilder.build(request)
+                def errors = extractErrors(result.problems)
+                if (errors) {
+                    reportErrors(errors, file)
+                } else {
+                    result.effectiveModel.dependencyManagement.dependencies.each { dependency ->
+                        versions["$dependency.groupId:$dependency.artifactId" as String] = dependency.version
+                    }
+                }
+            }
+            catch (ModelBuildingException ex) {
+                reportErrors(extractErrors(ex.problems), file)
+            }
 		}
 
 		versions << existingVersions
 
         log.info("Resolved versions: {}", versions)
 	}
+
+    private List<ModelProblem> extractErrors(List<ModelProblem> problems) {
+        problems.findAll { it.severity == ModelProblem.Severity.ERROR }
+    }
+
+    private void reportErrors(List<ModelProblem> errors, File file) {
+        def errorMessages = errors.collect { ModelProblem problem -> "\n    $problem.message in $problem.modelId" } as Set
+        String message = "Processing of $file.name failed. Its dependency management will be unavailable:"
+        errorMessages.each { message += it}
+        log.error(message)
+    }
 
 	private static class ProjectPropertiesModelInterpolator extends StringSearchModelInterpolator {
 
