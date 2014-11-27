@@ -21,6 +21,7 @@ import org.gradle.api.artifacts.Configuration
 
 /**
  * Extension object that provides the dependency management plugin's DSL
+ *
  * @author Andy Wilkinson
  */
 class DependencyManagementExtension {
@@ -41,7 +42,8 @@ class DependencyManagementExtension {
     }
 
     void dependencies(Closure closure) {
-        new DependencyManagementHandler(dependencyManagementContainer).dependencies(closure)
+        new DependencyManagementHandler(dependencyManagementContainer)
+                .dependencies(closure)
     }
 
     VersionHandler forConfiguration(String configurationName) {
@@ -59,9 +61,11 @@ class DependencyManagementExtension {
         if ("configurations" == name) {
             closure = args.last()
             def dependencyManagementContainer = this.dependencyManagementContainer
+
             List handlers = args.take(args.size() - 1).collect { Configuration configuration ->
                 new DependencyManagementHandler(dependencyManagementContainer, configuration)
             }
+
             closure.delegate = new CompoundDependencyManagementHandler(handlers)
         }
         else {
@@ -85,7 +89,8 @@ class DependencyManagementExtension {
 
         private final Configuration configuration
 
-        VersionHandler(DependencyManagementContainer container, Configuration configuration) {
+        VersionHandler(DependencyManagementContainer container,
+                Configuration configuration) {
             this.container = container
             this.configuration = configuration
         }

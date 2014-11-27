@@ -18,6 +18,7 @@ package io.spring.gradle.dependencymanagement;
 
 /**
  * A dependency management handler that delegates to one or more {@link DependencyManagementHandler}s
+ *
  * @author Andy Wilkinson
  */
 class CompoundDependencyManagementHandler {

@@ -16,26 +16,18 @@
 
 package io.spring.gradle.dependencymanagement
 
+import io.spring.gradle.dependencymanagement.exclusions.Exclusions
+import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
+import io.spring.gradle.dependencymanagement.maven.ModelExclusionCollector
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.mvn3.org.apache.maven.model.Model
-import org.gradle.mvn3.org.apache.maven.model.Repository
-import org.gradle.mvn3.org.apache.maven.model.building.*
-import org.gradle.mvn3.org.apache.maven.model.interpolation.StringSearchModelInterpolator
-import org.gradle.mvn3.org.apache.maven.model.path.DefaultPathTranslator
-import org.gradle.mvn3.org.apache.maven.model.path.DefaultUrlNormalizer
-import org.gradle.mvn3.org.apache.maven.model.resolution.ModelResolver
-import org.gradle.mvn3.org.apache.maven.model.resolution.UnresolvableModelException
-import org.gradle.mvn3.org.codehaus.plexus.interpolation.MapBasedValueSource
-import org.gradle.mvn3.org.codehaus.plexus.interpolation.PropertiesBasedValueSource
-import org.gradle.mvn3.org.codehaus.plexus.interpolation.ValueSource
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 /**
  * Encapsulates dependency management information for a particular configuration in a Gradle project
- * 
+ *
  * @author Andy Wilkinson
  */
 class DependencyManagement {
@@ -51,6 +43,8 @@ class DependencyManagement {
     private boolean resolved
 
     private Map versions = [:]
+
+    private Exclusions bomExclusions = new Exclusions()
 
     def DependencyManagement(Project project) {
         this(project, null)
@@ -79,15 +73,9 @@ class DependencyManagement {
         "$group:$name"
     }
 
-    boolean apply(DependencyResolveDetails details) {
-        String version = getManagedVersion(details.requested.group, details.requested.name)
-        if (version) {
-            details.useVersion(version)
-            true
-        }
-        else {
-            false
-        }
+    Exclusions getExclusions() {
+        resolveIfNecessary()
+        bomExclusions
     }
 
     private void resolveIfNecessary() {
@@ -110,88 +98,23 @@ class DependencyManagement {
 
         log.debug("Preserving existing versions: {}", existingVersions)
 
-        def modelBuilder = new DefaultModelBuilderFactory().newInstance()
-        modelBuilder.modelInterpolator = new ProjectPropertiesModelInterpolator(project)
+        def effectiveModelBuilder = new EffectiveModelBuilder(project)
 
         configuration.resolve().each { File file ->
             log.debug("Processing '{}'", file)
-            def request = new DefaultModelBuildingRequest()
-            request.setSystemProperties(System.getProperties())
-            request.setModelSource(new FileModelSource(file))
-            request.modelResolver = new StandardModelResolver()
-            try {
-                def result = modelBuilder.build(request)
-                def errors = extractErrors(result.problems)
-                if (errors) {
-                    reportErrors(errors, file)
+            Model effectiveModel = effectiveModelBuilder.buildModel(file)
+            if (effectiveModel) {
+                effectiveModel.dependencyManagement.dependencies.each { dependency ->
+                    versions["$dependency.groupId:$dependency.artifactId" as String
+                            ] = dependency.version
                 }
-                else {
-                    result.effectiveModel.dependencyManagement.dependencies.each { dependency ->
-                        versions["$dependency.groupId:$dependency.artifactId" as String
-                                ] = dependency.version
-                    }
-                }
-            }
-            catch (ModelBuildingException ex) {
-                reportErrors(extractErrors(ex.problems), file)
+                bomExclusions.addAll(
+                        new ModelExclusionCollector().collectExclusions(effectiveModel))
             }
         }
 
         versions << existingVersions
 
         log.info("Resolved versions: {}", versions)
-    }
-
-    private List<ModelProblem> extractErrors(List<ModelProblem> problems) {
-        problems.findAll { it.severity == ModelProblem.Severity.ERROR }
-    }
-
-    private void reportErrors(List<ModelProblem> errors, File file) {
-        def errorMessages = errors.collect {
-            ModelProblem problem -> "\n    $problem.message in $problem.modelId"
-        } as Set
-        String message = "Processing of $file.name failed. Its dependency management will be unavailable:"
-        errorMessages.each { message += it }
-        log.error(message)
-    }
-
-    private static class ProjectPropertiesModelInterpolator extends StringSearchModelInterpolator {
-
-        private final Project project
-
-        ProjectPropertiesModelInterpolator(Project project) {
-            this.project = project
-            setUrlNormalizer(new DefaultUrlNormalizer());
-            setPathTranslator(new DefaultPathTranslator());
-        }
-
-        List<ValueSource> createValueSources(Model model, File projectDir,
-                ModelBuildingRequest request, ModelProblemCollector collector) {
-            List valueSources = [
-                    new MapBasedValueSource(project.properties),
-                    new PropertiesBasedValueSource(System.getProperties())]
-            valueSources.addAll(super.createValueSources(model, projectDir, request, collector))
-            valueSources
-        }
-    }
-
-    private class StandardModelResolver implements ModelResolver {
-
-        @Override
-        ModelSource resolveModel(String groupId, String artifactId, String version)
-                throws UnresolvableModelException {
-            def dependency = project.dependencies.create("$groupId:$artifactId:$version@pom")
-            def configuration = project.configurations.detachedConfiguration(dependency)
-            new FileModelSource(configuration.resolve().iterator().next())
-        }
-
-        @Override
-        void addRepository(Repository repository) {
-        }
-
-        @Override
-        ModelResolver newCopy() {
-            this
-        }
     }
 }

@@ -16,6 +16,7 @@
 
 package io.spring.gradle.dependencymanagement
 
+import io.spring.gradle.dependencymanagement.exclusions.ExclusionConfiguringAction
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory
 
 /**
  * Main class for the dependency management plugin
+ *
  * @author Andy Wilkinson
  */
 class DependencyManagementPlugin implements Plugin<Project> {
@@ -35,8 +37,8 @@ class DependencyManagementPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        DependencyManagementContainer dependencyManagementContainer = new DependencyManagementContainer(
-                project)
+        DependencyManagementContainer dependencyManagementContainer =
+                new DependencyManagementContainer(project)
 
         project.extensions.add("dependencyManagement", DependencyManagementExtension)
         project.extensions.configure(DependencyManagementExtension, new Action() {
@@ -50,36 +52,41 @@ class DependencyManagementPlugin implements Plugin<Project> {
         project.configurations.all { Configuration root ->
             root.incoming.beforeResolve {
                 root.hierarchy.each { Configuration configuration ->
-                    configuration.incoming.dependencies.findAll { it in ModuleDependency }.each {
-                        if (it.version) {
-                            log.debug(
-                                    "Adding managed version in configuration '{}' for dependency '{}'",
-                                    configuration.name, it)
-                            dependencyManagementContainer.
-                                    addManagedVersion(configuration, it.group, it.name, it.version)
-                        }
+                    configuration.incoming.dependencies.findAll {
+                        it in ModuleDependency && it.version
+                    }.each {
+                        log.debug(
+                                "Adding managed version in configuration '{}' for dependency '{}'",
+                                configuration.name, it)
+                        dependencyManagementContainer.
+                                addManagedVersion(configuration, it.group, it.name, it.version)
                     }
                 }
             }
         }
 
-
-
         project.configurations.all { Configuration c ->
-            log.info("Applying dependency management to configuration '{}' in project '{}'", c.name,
-                    project.name)
+            log.info("Applying dependency management to configuration '{}' in project '{}'",
+                    c.name, project.name)
+
+            c.incoming.beforeResolve(
+                    new ExclusionConfiguringAction(dependencyManagementContainer, c,
+                            project))
+
             resolutionStrategy.eachDependency { DependencyResolveDetails details ->
                 log.debug("Processing dependency '{}'", details.requested)
                 if (!isDependencyOnLocalProject(project, details)) {
                     String version = dependencyManagementContainer.
-                            getManagedVersion(c, details.requested.group, details.requested.name)
+                            getManagedVersion(c, details.requested.group,
+                                    details.requested.name)
                     if (version) {
                         log.info("Using version '{}' for dependency '{}'", version,
                                 details.requested)
                         details.useVersion(version)
                     }
                     else {
-                        log.debug("No dependency management for dependency '{}'", details.requested)
+                        log.debug("No dependency management for dependency '{}'",
+                                details.requested)
                     }
                 }
                 else {

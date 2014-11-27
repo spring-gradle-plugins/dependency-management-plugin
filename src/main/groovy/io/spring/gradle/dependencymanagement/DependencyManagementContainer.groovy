@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package io.spring.gradle.dependencymanagement;
+package io.spring.gradle.dependencymanagement
 
+import io.spring.gradle.dependencymanagement.exclusions.Exclusions
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.slf4j.Logger
@@ -41,8 +42,10 @@ class DependencyManagementContainer {
         this.project = project
     }
 
-    void addManagedVersion(Configuration configuration, String group, String name, String version) {
-        dependencyManagementForConfiguration(configuration).addManagedVersion(group, name, version)
+    void addManagedVersion(Configuration configuration, String group, String name,
+            String version) {
+        dependencyManagementForConfiguration(configuration).
+                addManagedVersion(group, name, version)
     }
 
     void importBom(Configuration configuration, String coordinates) {
@@ -74,7 +77,17 @@ class DependencyManagementContainer {
         version
     }
 
-    private DependencyManagement dependencyManagementForConfiguration(Configuration configuration) {
+    Exclusions getExclusions(Configuration configuration) {
+        Exclusions exclusions = new Exclusions()
+        configuration.hierarchy.each {
+            exclusions.addAll(dependencyManagementForConfiguration(it).getExclusions())
+        }
+        exclusions.addAll(globalDependencyManagement.getExclusions())
+        exclusions
+    }
+
+    private DependencyManagement dependencyManagementForConfiguration(
+            Configuration configuration) {
         if (!configuration) {
             globalDependencyManagement
         }

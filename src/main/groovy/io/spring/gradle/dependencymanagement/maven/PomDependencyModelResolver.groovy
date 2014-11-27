@@ -1,0 +1,55 @@
+/*
+ * Copyright 2014 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.spring.gradle.dependencymanagement.maven
+
+import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.mvn3.org.apache.maven.model.Repository
+import org.gradle.mvn3.org.apache.maven.model.building.FileModelSource
+import org.gradle.mvn3.org.apache.maven.model.building.ModelSource
+import org.gradle.mvn3.org.apache.maven.model.resolution.ModelResolver
+import org.gradle.mvn3.org.apache.maven.model.resolution.UnresolvableModelException
+
+/**
+ * A {@link ModelResolver} that uses a {@link Configuration} to resolve a pom dependency for the
+ * requested model
+ */
+class PomDependencyModelResolver implements ModelResolver {
+
+    private final Project project
+
+    PomDependencyModelResolver(Project project) {
+        this.project = project
+    }
+
+    @Override
+    ModelSource resolveModel(String groupId, String artifactId, String version)
+            throws UnresolvableModelException {
+        def dependency = project.dependencies.create("$groupId:$artifactId:$version@pom")
+        def configuration = project.configurations.detachedConfiguration(dependency)
+        new FileModelSource(configuration.resolve().iterator().next())
+    }
+
+    @Override
+    void addRepository(Repository repository) {
+    }
+
+    @Override
+    ModelResolver newCopy() {
+        this
+    }
+}
