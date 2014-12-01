@@ -584,8 +584,96 @@ public class DependencyManagementPluginSpec extends Specification {
         when: 'A configuration is resolved'
             def files = project.configurations.compile.resolve()
         then: "The bom's dependency management has been applied"
-            files.collect { it.name }
-                    .containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.3.jar',
-                                  'hive-common-0.14.0.jar'])
+            files.collect { it.name }.
+                    containsAll(['spring-core-4.0.6.RELEASE.jar', 'commons-logging-1.1.3.jar',
+                                 'hive-common-0.14.0.jar'])
+    }
+
+    def 'An exclusion declared on the dependency that has the excluded dependency is honoured'() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.repositories {
+                maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+            }
+        when: 'It depends on a module that directly excludes commons-logging'
+            project.dependencies {
+                compile 'test:direct-exclude:1.0'
+            }
+            def files = project.configurations.compile.resolve()
+        then: "commons-logging has been excluded"
+            files.size() == 4
+            files.collect { it.name }.containsAll(['direct-exclude-1.0.jar',
+                                                   'spring-tx-4.1.2.RELEASE.jar',
+                                                   'spring-beans-4.1.2.RELEASE.jar',
+                                                   'spring-core-4.1.2.RELEASE.jar'])
+    }
+
+    def 'An exclusion that applies transitively is honoured'() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.repositories {
+                maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+            }
+        when: 'It depends on a module that transitively excludes commons-logging'
+            project.dependencies {
+                compile 'test:transitive-exclude:1.0'
+            }
+            def files = project.configurations.compile.resolve()
+        then: "commons-logging has been excluded"
+            files.size() == 4
+            files.collect { it.name }.containsAll(['transitive-exclude-1.0.jar',
+                                                   'spring-tx-4.1.2.RELEASE.jar',
+                                                   'spring-beans-4.1.2.RELEASE.jar',
+                                                   'spring-core-4.1.2.RELEASE.jar'])
+    }
+
+    def 'A direct exclusion declared in a bom is honoured'() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.repositories {
+                maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+            }
+        when: 'It imports a bom that directly excludes commons-logging'
+            project.dependencyManagement {
+                imports {
+                    mavenBom 'test:direct-exclude-bom:1.0'
+                }
+            }
+            project.dependencies {
+                compile 'org.springframework:spring-tx:4.1.2.RELEASE'
+            }
+            def files = project.configurations.compile.resolve()
+        then: "commons-logging has been excluded"
+            files.size() == 3
+            files.collect { it.name }.containsAll(['spring-tx-4.1.2.RELEASE.jar',
+                                                   'spring-beans-4.1.2.RELEASE.jar',
+                                                   'spring-core-4.1.2.RELEASE.jar'])
+    }
+
+    def 'A transitive exclusion declared in a bom is honoured'() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.repositories {
+                maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+            }
+        when: 'It imports a bom that transitively excludes commons-logging'
+            project.dependencyManagement {
+                imports {
+                    mavenBom 'test:transitive-exclude-bom:1.0'
+                }
+            }
+            project.dependencies {
+                compile 'org.springframework:spring-tx:4.1.2.RELEASE'
+            }
+            def files = project.configurations.compile.resolve()
+        then: "commons-logging has been excluded"
+            files.size() == 3
+            files.collect { it.name }.containsAll(['spring-tx-4.1.2.RELEASE.jar',
+                                                   'spring-beans-4.1.2.RELEASE.jar',
+                                                   'spring-core-4.1.2.RELEASE.jar'])
     }
 }

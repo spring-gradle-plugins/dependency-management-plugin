@@ -23,40 +23,56 @@ package io.spring.gradle.dependencymanagement.exclusions
  */
 class Exclusions {
 
-    def exclusions = [:]
+    def excludersByExclusion = [:]
+
+    def exclusionsByExcluder = [:]
 
     void add(params) {
         def exclusion = getId(params.exclusion)
-        def excluders = exclusions[exclusion] ?: [] as Set
-        excluders << getId(params.from)
-        exclusions[exclusion] = excluders
+        def excluders = excludersByExclusion[exclusion] ?: [] as Set
+        def excluder = getId(params.from)
+        excluders << excluder
+        excludersByExclusion[exclusion] = excluders
+
+        def exclusions = exclusionsByExcluder[excluder] ?: [] as Set
+        exclusions << exclusion
+        exclusionsByExcluder[excluder] = exclusions
     }
 
     void addAll(Exclusions newExclusions) {
         newExclusions.each { exclusion, excluders ->
-            def existingExcluders = exclusions[exclusion] ?: [] as Set
+            def existingExcluders = excludersByExclusion[exclusion] ?: [] as Set
             existingExcluders.addAll(excluders)
-            exclusions[exclusion] = existingExcluders
+            excludersByExclusion[exclusion] = existingExcluders
+        }
+        newExclusions.exclusionsByExcluder.each { excluder, exclusions ->
+            def existingExclusions = exclusionsByExcluder[excluder] ?: [] as Set
+            existingExclusions.addAll(exclusions)
+            exclusionsByExcluder[excluder] = existingExclusions
         }
     }
 
     void each(Closure c) {
-        exclusions.each(c)
+        excludersByExclusion.each(c)
+    }
+
+    def exclusionsForDependency(dependency) {
+        exclusionsByExcluder[dependency]
     }
 
     boolean containsExclusionFor(def dependency) {
-        exclusions.keySet().contains(dependency)
+        excludersByExclusion.keySet().contains(dependency)
     }
 
     def collect(Closure c) {
-        exclusions.collect(c)
+        excludersByExclusion.collect(c)
     }
 
     String toString() {
-        exclusions.toString()
+        excludersByExclusion.toString()
     }
 
     private String getId(def toIdentify) {
-        return "$toIdentify.groupId:$toIdentify.artifactId"
+        toIdentify instanceof String ? toIdentify : "$toIdentify.groupId:$toIdentify.artifactId"
     }
 }

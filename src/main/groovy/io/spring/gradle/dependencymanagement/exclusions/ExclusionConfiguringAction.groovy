@@ -42,8 +42,10 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
     @Override
     void execute(ResolvableDependencies resolvableDependencies) {
         def configurationCopy = configuration.copyRecursive()
-        def candidateExclusions =
-                collectExclusions(configurationCopy.incoming.resolutionResult.root, [])
+        def dependencyManagementExclusions =
+                dependencyManagementContainer.getExclusions(configuration)
+        def candidateExclusions = collectExclusions(configurationCopy.incoming.resolutionResult
+                .root, dependencyManagementExclusions)
         candidateExclusions.
                 addAll(dependencyManagementContainer.getExclusions(configuration))
         def paths = getPathsToRootForExclusionCandidates(candidateExclusions,
@@ -70,36 +72,70 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
         }
     }
 
-    def collectExclusions(dependency, processed) {
-        Exclusions exclusions = new Exclusions()
+    def collectExclusions(root, dependencyManagementExclusions) {
+        def exclusions = new Exclusions()
+        root.dependencies.findAll { it instanceof ResolvedDependencyResult }
+                .collect { it.selected }
+                .each { dependency ->
+            exclusions.addAll(collectExclusions(dependency, [], new Exclusions(),
+                    dependencyManagementExclusions))
+        }
+        exclusions
+    }
+
+    def collectExclusions(dependency, processed, ancestorExclusions,
+            dependencyManagementExclusions) {
+        Exclusions exclusionsForDependency = new Exclusions()
+
         def pomDependency = getPomDependency(dependency)
-        if (!processed.contains(pomDependency)) {
-            processed << pomDependency
-            if (pomDependency) {
-                def configuration = project.configurations.
-                        detachedConfiguration(pomDependency)
-                try {
-                    def files = configuration.resolve()
-                    if (files) {
-                        def pom = files.iterator().next()
-                        def model = effectiveModelBuilder.buildModel(pom)
-                        def exclusionsFromModel = new ModelExclusionCollector().
-                                collectExclusions(model)
-                        exclusions.addAll(exclusionsFromModel)
+
+        if (pomDependency) {
+            if (!processed.contains(pomDependency)) {
+                processed << pomDependency
+                ancestorExclusions.each { exclusion, excluders ->
+                    exclusionsForDependency.add(exclusion: exclusion,
+                            from: [groupId: pomDependency.group, artifactId: pomDependency.name])
+                }
+                def dependencyId = "$pomDependency.group:$pomDependency.name"
+                def dependencyManagementExclusionsForDependency =
+                        dependencyManagementExclusions.exclusionsForDependency(dependencyId)
+                if (dependencyManagementExclusionsForDependency) {
+                    dependencyManagementExclusionsForDependency.each { exclusion ->
+                        exclusionsForDependency.add(exclusion: exclusion,
+                                from: [groupId: pomDependency.group, artifactId: pomDependency.name])
                     }
                 }
-                catch (ResolveException ex) {
-                    log.debug("Failed to resolve $pomDependency")
+
+                exclusionsForDependency.addAll(ancestorExclusions)
+                if (pomDependency) {
+                    def configuration = project.configurations.
+                            detachedConfiguration(pomDependency)
+                    try {
+                        def files = configuration.resolve()
+                        if (files) {
+                            def pom = files.iterator().next()
+                            def model = effectiveModelBuilder.buildModel(pom)
+                            def exclusionsFromModel = new ModelExclusionCollector().
+                                    collectExclusions(model)
+                            exclusionsForDependency.addAll(exclusionsFromModel)
+                        }
+                    }
+                    catch (ResolveException ex) {
+                        log.debug("Failed to resolve $pomDependency")
+                    }
                 }
             }
-
-            dependency.dependencies
-                    .findAll { it instanceof ResolvedDependencyResult }
-                    .collect { it.selected }
-                    .each { exclusions.addAll(collectExclusions(it, processed)) }
         }
 
-        exclusions
+        dependency.dependencies
+                .findAll { it instanceof ResolvedDependencyResult }
+                .collect { it.selected }
+                .each {
+            exclusionsForDependency.addAll(collectExclusions(it, processed,
+                    exclusionsForDependency, dependencyManagementExclusions))
+        }
+
+        exclusionsForDependency
     }
 
     def getPomDependency(dependency) {
