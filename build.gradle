@@ -7,52 +7,52 @@ apply from: 'gradle-api-source.gradle'
 apply from: 'publish-maven.gradle'
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 group = 'io.spring.gradle'
 description = 'Dependency Management Plugin'
 
 ext {
-	spockVersion = project.properties.get('spockVersion', '0.7-groovy-1.8')
+    spockVersion = project.properties.get('spockVersion', '0.7-groovy-1.8')
 }
 
 dependencies {
-	compile gradleApi()
-	compile localGroovy()
-	testCompile("org.spockframework:spock-core:$spockVersion") {
-		exclude group:'org.codehaus.groovy'
-	}
+    compile gradleApi()
+    compile localGroovy()
+    testCompile("org.spockframework:spock-core:$spockVersion") {
+        exclude group: 'org.codehaus.groovy'
+    }
 }
 
 tasks.findByPath('artifactoryPublish')?.configure {
-	properties = [
-		'gradle-plugin' : "io.spring.dependency-management:${project.group}:${project.name}",
-		'bintray.package' : "${project.group}:dependency-management",
-		'bintray.version' : "${project.version}"
-	]
+    properties = [
+            'gradle-plugin'  : "io.spring.dependency-management:${project.group}:${project.name}",
+            'bintray.package': "${project.group}:dependency-management",
+            'bintray.version': "${project.version}"
+    ]
 }
 
 groovydoc {
-	docTitle = "$project.description $project.version API"
+    docTitle = "$project.description $project.version API"
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-	classifier = 'sources'
-	from sourceSets.main.allSource
+    classifier = 'sources'
+    from sourceSets.main.allSource
 }
 
 task javadocJar(type: Jar) {
-	classifier = "javadoc"
-	from groovydoc
+    classifier = "javadoc"
+    from groovydoc
 }
 
 artifacts {
-	archives sourcesJar
-	archives javadocJar
+    archives sourcesJar
+    archives javadocJar
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '1.12'
-	distributionUrl = 'http://services.gradle.org/distributions/gradle-1.12-all.zip'
+    gradleVersion = '1.12'
+    distributionUrl = 'http://services.gradle.org/distributions/gradle-1.12-all.zip'
 }

@@ -30,16 +30,16 @@ class DependencyManagementContainer {
 
     private final Logger log = LoggerFactory.getLogger(DependencyManagementContainer)
 
-	private final DependencyManagement globalDependencyManagement
+    private final DependencyManagement globalDependencyManagement
 
-	final Project project
+    final Project project
 
-	private final Map<Configuration, DependencyManagement> configurationDependencyManagement = [:]
+    private final Map<Configuration, DependencyManagement> configurationDependencyManagement = [:]
 
-	DependencyManagementContainer(Project project) {
-		this.globalDependencyManagement = new DependencyManagement(project)
-		this.project = project
-	}
+    DependencyManagementContainer(Project project) {
+        this.globalDependencyManagement = new DependencyManagement(project)
+        this.project = project
+    }
 
     void addManagedVersion(Configuration configuration, String group, String name, String version) {
         dependencyManagementForConfiguration(configuration).addManagedVersion(group, name, version)
@@ -53,9 +53,12 @@ class DependencyManagementContainer {
         String version = null
         if (configuration) {
             version = configuration.hierarchy.findResult {
-                def managedVersion = dependencyManagementForConfiguration(it).getManagedVersion(group, name)
+                def managedVersion =
+                        dependencyManagementForConfiguration(it).getManagedVersion(group, name)
                 if (managedVersion) {
-                    log.debug("Found managed version '{}' for dependency '{}:{}' in dependency management for configuration '{}'", managedVersion, group, name, it.name)
+                    log.debug(
+                            "Found managed version '{}' for dependency '{}:{}' in dependency management for configuration '{}'",
+                            managedVersion, group, name, it.name)
                 }
                 managedVersion
             }
@@ -63,7 +66,9 @@ class DependencyManagementContainer {
         if (version == null) {
             version = globalDependencyManagement.getManagedVersion(group, name)
             if (version) {
-                log.debug("Found managed version '{}' for dependency '{}:{}' in global dependency management", version, group, name)
+                log.debug(
+                        "Found managed version '{}' for dependency '{}:{}' in global dependency management",
+                        version, group, name)
             }
         }
         version
@@ -72,8 +77,10 @@ class DependencyManagementContainer {
     private DependencyManagement dependencyManagementForConfiguration(Configuration configuration) {
         if (!configuration) {
             globalDependencyManagement
-        } else {
-            configurationDependencyManagement.get(configuration, new DependencyManagement(project, configuration))
+        }
+        else {
+            configurationDependencyManagement.
+                    get(configuration, new DependencyManagement(project, configuration))
         }
     }
 }

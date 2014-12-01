@@ -33,53 +33,66 @@ class DependencyManagementPlugin implements Plugin<Project> {
 
     private final Logger log = LoggerFactory.getLogger(DependencyManagementPlugin)
 
-	@Override
-	void apply(Project project) {
-		DependencyManagementContainer dependencyManagementContainer = new DependencyManagementContainer(project)
+    @Override
+    void apply(Project project) {
+        DependencyManagementContainer dependencyManagementContainer = new DependencyManagementContainer(
+                project)
 
-		project.extensions.add("dependencyManagement", DependencyManagementExtension)
-		project.extensions.configure(DependencyManagementExtension, new Action() {
-			void execute(extension) {
-				extension.dependencyManagementContainer = dependencyManagementContainer
-				extension.project = project
-			}
-		})
+        project.extensions.add("dependencyManagement", DependencyManagementExtension)
+        project.extensions.configure(DependencyManagementExtension, new Action() {
 
-		project.configurations.all { Configuration root ->
-			root.incoming.beforeResolve {
-				root.hierarchy.each { Configuration configuration ->
-					configuration.incoming.dependencies.findAll { it in ModuleDependency }.each {
-						if (it.version) {
-                            log.debug("Adding managed version in configuration '{}' for dependency '{}'", configuration.name, it)
-                            dependencyManagementContainer.addManagedVersion(configuration, it.group, it.name, it.version)
-						}
-					}
-				}
-			}
-		}
+            void execute(extension) {
+                extension.dependencyManagementContainer = dependencyManagementContainer
+                extension.project = project
+            }
+        })
 
-
-
-		project.configurations.all { Configuration c ->
-            log.info("Applying dependency management to configuration '{}' in project '{}'", c.name, project.name)
-			resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-                log.debug("Processing dependency '{}'", details.requested)
-                if (!isDependencyOnLocalProject(project, details)) {
-                    String version = dependencyManagementContainer.getManagedVersion(c, details.requested.group, details.requested.name)
-                    if (version) {
-                        log.info("Using version '{}' for dependency '{}'", version, details.requested)
-                        details.useVersion(version)
-                    } else {
-                        log.debug("No dependency management for dependency '{}'", details.requested)
+        project.configurations.all { Configuration root ->
+            root.incoming.beforeResolve {
+                root.hierarchy.each { Configuration configuration ->
+                    configuration.incoming.dependencies.findAll { it in ModuleDependency }.each {
+                        if (it.version) {
+                            log.debug(
+                                    "Adding managed version in configuration '{}' for dependency '{}'",
+                                    configuration.name, it)
+                            dependencyManagementContainer.
+                                    addManagedVersion(configuration, it.group, it.name, it.version)
+                        }
                     }
-                } else {
-                    log.debug("'{}' is a local project dependency. Dependency management has not been applied", details.requested)
                 }
             }
-		}
-	}
+        }
 
-    private static boolean isDependencyOnLocalProject(Project project, DependencyResolveDetails details) {
+
+
+        project.configurations.all { Configuration c ->
+            log.info("Applying dependency management to configuration '{}' in project '{}'", c.name,
+                    project.name)
+            resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+                log.debug("Processing dependency '{}'", details.requested)
+                if (!isDependencyOnLocalProject(project, details)) {
+                    String version = dependencyManagementContainer.
+                            getManagedVersion(c, details.requested.group, details.requested.name)
+                    if (version) {
+                        log.info("Using version '{}' for dependency '{}'", version,
+                                details.requested)
+                        details.useVersion(version)
+                    }
+                    else {
+                        log.debug("No dependency management for dependency '{}'", details.requested)
+                    }
+                }
+                else {
+                    log.debug(
+                            "'{}' is a local project dependency. Dependency management has not been applied",
+                            details.requested)
+                }
+            }
+        }
+    }
+
+    private static boolean isDependencyOnLocalProject(Project project,
+            DependencyResolveDetails details) {
         project.rootProject.allprojects
                 .collect { "$it.group:$it.name" as String }
                 .contains("$details.requested.group:$details.requested.name" as String)

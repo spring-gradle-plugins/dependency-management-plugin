@@ -25,7 +25,7 @@ import org.gradle.api.artifacts.Configuration
  */
 class DependencyManagementHandler {
 
-	private DependencyManagementContainer container
+    private DependencyManagementContainer container
 
     private Configuration configuration
 
@@ -33,20 +33,21 @@ class DependencyManagementHandler {
         this(container, null)
     }
 
-	DependencyManagementHandler(DependencyManagementContainer container, Configuration configuration) {
-		this.container = container
+    DependencyManagementHandler(DependencyManagementContainer container,
+            Configuration configuration) {
+        this.container = container
         this.configuration = configuration
-	}
+    }
 
-	void imports(Closure closure) {
-		closure.setResolveStrategy(Closure.DELEGATE_FIRST)
-		closure.delegate = new ImportsHandler(this.container, this.configuration)
-		closure.call()
-	}
+    void imports(Closure closure) {
+        closure.setResolveStrategy(Closure.DELEGATE_FIRST)
+        closure.delegate = new ImportsHandler(this.container, this.configuration)
+        closure.call()
+    }
 
-	void dependencies(Closure closure) {
-		closure.setResolveStrategy(Closure.DELEGATE_FIRST)
-		closure.delegate = new DependenciesHandler(this.container, this.configuration)
-		closure.call()
-	}
+    void dependencies(Closure closure) {
+        closure.setResolveStrategy(Closure.DELEGATE_FIRST)
+        closure.delegate = new DependenciesHandler(this.container, this.configuration)
+        closure.call()
+    }
 }

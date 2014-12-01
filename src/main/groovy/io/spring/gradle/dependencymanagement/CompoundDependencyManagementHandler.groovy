@@ -22,17 +22,17 @@ package io.spring.gradle.dependencymanagement;
  */
 class CompoundDependencyManagementHandler {
 
-	List delegates
+    List delegates
 
-	CompoundDependencyManagementHandler(List delegates) {
-		this.delegates = delegates
-	}
+    CompoundDependencyManagementHandler(List delegates) {
+        this.delegates = delegates
+    }
 
-	void imports(Closure closure) {
-		delegates.each { it.imports(closure) }
-	}
+    void imports(Closure closure) {
+        delegates.each { it.imports(closure) }
+    }
 
-	void dependencies(Closure closure) {
-		delegates.each { it.dependencies(closure) }
-	}
+    void dependencies(Closure closure) {
+        delegates.each { it.dependencies(closure) }
+    }
 }

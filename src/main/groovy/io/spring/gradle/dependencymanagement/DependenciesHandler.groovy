@@ -25,16 +25,16 @@ import org.gradle.api.artifacts.Configuration
  */
 class DependenciesHandler {
 
-	private final DependencyManagementContainer container
+    private final DependencyManagementContainer container
 
     private final Configuration configuration
 
-	DependenciesHandler(DependencyManagementContainer container, Configuration configuration) {
-		this.container = container
+    DependenciesHandler(DependencyManagementContainer container, Configuration configuration) {
+        this.container = container
         this.configuration = configuration
-	}
+    }
 
-	def dependencySet(Map setSpecification, Closure closure) {
+    def dependencySet(Map setSpecification, Closure closure) {
         def group = setSpecification['group']
         def version = setSpecification['version']
 
@@ -42,19 +42,20 @@ class DependenciesHandler {
             closure.setResolveStrategy(Closure.DELEGATE_FIRST)
             closure.delegate = new DependencySetHandler(group, version)
             closure.call()
-        } else {
+        }
+        else {
             throw new GradleException("A dependency set requires both a group and a version")
         }
-	}
+    }
 
     def propertyMissing(String name) {
         this.container.project.property(name)
     }
 
-	def methodMissing(String name, args) {
+    def methodMissing(String name, args) {
         String[] components = name.split(':')
-		container.addManagedVersion(configuration, components[0], components[1], args[0])
-	}
+        container.addManagedVersion(configuration, components[0], components[1], args[0])
+    }
 
     def hasText(String string) {
         return string != null && string.trim().length() > 0
