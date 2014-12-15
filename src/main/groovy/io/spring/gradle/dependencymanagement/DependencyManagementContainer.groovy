@@ -31,7 +31,7 @@ class DependencyManagementContainer {
 
     private final Logger log = LoggerFactory.getLogger(DependencyManagementContainer)
 
-    private final DependencyManagement globalDependencyManagement
+    protected final DependencyManagement globalDependencyManagement
 
     final Project project
 
@@ -42,10 +42,14 @@ class DependencyManagementContainer {
         this.project = project
     }
 
-    void addManagedVersion(Configuration configuration, String group, String name,
-            String version) {
-        dependencyManagementForConfiguration(configuration).
-                addManagedVersion(group, name, version)
+    void addImplicitManagedVersion(configuration, String group, String name, String version) {
+        dependencyManagementForConfiguration(configuration).addImplicitManagedVersion(group,
+                name, version)
+    }
+
+    void addExplicitManagedVersion(configuration, String group, String name, String version) {
+        dependencyManagementForConfiguration(configuration).addExplicitManagedVersion(group,
+                name, version)
     }
 
     void importBom(Configuration configuration, String coordinates) {

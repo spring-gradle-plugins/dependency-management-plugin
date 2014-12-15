@@ -55,7 +55,7 @@ class DependenciesHandler {
 
     def methodMissing(String name, args) {
         String[] components = name.split(':')
-        container.addManagedVersion(configuration, components[0], components[1], args[0])
+        container.addExplicitManagedVersion(configuration, components[0], components[1], args[0])
     }
 
     def hasText(String string) {
@@ -74,7 +74,7 @@ class DependenciesHandler {
         }
 
         def entry(String entry) {
-            container.addManagedVersion(configuration, group, entry, version)
+            container.addExplicitManagedVersion(configuration, group, entry, version)
         }
     }
 }

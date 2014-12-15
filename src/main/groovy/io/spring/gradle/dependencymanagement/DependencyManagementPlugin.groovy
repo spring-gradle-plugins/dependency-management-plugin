@@ -17,12 +17,20 @@
 package io.spring.gradle.dependencymanagement
 
 import io.spring.gradle.dependencymanagement.exclusions.ExclusionConfiguringAction
+import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfigurer
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.artifacts.maven.PomFilterContainer
+import org.gradle.api.internal.ClosureBackedAction
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
+import org.gradle.api.publish.maven.tasks.GenerateMavenPom
+import org.gradle.api.tasks.Upload
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -59,7 +67,8 @@ class DependencyManagementPlugin implements Plugin<Project> {
                                 "Adding managed version in configuration '{}' for dependency '{}'",
                                 configuration.name, it)
                         dependencyManagementContainer.
-                                addManagedVersion(configuration, it.group, it.name, it.version)
+                                addImplicitManagedVersion(configuration, it.group, it.name,
+                                        it.version)
                     }
                 }
             }
@@ -96,6 +105,27 @@ class DependencyManagementPlugin implements Plugin<Project> {
                 }
             }
         }
+
+        PomDependencyManagementConfigurer pomDependencyManagementConfigurer = new
+                PomDependencyManagementConfigurer(dependencyManagementContainer.globalDependencyManagement)
+
+        project.tasks.withType(Upload).all { uploadTask ->
+            uploadTask.repositories.withType(PomFilterContainer).all { container ->
+                configurePom(container.pom, pomDependencyManagementConfigurer)
+            }
+        }
+
+        project.plugins.withType(MavenPublishPlugin) {
+            project.extensions.configure(PublishingExtension, new ClosureBackedAction({
+                publications.withType(MavenPublication).all { publication ->
+                    configurePom(publication.pom, pomDependencyManagementConfigurer)
+                }
+            }))
+        }
+    }
+
+    private void configurePom(def pom, PomDependencyManagementConfigurer configurer) {
+        pom.withXml { xml -> configurer.configurePom(xml.asNode()) }
     }
 
     private static boolean isDependencyOnLocalProject(Project project,

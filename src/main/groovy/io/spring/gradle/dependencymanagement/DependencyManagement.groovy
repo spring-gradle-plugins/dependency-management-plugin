@@ -44,7 +44,11 @@ class DependencyManagement {
 
     private Map versions = [:]
 
+    private Map explicitVersions = [:]
+
     private Exclusions bomExclusions = new Exclusions()
+
+    List importedBoms = []
 
     def DependencyManagement(Project project) {
         this(project, null)
@@ -57,16 +61,33 @@ class DependencyManagement {
     }
 
     void importBom(bomCoordinates) {
+        importedBoms << bomCoordinates
         configuration.dependencies.add(project.dependencies.create(bomCoordinates + '@pom'))
     }
 
     void addManagedVersion(String group, String name, String version) {
-        versions[createKey(group, name)] = version;
+        versions[createKey(group, name)] = version
+    }
+
+    void addImplicitManagedVersion(String group, String name, String version) {
+        addManagedVersion(group, name, version)
+    }
+
+    void addExplicitManagedVersion(String group, String name, String version) {
+        explicitVersions[createKey(group, name)] = version
+        addManagedVersion(group, name, version)
     }
 
     String getManagedVersion(String group, String name) {
         resolveIfNecessary()
         versions[createKey(group, name)]
+    }
+
+    void explicitManagedVersions(Closure closure) {
+        explicitVersions.each { key, value ->
+            def (groupId, artifactId) = key.split(':')
+            closure.call(groupId, artifactId, value)
+        }
     }
 
     private String createKey(String group, String name) {
