@@ -1,8 +1,25 @@
+/*
+ * Copyright 2014 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.spring.gradle.dependencymanagement.exclusions
 
 import io.spring.gradle.dependencymanagement.DependencyManagementContainer
 import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
 import io.spring.gradle.dependencymanagement.maven.ModelExclusionCollector
+import io.spring.gradle.dependencymanagement.exclusions.DependencyGraph.DependencyGraphNode
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -49,7 +66,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
         candidateExclusions.
                 addAll(dependencyManagementContainer.getExclusions(configuration))
         def paths = getPathsToRootForExclusionCandidates(candidateExclusions,
-                configurationCopy.incoming.resolutionResult.root, [])
+                configurationCopy.incoming.resolutionResult.root)
 
         def exclusions = candidateExclusions.collect { candidate, value ->
             def pathsForCandidate = paths[candidate]
@@ -146,34 +163,24 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
         }
     }
 
-    def getPathsToRootForExclusionCandidates(exclusions, dependency, path) {
+    def getPathsToRootForExclusionCandidates(Exclusions exclusions, dependency) {
         def paths = [:]
-        doGetPathsToRootForExclusionCandidates(exclusions, dependency, path, paths)
-        paths
-    }
-
-    def doGetPathsToRootForExclusionCandidates(Exclusions exclusions, dependency, path,
-            paths) {
-        def moduleVersion = dependency.moduleVersion
-        def dependencyId = "$moduleVersion.group:$moduleVersion.name" as String
-
-        if (exclusions.containsExclusionFor(dependencyId)) {
-            def pathsForDependency = paths[dependencyId]
-            if (!pathsForDependency) {
-                pathsForDependency = []
-                paths[dependencyId] = pathsForDependency
+        new DependencyGraph(dependency).accept { DependencyGraphNode node ->
+            if (exclusions.containsExclusionFor(node.id)) {
+                def pathsForDependency = paths[node.id]
+                if (!pathsForDependency) {
+                    pathsForDependency = []
+                    paths[node.id] = pathsForDependency
+                }
+                def path = []
+                DependencyGraphNode current = node.parent;
+                while (current != null) {
+                    path << current.id
+                    current = current.parent
+                }
+                pathsForDependency.add(path)
             }
-            pathsForDependency.add(path)
         }
-
-        def newPath = new ArrayList(path)
-        newPath.add(dependencyId)
-
-        dependency.dependencies
-                .findAll { it instanceof ResolvedDependencyResult }
-                .collect { it.selected }
-                .each {
-            doGetPathsToRootForExclusionCandidates(exclusions, it, newPath, paths)
-        }
+        paths
     }
 }

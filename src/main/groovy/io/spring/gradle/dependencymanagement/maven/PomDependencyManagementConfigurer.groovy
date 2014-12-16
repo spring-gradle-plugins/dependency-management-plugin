@@ -45,7 +45,6 @@ class PomDependencyManagementConfigurer {
     }
 
     private void configureBomImports(Node dependencies) {
-        println this.dependencyManagement.importedBoms
         this.dependencyManagement.importedBoms.each { bomCoordinates ->
             def (groupId, artifactId, version) = bomCoordinates.split(':')
             def dependency = dependencies.appendNode('dependency')
