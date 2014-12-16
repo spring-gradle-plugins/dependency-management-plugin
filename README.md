@@ -15,7 +15,7 @@ The plugin is [available from Gradle's plugin portal][3]. The latest release is 
 
 With Gradle 2.1, you can use it as follows:
 
-```
+```groovy
 plugins {
     id "io.spring.dependency-management" version "0.2.1.RELEASE"
 }
@@ -24,7 +24,7 @@ plugins {
 
 Alternatively, on earlier versions of Gradle:
 
-```
+```groovy
 buildscript {
     repositories {
         jcenter()
@@ -257,7 +257,7 @@ Consider a Maven artifact, `exclusion-example`, that declares a dependency on
 `org.springframework:spring-core` in its pom with an exclusion for
 `commons-logging:commons-logging`:
 
-```
+```xml
 <dependency>
     <groupId>org.springframework</groupId>
     <artifactId>spring-core</artifactId>
@@ -301,6 +301,46 @@ The dependency management plugin improves Gradle's handling of exclusions that h
 in a Maven pom by honoring Maven's semantics for those exclusions. This applies to exclusions
 declared in a project's dependencies that have a Maven pom and exclusions declared in imported
 Maven boms.
+
+## Pom generation
+
+Gradle's `maven` and `maven-publish` plugins automatically generate a pom file that describes the
+published artifact. The plugin will automatically include any global dependency management, i.e.
+dependency management that does not target a specific configuration, in the
+`<dependencyManagement>` section of the generated pom file. For example the following dependency
+management configuration:
+
+```groovy
+dependencyManagement {
+     imports {
+          mavenBom 'com.example:bom:1.0'
+     }
+     dependencies {
+          'com.example:dependency:1.5'
+     }
+}
+```
+
+Will result in the following `<dependencyManagement>` in the generated pom file:
+
+```xml
+<dependencyManagement>
+     <dependencies>
+          <dependency>
+               <groupId>com.example</groupId>
+               <artifactId>bom</artifactId>
+               <version>1.0</version>
+               <scope>import</scope>
+               <type>pom</type>
+          <dependency>
+          <dependency>
+               <groupId>com.example</groupId>
+               <artifactId>dependency</artifactId>
+               <version>1.5</version>
+          </dependency>
+     <dependencies>
+</dependencyManagement>
+```
 
 ## Accessing the managed versions
 
