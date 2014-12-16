@@ -1,8 +1,9 @@
 # Dependency management plugin [![Build status][2]][1]
 
-A Gradle plugin that provides Maven-like dependency management. Based on the configured dependency
-management metadata, the plugin will control the versions of your project's direct and transitive
-dependencies.
+A Gradle plugin that provides Maven-like dependency management and exclusions. Based on the
+configured dependency management metadata, the plugin will control the versions of your
+project's direct and transitive dependencies and will honour any exclusions declared in the
+poms of your project's dependencies.
 
 ## Requirements
 
@@ -244,6 +245,62 @@ dependencyManagement {
      }
 }
 ```
+
+## Maven exclusions
+
+While Gradle can consume dependencies described with a Maven pom file, Gradle doesn't not
+honour Maven's semantics when it is using the pom to build the dependency graph. A notable
+difference that results from this is in how exclusions are handled. This is best illustrated
+with an example:
+
+Consider a Maven artifact, `exclusion-example`, that declares a dependency on
+`org.springframework:spring-core` in its pom with an exclusion for
+`commons-logging:commons-logging`:
+
+```
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-core</artifactId>
+    <version>4.1.3.RELEASE</version>
+    <exclusions>
+        <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+```
+
+If we have a Maven project, `consumer`, that depends on
+`exclusion-example` and `org.springframework:spring-beans` the exclusion in `exlusion-example`
+prevents a transitive dependency on `commons-logging:commons-logging`. This can be seen in the
+output from `mvn dependency:tree`:
+
+```
++- com.example:exclusion-example:jar:1.0:compile
+|  \- org.springframework:spring-core:jar:4.1.3.RELEASE:compile
+\- org.springframework:spring-beans:jar:4.1.3.RELEASE:compile
+```
+
+If we create a similar project in Gradle the dependencies are different as the exclusion of
+`commons-logging:commons-logging` is not honored. This can be seen in the output from
+`gradle dependencies`:
+
+```
++--- com.example:exclusion-example:1.0
+|    \--- org.springframework:spring-core:4.1.3.RELEASE
+|         \--- commons-logging:commons-logging:1.2
+\--- org.springframework:spring-beans:4.1.3.RELEASE
+     \--- org.springframework:spring-core:4.1.3.RELEASE (*)
+```
+
+Despite `exclusion-example` excluding `commons-logging` from its `spring-core` dependency,
+`spring-core` has still pulled in `commons-logging`.
+
+The dependency management plugin improves Gradle's handling of exclusions that have been declared
+in a Maven pom by honoring Maven's semantics for those exclusions. This applies to exclusions
+declared in a project's dependencies that have a Maven pom and exclusions declared in imported
+Maven boms.
 
 ## Accessing the managed versions
 
