@@ -23,6 +23,8 @@ import io.spring.gradle.dependencymanagement.exclusions.DependencyGraph.Dependen
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.ResolvableDependencies
 import org.gradle.api.artifacts.ResolveException
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
@@ -83,10 +85,15 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
         }.findAll { it != null }
 
         exclusions.each {
-            def (group, module) = it.split(':')
-            log.debug("Excluding $it from $configuration.name configuration")
-            configuration.exclude(group: group, module: module)
+            resolvableDependencies.dependencies
+                .matching { it instanceof ModuleDependency }
+                .all { ModuleDependency dependency ->
+                    log.debug("Excluding {} from {}", it, "$dependency.group:$dependency.name")
+                    def (group, module) = it.split(':')
+                    ((ModuleDependency)dependency).exclude(group: group, module: module)
+                }
         }
+
     }
 
     def collectExclusions(root, dependencyManagementExclusions) {

@@ -676,4 +676,65 @@ public class DependencyManagementPluginSpec extends Specification {
                                                    'spring-beans-4.1.2.RELEASE.jar',
                                                    'spring-core-4.1.2.RELEASE.jar'])
     }
+
+    def 'Exclusions are not inherited and do no affect direct dependencies (see gh-21)'() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.repositories {
+                maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+            }
+        when: 'It depends on a module that excludes commons-logging in compile and on ' +
+                'commons-logging in testCompile'
+            project.dependencies {
+                compile 'test:direct-exclude:1.0'
+                testCompile 'commons-logging:commons-logging:1.1.3'
+            }
+        then: "commons-logging has been excluded from compile but not testCompile"
+            def compileFiles = project.configurations.compile.resolve()
+            compileFiles.size() == 4
+            compileFiles.collect { it.name }.containsAll(['direct-exclude-1.0.jar',
+                                                   'spring-tx-4.1.2.RELEASE.jar',
+                                                   'spring-beans-4.1.2.RELEASE.jar',
+                                                   'spring-core-4.1.2.RELEASE.jar'])
+            def testCompileFiles = project.configurations.testCompile.resolve()
+            testCompileFiles.size() == 5
+            testCompileFiles.collect { it.name }.containsAll(['direct-exclude-1.0.jar',
+                                                          'spring-tx-4.1.2.RELEASE.jar',
+                                                          'spring-beans-4.1.2.RELEASE.jar',
+                                                          'spring-core-4.1.2.RELEASE.jar',
+                                                          'commons-logging-1.1.3.jar'])
+    }
+
+    def 'Exclusions are not inherited and do no affect transitive dependencies (see gh-21)'() {
+        given: 'A project with a compile dependency that pulls in a JUnit exclude'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.dependencyManagement {
+                imports {
+                    mavenBom 'org.springframework.boot:spring-boot-dependencies:1.2.0.RELEASE'
+                }
+            }
+            project.dependencies {
+                compile 'org.codehaus.groovy:groovy'
+            }
+        when: 'It has a transitive testCompile dependency on JUnit'
+            project.dependencies {
+                testCompile 'org.springframework.boot:spring-boot-starter-test'
+            }
+        then: "JUnit has not be excluded"
+            def testCompileFiles = project.configurations.testCompile.resolve()
+            testCompileFiles.size() == 9
+            testCompileFiles
+                    .collect { it.name }
+                    .containsAll(['groovy-2.3.8.jar',
+                                  'spring-boot-starter-test-1.2.0.RELEASE.jar',
+                                  'junit-4.12.jar',
+                                  'mockito-core-1.10.8.jar',
+                                  'hamcrest-core-1.3.jar',
+                                  'hamcrest-library-1.3.jar',
+                                  'spring-core-4.1.3.RELEASE.jar',
+                                  'spring-test-4.1.3.RELEASE.jar',
+                                  'objenesis-2.1.jar'])
+    }
 }
