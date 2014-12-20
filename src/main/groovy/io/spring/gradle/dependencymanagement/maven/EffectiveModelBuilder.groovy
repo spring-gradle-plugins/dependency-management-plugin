@@ -24,6 +24,7 @@ class EffectiveModelBuilder {
         mavenModelBuilder = new DefaultModelBuilderFactory().newInstance()
         mavenModelBuilder.modelInterpolator = new ProjectPropertiesModelInterpolator(
                 project)
+        mavenModelBuilder.modelValidator = new RelaxedModelValidator();
         modelResolver = new PomDependencyModelResolver(project)
     }
 
@@ -32,6 +33,7 @@ class EffectiveModelBuilder {
         request.setSystemProperties(System.getProperties())
         request.setModelSource(new FileModelSource(pom))
         request.modelResolver = modelResolver
+
         try {
             def result = mavenModelBuilder.build(request)
             def errors = extractErrors(result.problems)
@@ -55,7 +57,7 @@ class EffectiveModelBuilder {
         def errorMessages = errors.collect {
             ModelProblem problem -> "\n    $problem.message in $problem.modelId"
         } as Set
-        String message = "Processing of $file.name failed:"
+        String message = "Processing of $file failed:"
         errorMessages.each { message += it }
         log.error(message)
     }
