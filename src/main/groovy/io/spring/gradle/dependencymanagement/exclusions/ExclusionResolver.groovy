@@ -3,9 +3,11 @@ package io.spring.gradle.dependencymanagement.exclusions
 import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
 import io.spring.gradle.dependencymanagement.maven.ModelExclusionCollector
 import org.gradle.api.artifacts.ConfigurationContainer
-import org.gradle.api.artifacts.ResolveException
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.result.ResolvedComponentResult
+import org.gradle.api.specs.Specs
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -34,41 +36,39 @@ class ExclusionResolver {
         this.effectiveModelBuilder = effectiveModelBuilder
     }
 
-    Exclusions resolveExclusions(ResolvedComponentResult dependency) {
-        def exclusions
-        def pomDependency = getPomDependency(dependency)
+    Map<String, Exclusions> resolveExclusions(Set<ResolvedComponentResult> resolvedComponents) {
+        def dependencies = []
+        def exclusions = [:]
 
-        if (pomDependency) {
-            exclusions = this.exclusionsCache[pomDependency]
-            if (!exclusions) {
-                def configuration = this.configurationContainer.detachedConfiguration(pomDependency)
-                try {
-                    def files = configuration.resolve()
-                    if (files) {
-                        def pom = files.iterator().next()
-                        def model = this.effectiveModelBuilder.buildModel(pom)
-                        exclusions = new ModelExclusionCollector().collectExclusions(model)
-                        this.exclusionsCache[pomDependency] = exclusions
+        resolvedComponents
+                .findAll { it.moduleVersion.group && it.moduleVersion.name && it.moduleVersion.version}
+                .each {
+                    def id = "$it.moduleVersion.group:$it.moduleVersion.name"
+                    def existing = this.exclusionsCache[id]
+                    if (existing) {
+                        exclusions[id] = existing
+                    } else {
+                        dependencies << this.dependencyHandler
+                                .create(id + ":$it.moduleVersion.version@pom")
                     }
                 }
-                catch (ResolveException ex) {
-                    log.debug("Failed to resolve $pomDependency")
-                }
-            }
+
+        def configuration = this.configurationContainer.detachedConfiguration(dependencies
+                .toArray(new Dependency[dependencies.size()]))
+
+        configuration.resolvedConfiguration.lenientConfiguration
+                .getArtifacts(Specs.SATISFIES_ALL).each { ResolvedArtifact artifact ->
+            def moduleId = artifact.moduleVersion.id
+            def pom = artifact.file
+            def model = this.effectiveModelBuilder.buildModel(pom)
+            def newExclusions = new ModelExclusionCollector().collectExclusions(model)
+            String id = "$moduleId.group:$moduleId.name"
+            exclusions[id] = newExclusions
+            this.exclusionsCache[id] = newExclusions
         }
 
-        if (!exclusions) {
-            exclusions = new Exclusions()
-        }
+        this.exclusionsCache.putAll(exclusions)
 
         return exclusions
-    }
-
-    private getPomDependency(dependency) {
-        def moduleVersion = dependency.moduleVersion
-        if (moduleVersion.group && moduleVersion.name && moduleVersion.version) {
-            this.dependencyHandler.create(
-                    "$moduleVersion.group:$moduleVersion.name:$moduleVersion.version@pom")
-        }
     }
 }

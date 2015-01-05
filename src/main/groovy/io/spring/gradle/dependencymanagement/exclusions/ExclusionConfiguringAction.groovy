@@ -54,12 +54,33 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
         def root = configurationCopy.incoming.resolutionResult.root
 
-        def dependencyGraph = new DependencyGraph(root, this.exclusionResolver)
+        def dependencyGraph = new DependencyGraph(root)
 
         Exclusions candidateExclusions = new Exclusions()
 
         def dependencyManagementExclusions =
                 this.dependencyManagementContainer.getExclusions(this.configuration)
+
+        def dependencies = [] as Set
+
+        dependencyGraph.accept { DependencyGraphNode node ->
+            dependencies.add(node.dependency)
+        }
+
+        Map<String, Exclusions> allExclusions =
+                this.exclusionResolver.resolveExclusions (dependencies)
+
+        dependencyGraph.accept { DependencyGraphNode node ->
+            if (node.parent) {
+                def exclusions = allExclusions[node.parent.id]
+                if (exclusions) {
+                    def exclusionsForDependency = exclusions.exclusionsForDependency(node.id)
+                    if (exclusionsForDependency) {
+                        node.exclusions.addAll(exclusionsForDependency)
+                    }
+                }
+            }
+        }
 
         dependencyGraph.accept { DependencyGraphNode node ->
             log.debug "Determining exclusions for $node.id"

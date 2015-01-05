@@ -32,12 +32,7 @@ class DependencyGraph {
 
     private final DependencyGraphNode root
 
-    private final ExclusionResolver exclusionResolver
-
-    private final List<DependencyGraphNode> leafNodes = []
-
-    DependencyGraph(ResolvedComponentResult root, ExclusionResolver exclusionResolver) {
-        this.exclusionResolver = exclusionResolver
+    DependencyGraph(ResolvedComponentResult root) {
         this.root = process(null, root)
     }
 
@@ -52,11 +47,6 @@ class DependencyGraph {
 
         if (parent) {
             parent.children << node
-            Exclusions exclusions = this.exclusionResolver.resolveExclusions(parent.dependency)
-            def exclusionsForDependency = exclusions.exclusionsForDependency(node.id)
-            if (exclusionsForDependency) {
-                node.exclusions.addAll(exclusionsForDependency)
-            }
         }
 
         def dependencies = dependency.dependencies
@@ -65,8 +55,6 @@ class DependencyGraph {
 
         if (dependencies) {
             dependencies.each { process(node, it) }
-        } else {
-            leafNodes << node
         }
         node
     }

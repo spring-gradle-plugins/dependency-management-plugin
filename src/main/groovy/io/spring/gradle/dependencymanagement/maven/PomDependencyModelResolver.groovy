@@ -32,6 +32,10 @@ class PomDependencyModelResolver implements ModelResolver {
 
     private final Project project
 
+    private Map<String, FileModelSource> pomCache = [:]
+
+    private int hits
+
     PomDependencyModelResolver(Project project) {
         this.project = project
     }
@@ -39,9 +43,21 @@ class PomDependencyModelResolver implements ModelResolver {
     @Override
     ModelSource resolveModel(String groupId, String artifactId, String version)
             throws UnresolvableModelException {
-        def dependency = project.dependencies.create("$groupId:$artifactId:$version@pom")
-        def configuration = project.configurations.detachedConfiguration(dependency)
-        new FileModelSource(configuration.resolve().iterator().next())
+        def id = "$groupId:$artifactId:$version@pom"
+
+        def pom = pomCache[id]
+
+        if (!pom) {
+            def dependency = project.dependencies.create("$groupId:$artifactId:$version@pom")
+            def configuration = project.configurations.detachedConfiguration(dependency)
+            pom = new FileModelSource(configuration.resolve().iterator().next())
+
+            pomCache[id] = pom
+        } else {
+            hits++
+        }
+
+        pom
     }
 
     @Override
