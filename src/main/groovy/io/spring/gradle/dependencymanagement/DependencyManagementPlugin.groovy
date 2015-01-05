@@ -17,6 +17,8 @@
 package io.spring.gradle.dependencymanagement
 
 import io.spring.gradle.dependencymanagement.exclusions.ExclusionConfiguringAction
+import io.spring.gradle.dependencymanagement.exclusions.ExclusionResolver
+import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
 import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfigurer
 import org.gradle.api.Action
 import org.gradle.api.Plugin
@@ -29,7 +31,6 @@ import org.gradle.api.internal.ClosureBackedAction
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import org.gradle.api.publish.maven.tasks.GenerateMavenPom
 import org.gradle.api.tasks.Upload
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -74,13 +75,16 @@ class DependencyManagementPlugin implements Plugin<Project> {
             }
         }
 
+        def ExclusionResolver exclusionResolver = new ExclusionResolver(project.dependencies,
+                project.configurations, new EffectiveModelBuilder(project))
+
         project.configurations.all { Configuration c ->
             log.info("Applying dependency management to configuration '{}' in project '{}'",
                     c.name, project.name)
 
             c.incoming.beforeResolve(
-                    new ExclusionConfiguringAction(dependencyManagementContainer, c,
-                            project))
+                    new ExclusionConfiguringAction(dependencyManagementContainer,
+                            c, exclusionResolver))
 
             resolutionStrategy.eachDependency { DependencyResolveDetails details ->
                 log.debug("Processing dependency '{}'", details.requested)

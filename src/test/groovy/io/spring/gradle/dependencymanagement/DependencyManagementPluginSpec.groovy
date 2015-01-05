@@ -677,7 +677,7 @@ public class DependencyManagementPluginSpec extends Specification {
                                                    'spring-core-4.1.2.RELEASE.jar'])
     }
 
-    def 'Exclusions are not inherited and do no affect direct dependencies (see gh-21)'() {
+    def 'Exclusions are not inherited and do not affect direct dependencies (see gh-21)'() {
         given: 'A project with the plugin applied'
             project.apply plugin: 'io.spring.dependency-management'
             project.apply plugin: 'java'
@@ -706,7 +706,7 @@ public class DependencyManagementPluginSpec extends Specification {
                                                           'commons-logging-1.1.3.jar'])
     }
 
-    def 'Exclusions are not inherited and do no affect transitive dependencies (see gh-21)'() {
+    def 'Exclusions are not inherited and do not affect transitive dependencies (see gh-21)'() {
         given: 'A project with a compile dependency that pulls in a JUnit exclude'
             project.apply plugin: 'io.spring.dependency-management'
             project.apply plugin: 'java'
@@ -736,5 +736,24 @@ public class DependencyManagementPluginSpec extends Specification {
                                   'spring-core-4.1.3.RELEASE.jar',
                                   'spring-test-4.1.3.RELEASE.jar',
                                   'objenesis-2.1.jar'])
+    }
+
+    def "Exclusions from a dependency's ancestors are applied correctly (see gh-23)"() {
+        given: "A project with the plugin applied that depends on Spring Cloud's Zuul starter"
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.dependencies {
+                compile 'org.springframework.cloud:spring-cloud-starter-zuul:1.0.0.RC1'
+            }
+            project.repositories {
+                maven { url 'https://repo.spring.io/libs-milestone' }
+            }
+        when: 'The configuration is resolved'
+            def files = project.configurations.compile.resolve()
+        then: 'ribbon-loadbalancer has not be excluded'
+            files.collect { it.name }
+                    .contains 'ribbon-loadbalancer-2.0-RC13.jar'
+
+
     }
 }

@@ -16,6 +16,7 @@
 
 package io.spring.gradle.dependencymanagement.exclusions
 
+import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -26,7 +27,7 @@ import org.slf4j.LoggerFactory
  */
 class Exclusions {
 
-    private final Logger log = LoggerFactory.getLogger(ExclusionConfiguringAction)
+    private final Logger log = LoggerFactory.getLogger(Exclusions)
 
     def excludersByExclusion = [:]
 
@@ -43,11 +44,12 @@ class Exclusions {
         exclusions << exclusion
         exclusionsByExcluder[excluder] = exclusions
 
-        log.debug("{} is excluded by {}", exclusion, excluder)
+        log.debug("Adding exclusion of $exclusion by $excluder")
     }
 
     void addAll(Exclusions newExclusions) {
         newExclusions.each { exclusion, excluders ->
+            log.debug("Adding exclusion of $exclusion by $excluders")
             def existingExcluders = excludersByExclusion[exclusion] ?: [] as Set
             existingExcluders.addAll(excluders)
             excludersByExclusion[exclusion] = existingExcluders
@@ -63,7 +65,7 @@ class Exclusions {
         excludersByExclusion.each(c)
     }
 
-    def exclusionsForDependency(dependency) {
+    def exclusionsForDependency(String dependency) {
         exclusionsByExcluder[dependency]
     }
 

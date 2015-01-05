@@ -16,6 +16,10 @@
 
 package io.spring.gradle.dependencymanagement.exclusions
 
+import io.spring.gradle.dependencymanagement.maven.ModelExclusionCollector
+import org.gradle.api.artifacts.ConfigurationContainer
+import org.gradle.api.artifacts.ResolveException
+import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 
@@ -28,9 +32,12 @@ class DependencyGraph {
 
     private final DependencyGraphNode root
 
+    private final ExclusionResolver exclusionResolver
+
     private final List<DependencyGraphNode> leafNodes = []
 
-    DependencyGraph(ResolvedComponentResult root) {
+    DependencyGraph(ResolvedComponentResult root, ExclusionResolver exclusionResolver) {
+        this.exclusionResolver = exclusionResolver
         this.root = process(null, root)
     }
 
@@ -40,10 +47,16 @@ class DependencyGraph {
 
     private DependencyGraphNode process(DependencyGraphNode parent,
             ResolvedComponentResult dependency) {
+
         DependencyGraphNode node = new DependencyGraphNode(parent, dependency)
 
         if (parent) {
             parent.children << node
+            Exclusions exclusions = this.exclusionResolver.resolveExclusions(parent.dependency)
+            def exclusionsForDependency = exclusions.exclusionsForDependency(node.id)
+            if (exclusionsForDependency) {
+                node.exclusions.addAll(exclusionsForDependency)
+            }
         }
 
         def dependencies = dependency.dependencies
@@ -67,6 +80,8 @@ class DependencyGraph {
         final String id
 
         final List<DependencyGraphNode> children = []
+
+        final List<String> exclusions = []
 
         DependencyGraphNode(DependencyGraphNode parent, ResolvedComponentResult dependency) {
             this.parent = parent;
