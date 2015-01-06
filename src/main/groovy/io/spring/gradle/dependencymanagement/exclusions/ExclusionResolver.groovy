@@ -5,6 +5,7 @@ import io.spring.gradle.dependencymanagement.maven.ModelExclusionCollector
 import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ResolvedArtifact
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.specs.Specs
@@ -41,6 +42,7 @@ class ExclusionResolver {
         def exclusions = [:]
 
         resolvedComponents
+                .findAll { !(it.id instanceof ProjectComponentIdentifier) }
                 .findAll { it.moduleVersion.group && it.moduleVersion.name && it.moduleVersion.version}
                 .each {
                     def id = "$it.moduleVersion.group:$it.moduleVersion.name"
