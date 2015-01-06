@@ -38,7 +38,10 @@ class ModelExclusionCollector {
         def exclusions = new Exclusions()
         def dependencies = model?.dependencyManagement?.dependencies ?: []
         dependencies.addAll model?.dependencies ?: []
-        dependencies.each { dependency ->
+        dependencies.findAll { !it.isOptional()}
+                .findAll { "provided" != it.scope }
+                .findAll { "test" != it.scope }
+                .each { dependency ->
             dependency.exclusions.each { exclusion ->
                 exclusions.add(exclusion: exclusion, from: dependency)
             }
