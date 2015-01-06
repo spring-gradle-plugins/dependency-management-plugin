@@ -302,6 +302,16 @@ in a Maven pom by honoring Maven's semantics for those exclusions. This applies 
 declared in a project's dependencies that have a Maven pom and exclusions declared in imported
 Maven boms.
 
+### Disabling Maven exclusions
+
+The plugin's support for applying Maven's exclusion semantics can be disabled:
+
+```groovy
+dependencyManagement {
+    applyMavenExclusions false
+}
+```
+
 ## Pom generation
 
 Gradle's `maven` and `maven-publish` plugins automatically generate a pom file that describes the

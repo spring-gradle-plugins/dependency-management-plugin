@@ -756,4 +756,25 @@ public class DependencyManagementPluginSpec extends Specification {
 
 
     }
+
+    def "Pom exclusions can be disabled"() {
+        given: 'A project that imports a bom and disables pom exclusions'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.dependencyManagement {
+                imports {
+                    mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+                }
+                applyMavenExclusions false
+            }
+            project.dependencies {
+                compile 'org.springframework:spring-core'
+            }
+        when: 'A configuration is resolved'
+            def files = project.configurations.compile.resolve()
+        then: "The bom's dependency management has been applied but the exclusions have not"
+            files.size() == 2
+            files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar',
+                                                   'commons-logging-1.1.3.jar'])
+    }
 }

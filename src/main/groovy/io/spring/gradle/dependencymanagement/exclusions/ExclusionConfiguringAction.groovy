@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement.exclusions
 
 import io.spring.gradle.dependencymanagement.DependencyManagementContainer
+import io.spring.gradle.dependencymanagement.DependencyManagementExtension
 import io.spring.gradle.dependencymanagement.exclusions.DependencyGraph.DependencyGraphNode
 import org.gradle.api.Action
 import org.gradle.api.artifacts.Configuration
@@ -35,14 +36,18 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
     private final Logger log = LoggerFactory.getLogger(ExclusionConfiguringAction)
 
+    private final DependencyManagementExtension dependencyManagementExtension
+
     private final DependencyManagementContainer dependencyManagementContainer
 
     private final Configuration configuration
 
     private final ExclusionResolver exclusionResolver
 
-    ExclusionConfiguringAction(DependencyManagementContainer dependencyManagementContainer,
+    ExclusionConfiguringAction(DependencyManagementExtension dependencyManagementExtension,
+            DependencyManagementContainer dependencyManagementContainer,
             Configuration configuration, ExclusionResolver exclusionResolver) {
+        this.dependencyManagementExtension = dependencyManagementExtension
         this.dependencyManagementContainer = dependencyManagementContainer
         this.configuration = configuration
         this.exclusionResolver = exclusionResolver
@@ -50,6 +55,12 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
     @Override
     void execute(ResolvableDependencies resolvableDependencies) {
+        if (this.dependencyManagementExtension.applyMavenExclusions) {
+            applyMavenExclusions(resolvableDependencies)
+        }
+    }
+
+    private void applyMavenExclusions(ResolvableDependencies resolvableDependencies) {
         def configurationCopy = configuration.copyRecursive()
 
         def root = configurationCopy.incoming.resolutionResult.root

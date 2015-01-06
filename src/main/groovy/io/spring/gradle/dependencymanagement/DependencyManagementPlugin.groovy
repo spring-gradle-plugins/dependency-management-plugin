@@ -82,9 +82,9 @@ class DependencyManagementPlugin implements Plugin<Project> {
             log.info("Applying dependency management to configuration '{}' in project '{}'",
                     c.name, project.name)
 
-            c.incoming.beforeResolve(
-                    new ExclusionConfiguringAction(dependencyManagementContainer,
-                            c, exclusionResolver))
+            c.incoming.beforeResolve(new ExclusionConfiguringAction(
+                    project.extensions.findByType(DependencyManagementExtension),
+                    dependencyManagementContainer, c, exclusionResolver))
 
             resolutionStrategy.eachDependency { DependencyResolveDetails details ->
                 log.debug("Processing dependency '{}'", details.requested)

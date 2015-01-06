@@ -32,6 +32,8 @@ class DependencyManagementExtension {
 
     VersionHandler versions
 
+    boolean applyMavenExclusions = true
+
     protected setDependencyManagementContainer(DependencyManagementContainer container) {
         this.dependencyManagementContainer = container;
         this.versions = new VersionHandler(container, null)
