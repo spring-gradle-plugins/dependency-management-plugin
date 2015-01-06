@@ -16,10 +16,6 @@
 
 package io.spring.gradle.dependencymanagement.exclusions
 
-import io.spring.gradle.dependencymanagement.maven.ModelExclusionCollector
-import org.gradle.api.artifacts.ConfigurationContainer
-import org.gradle.api.artifacts.ResolveException
-import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 
@@ -38,6 +34,11 @@ class DependencyGraph {
 
     void accept(Closure visitor) {
         this.root.accept(visitor)
+    }
+
+    void acceptUnique(Closure visitor) {
+        def seen = [] as Set
+        this.root.accept(seen, visitor)
     }
 
     private DependencyGraphNode process(DependencyGraphNode parent,
@@ -75,6 +76,14 @@ class DependencyGraph {
             this.parent = parent;
             this.dependency = dependency
             this.id = "$dependency.moduleVersion.group:$dependency.moduleVersion.name"
+        }
+
+        private accept(seen, Closure closure) {
+            if (!seen.contains(this.id)) {
+                seen.add(this.id)
+                closure.call(this)
+                children.each { it.accept(seen, closure) }
+            }
         }
 
         private accept(Closure closure) {

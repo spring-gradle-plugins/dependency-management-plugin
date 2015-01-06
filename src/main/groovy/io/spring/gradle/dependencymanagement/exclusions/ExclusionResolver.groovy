@@ -9,8 +9,6 @@ import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.specs.Specs
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 /**
  * Resolves the {@link Exclusions exclusions} for a {@link ResolvedComponentResult dependency}
@@ -18,8 +16,6 @@ import org.slf4j.LoggerFactory
  * @author Andy Wilkinson
  */
 class ExclusionResolver {
-
-    private final Logger log = LoggerFactory.getLogger(ExclusionConfiguringAction)
 
     private final DependencyHandler dependencyHandler
 
@@ -37,7 +33,8 @@ class ExclusionResolver {
         this.effectiveModelBuilder = effectiveModelBuilder
     }
 
-    Map<String, Exclusions> resolveExclusions(Set<ResolvedComponentResult> resolvedComponents) {
+    Map<String, Exclusions> resolveExclusions(Collection<ResolvedComponentResult>
+            resolvedComponents) {
         def dependencies = []
         def exclusions = [:]
 

@@ -62,26 +62,27 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
     private void applyMavenExclusions(ResolvableDependencies resolvableDependencies) {
         def configurationCopy = configuration.copyRecursive()
-
         def root = configurationCopy.incoming.resolutionResult.root
-
         def dependencyGraph = new DependencyGraph(root)
 
-        Exclusions candidateExclusions = new Exclusions()
+        applyExclusionsToDependencyGraph(dependencyGraph)
 
-        def dependencyManagementExclusions =
-                this.dependencyManagementContainer.getExclusions(this.configuration)
+        Exclusions exclusionCandidates = findExclusionCandidates(dependencyGraph)
 
-        def dependencies = [] as Set
-
-        dependencyGraph.accept { DependencyGraphNode node ->
-            dependencies.add(node.dependency)
+        findExclusionsToApply(exclusionCandidates, dependencyGraph).each {
+            resolvableDependencies.dependencies
+                .matching { it instanceof ModuleDependency }
+                .all { ModuleDependency dependency ->
+                    log.debug("Excluding {} from {}", it, "$dependency.group:$dependency.name")
+                    def (group, module) = it.split(':')
+                    ((ModuleDependency)dependency).exclude(group: group, module: module)
+                }
         }
+    }
 
-        Map<String, Exclusions> allExclusions =
-                this.exclusionResolver.resolveExclusions (dependencies)
-
-        dependencyGraph.accept { DependencyGraphNode node ->
+    private void applyExclusionsToDependencyGraph(DependencyGraph dependencyGraph) {
+        Map<String, Exclusions> allExclusions = resolveExclusions(dependencyGraph)
+        dependencyGraph.acceptUnique { DependencyGraphNode node ->
             if (node.parent) {
                 def exclusions = allExclusions[node.parent.id]
                 if (exclusions) {
@@ -92,34 +93,46 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
                 }
             }
         }
+    }
 
-        dependencyGraph.accept { DependencyGraphNode node ->
+    private Map<String, Exclusions> resolveExclusions(DependencyGraph dependencyGraph) {
+        def dependencies = []
+        dependencyGraph.acceptUnique { DependencyGraphNode node ->
+            dependencies.add(node.dependency)
+        }
+        this.exclusionResolver.resolveExclusions(dependencies)
+    }
+
+    private Exclusions findExclusionCandidates(DependencyGraph dependencyGraph) {
+        Exclusions candidateExclusions = new Exclusions()
+
+        def dependencyManagementExclusions =
+                this.dependencyManagementContainer.getExclusions(this.configuration)
+
+        dependencyGraph.acceptUnique { DependencyGraphNode node ->
             log.debug "Determining exclusions for $node.id"
-            def current = node
-            while (current != null) {
-                if (current != node) {
-                    log.debug "Applying exclusions from ancestor $current.id"
-                }
 
-                current.exclusions.each {
-                    if (node.id != it) {
-                        candidateExclusions.add(from: node.id, exclusion: it)
-                    }
-                }
+            dependencyManagementExclusions.exclusionsForDependency(node.id).each {
+                candidateExclusions.add(from: node.id, exclusion: it)
+            }
 
-                log.debug "Applying dependency management exclusions for $current.id"
+            node.exclusions.each {
+                candidateExclusions.add(from: node.id, exclusion: it)
+            }
 
-                dependencyManagementExclusions.exclusionsForDependency(current.id).each {
+            if (node.parent) {
+                candidateExclusions.exclusionsForDependency(node.parent.id).each {
                     candidateExclusions.add(from: node.id, exclusion: it)
                 }
-
-                current = current.parent
             }
         }
+        candidateExclusions
+    }
 
-        def paths = getPathsToRootForExclusionCandidates(candidateExclusions, dependencyGraph)
+    private findExclusionsToApply(Exclusions exclusionCandidates, dependencyGraph) {
+        def paths = getPathsToRootForExclusionCandidates(exclusionCandidates, dependencyGraph)
 
-        def exclusions = candidateExclusions.collect { candidate, value ->
+        exclusionCandidates.collect { candidate, value ->
             def pathsForCandidate = paths[candidate]
             log.debug("Paths for $candidate: $pathsForCandidate")
             log.debug("$value")
@@ -127,27 +140,17 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
                 !value.any { path.contains(it) }
             }
             if (!unexcludedPaths) {
-                candidate
+                return candidate
             }
             else {
                 log.debug(
                         "$candidate will not be excluded due to path(s) $unexcludedPaths")
+                return null
             }
         }.findAll { it != null }
-
-        exclusions.each {
-            resolvableDependencies.dependencies
-                .matching { it instanceof ModuleDependency }
-                .all { ModuleDependency dependency ->
-                    log.debug("Excluding {} from {}", it, "$dependency.group:$dependency.name")
-                    def (group, module) = it.split(':')
-                    ((ModuleDependency)dependency).exclude(group: group, module: module)
-                }
-        }
-
     }
 
-    def getPathsToRootForExclusionCandidates(Exclusions exclusions,
+    private getPathsToRootForExclusionCandidates(Exclusions exclusions,
             DependencyGraph dependencyGraph) {
         def paths = [:]
         dependencyGraph.accept { DependencyGraphNode node ->
