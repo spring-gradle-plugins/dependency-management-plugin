@@ -20,28 +20,17 @@ import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 
 /**
- * A model of a dependency graph that can be visited with a closure
+ * A model of a dependency graph
  *
  * @author Andy Wilkinson
  */
 class DependencyGraph {
 
-    private final DependencyGraphNode root
-
-    DependencyGraph(ResolvedComponentResult root) {
-        this.root = process(null, root)
+    static create(ResolvedComponentResult root) {
+        process(null, root)
     }
 
-    void accept(Closure visitor) {
-        this.root.accept(visitor)
-    }
-
-    void acceptUnique(Closure visitor) {
-        def seen = [] as Set
-        this.root.accept(seen, visitor)
-    }
-
-    private DependencyGraphNode process(DependencyGraphNode parent,
+    private static DependencyGraphNode process(DependencyGraphNode parent,
             ResolvedComponentResult dependency) {
 
         DependencyGraphNode node = new DependencyGraphNode(parent, dependency)
@@ -70,25 +59,10 @@ class DependencyGraph {
 
         final List<DependencyGraphNode> children = []
 
-        final List<String> exclusions = []
-
         DependencyGraphNode(DependencyGraphNode parent, ResolvedComponentResult dependency) {
             this.parent = parent;
             this.dependency = dependency
             this.id = "$dependency.moduleVersion.group:$dependency.moduleVersion.name"
-        }
-
-        private accept(seen, Closure closure) {
-            if (!seen.contains(this.id)) {
-                seen.add(this.id)
-                closure.call(this)
-                children.each { it.accept(seen, closure) }
-            }
-        }
-
-        private accept(Closure closure) {
-            closure.call(this)
-            children.each { it.accept(closure) }
         }
     }
 }

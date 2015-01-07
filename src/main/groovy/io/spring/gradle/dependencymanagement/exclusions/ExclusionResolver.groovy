@@ -33,10 +33,10 @@ class ExclusionResolver {
         this.effectiveModelBuilder = effectiveModelBuilder
     }
 
-    Map<String, Exclusions> resolveExclusions(Collection<ResolvedComponentResult>
+    Exclusions resolveExclusions(Collection<ResolvedComponentResult>
             resolvedComponents) {
         def dependencies = []
-        def exclusions = [:]
+        def exclusions = new Exclusions()
 
         resolvedComponents
                 .findAll { !(it.id instanceof ProjectComponentIdentifier) }
@@ -45,7 +45,7 @@ class ExclusionResolver {
                     def id = "$it.moduleVersion.group:$it.moduleVersion.name"
                     def existing = this.exclusionsCache[id]
                     if (existing) {
-                        exclusions[id] = existing
+                        exclusions.addAll(existing)
                     } else {
                         dependencies << this.dependencyHandler
                                 .create(id + ":$it.moduleVersion.version@pom")
@@ -60,13 +60,13 @@ class ExclusionResolver {
             def moduleId = artifact.moduleVersion.id
             def pom = artifact.file
             def model = this.effectiveModelBuilder.buildModel(pom)
+
             def newExclusions = new ModelExclusionCollector().collectExclusions(model)
+            exclusions.addAll(newExclusions)
+
             String id = "$moduleId.group:$moduleId.name"
-            exclusions[id] = newExclusions
             this.exclusionsCache[id] = newExclusions
         }
-
-        this.exclusionsCache.putAll(exclusions)
 
         return exclusions
     }

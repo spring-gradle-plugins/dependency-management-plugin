@@ -34,8 +34,6 @@ class PomDependencyModelResolver implements ModelResolver {
 
     private Map<String, FileModelSource> pomCache = [:]
 
-    private int hits
-
     PomDependencyModelResolver(Project project) {
         this.project = project
     }
@@ -51,10 +49,7 @@ class PomDependencyModelResolver implements ModelResolver {
             def dependency = project.dependencies.create("$groupId:$artifactId:$version@pom")
             def configuration = project.configurations.detachedConfiguration(dependency)
             pom = new FileModelSource(configuration.resolve().iterator().next())
-
             pomCache[id] = pom
-        } else {
-            hits++
         }
 
         pom

@@ -29,56 +29,31 @@ class Exclusions {
 
     private final Logger log = LoggerFactory.getLogger(Exclusions)
 
-    def excludersByExclusion = [:]
-
     def exclusionsByExcluder = [:]
 
     void add(params) {
         def exclusion = getId(params.exclusion)
-        def excluders = excludersByExclusion[exclusion] ?: [] as Set
         def excluder = getId(params.from)
-        excluders << excluder
-        excludersByExclusion[exclusion] = excluders
+
+        if (log.debugEnabled) {
+            log.debug "Adding exclusion of ${exclusion} by ${excluder}"
+        }
 
         def exclusions = exclusionsByExcluder[excluder] ?: [] as Set
         exclusions << exclusion
         exclusionsByExcluder[excluder] = exclusions
-
-        log.debug("Adding exclusion of $exclusion by $excluder")
     }
 
     void addAll(Exclusions newExclusions) {
-        newExclusions.each { exclusion, excluders ->
-            log.debug("Adding exclusion of $exclusion by $excluders")
-            def existingExcluders = excludersByExclusion[exclusion] ?: [] as Set
-            existingExcluders.addAll(excluders)
-            excludersByExclusion[exclusion] = existingExcluders
-        }
         newExclusions.exclusionsByExcluder.each { excluder, exclusions ->
-            def existingExclusions = exclusionsByExcluder[excluder] ?: [] as Set
+            Set existingExclusions = exclusionsByExcluder[excluder] ?: [] as Set
             existingExclusions.addAll(exclusions)
             exclusionsByExcluder[excluder] = existingExclusions
         }
     }
 
-    void each(Closure c) {
-        excludersByExclusion.each(c)
-    }
-
     def exclusionsForDependency(String dependency) {
         exclusionsByExcluder[dependency]
-    }
-
-    boolean containsExclusionFor(def dependency) {
-        excludersByExclusion.keySet().contains(dependency)
-    }
-
-    def collect(Closure c) {
-        excludersByExclusion.collect(c)
-    }
-
-    String toString() {
-        excludersByExclusion.toString()
     }
 
     private String getId(def toIdentify) {

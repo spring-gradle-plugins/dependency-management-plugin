@@ -777,4 +777,17 @@ public class DependencyManagementPluginSpec extends Specification {
             files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar',
                                                    'commons-logging-1.1.3.jar'])
     }
+
+    def "Exclusions are applied correctly to dependencies that are referenced multiple times"() {
+        given: 'A project that depends on spring-boot-starter-remote-shall'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.dependencies {
+                compile 'org.springframework.boot:spring-boot-starter-remote-shell:1.2.0.RELEASE'
+            }
+        when: "its compile configuration is resolved"
+            def files = project.configurations.compile.resolve()
+        then: "groovy-all has been excluded"
+            files.collect { it.name }.findAll { it.startsWith 'groovy-all' } .size() == 0
+    }
 }
