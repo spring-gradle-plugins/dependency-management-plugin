@@ -372,12 +372,13 @@ dependencyManagement {
 If you prefer to have complete control over your project's generated pom, you can disable
 the plugin's customization:
 
-```groovy {
+```groovy
 dependencyManagement {
     generatedPomCustomization {
         enabled = false
     }
 }
+```
 
 ## Accessing the managed versions
 
