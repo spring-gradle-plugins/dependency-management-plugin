@@ -352,6 +352,33 @@ Will result in the following `<dependencyManagement>` in the generated pom file:
 </dependencyManagement>
 ```
 
+### Using a bom that is not in Maven Central
+
+Gradle's pom generation requires any boms referenced in a pom's `<dependencyManagement>`
+section to be available from Maven Central and publishing will fail if this is not the
+case. To work around this limitation the plugin can be configured to copy a bom into the
+generated pom rather than importing it:
+
+```groovy
+dependencyManagement {
+    generatedPomCustomization {
+        importedBomAction = 'copy'
+    }
+}
+```
+
+### Disabling the customization of a generated pom
+
+If you prefer to have complete control over your project's generated pom, you can disable
+the plugin's customization:
+
+```groovy {
+dependencyManagement {
+    generatedPomCustomization {
+        enabled = false
+    }
+}
+
 ## Accessing the managed versions
 
 The plugin provides an API for accessing the versions provided by the configured dependency

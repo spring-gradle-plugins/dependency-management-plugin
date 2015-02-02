@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ class DependencyManagementExtension {
 
     boolean applyMavenExclusions = true
 
+    PomCustomizationConfiguration generatedPomCustomization = new PomCustomizationConfiguration()
+
     protected setDependencyManagementContainer(DependencyManagementContainer container) {
         this.dependencyManagementContainer = container;
         this.versions = new VersionHandler(container, null)
@@ -46,6 +48,12 @@ class DependencyManagementExtension {
     void dependencies(Closure closure) {
         new DependencyManagementHandler(dependencyManagementContainer)
                 .dependencies(closure)
+    }
+
+    void generatedPomCustomization(Closure closure) {
+        closure.delegate = this.generatedPomCustomization
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.call()
     }
 
     VersionHandler forConfiguration(String configurationName) {
@@ -104,6 +112,22 @@ class DependencyManagementExtension {
         VersionHandler forConfiguration(String configurationName) {
             return new VersionHandler(this.container,
                     project.configurations.getByName(configurationName))
+        }
+    }
+
+    static class PomCustomizationConfiguration {
+
+        static enum ImportedBomAction {
+            IMPORT,
+            COPY
+        }
+
+        boolean enabled = true;
+
+        ImportedBomAction importedBomAction = ImportedBomAction.IMPORT
+
+        void setImportedBomAction(String importedBomAction) {
+            this.importedBomAction = ImportedBomAction.valueOf(importedBomAction.toUpperCase())
         }
     }
 }

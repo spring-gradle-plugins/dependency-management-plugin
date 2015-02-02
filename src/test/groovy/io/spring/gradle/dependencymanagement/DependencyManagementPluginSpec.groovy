@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,36 @@ public class DependencyManagementPluginSpec extends Specification {
             project.apply plugin: 'io.spring.dependency-management'
         then: 'The extension is available'
             project.dependencyManagement
+    }
+
+    def "Customization of generated poms can be disabled"() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+        when: 'Published pom customization is disabled'
+            project.dependencyManagement {
+                generatedPomCustomization {
+                    enabled = false
+                }
+            }
+        then: 'The configuration change has taken effect'
+        def extension = project.extensions.getByType(DependencyManagementExtension)
+        def configuration = extension.generatedPomCustomization
+        !configuration.enabled
+    }
+
+    def "Customization of published poms can be configured to copy imported boms"() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+        when: 'Published pom customization is configured to copy imported boms'
+            project.dependencyManagement {
+                generatedPomCustomization {
+                    importedBomAction = 'copy'
+                }
+            }
+        then: 'The configuration change has taken effect'
+            project.extensions.getByType(DependencyManagementExtension).generatedPomCustomization
+                    .importedBomAction == DependencyManagementExtension.PomCustomizationConfiguration
+                    .ImportedBomAction.COPY
     }
 
     def "An imported bom can be used to apply dependency management"() {

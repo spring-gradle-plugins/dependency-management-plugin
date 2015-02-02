@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ class DependencyManagement {
 
     private Exclusions bomExclusions = new Exclusions()
 
-    List importedBoms = []
+    Map bomDependencyManagement = [:] as LinkedHashMap
 
     def DependencyManagement(Project project) {
         this(project, null)
@@ -61,8 +61,12 @@ class DependencyManagement {
     }
 
     void importBom(bomCoordinates) {
-        importedBoms << bomCoordinates
         configuration.dependencies.add(project.dependencies.create(bomCoordinates + '@pom'))
+    }
+
+    Map getImportedBoms() {
+        resolveIfNecessary()
+        bomDependencyManagement
     }
 
     void addManagedVersion(String group, String name, String version) {
@@ -125,10 +129,12 @@ class DependencyManagement {
             log.debug("Processing '{}'", file)
             Model effectiveModel = effectiveModelBuilder.buildModel(file)
             if (effectiveModel) {
+                String bomCoordinates = "${effectiveModel.groupId}:${effectiveModel.artifactId}:${effectiveModel.version}"
                 effectiveModel.dependencyManagement.dependencies.each { dependency ->
                     versions["$dependency.groupId:$dependency.artifactId" as String
                             ] = dependency.version
                 }
+                bomDependencyManagement[bomCoordinates] = effectiveModel.dependencyManagement.dependencies
                 bomExclusions.addAll(
                         new ModelExclusionCollector().collectExclusions(effectiveModel))
             }

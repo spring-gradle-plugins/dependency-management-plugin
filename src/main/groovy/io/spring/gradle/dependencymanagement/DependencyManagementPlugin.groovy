@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package io.spring.gradle.dependencymanagement
 
+import io.spring.gradle.dependencymanagement.DependencyManagementExtension.PomCustomizationConfiguration
 import io.spring.gradle.dependencymanagement.exclusions.ExclusionConfiguringAction
 import io.spring.gradle.dependencymanagement.exclusions.ExclusionResolver
 import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
@@ -110,8 +111,12 @@ class DependencyManagementPlugin implements Plugin<Project> {
             }
         }
 
+        PomCustomizationConfiguration pomCustomizationConfiguration =
+                project.extensions.getByType(DependencyManagementExtension).generatedPomCustomization
+
         PomDependencyManagementConfigurer pomDependencyManagementConfigurer = new
-                PomDependencyManagementConfigurer(dependencyManagementContainer.globalDependencyManagement)
+                PomDependencyManagementConfigurer(dependencyManagementContainer.globalDependencyManagement,
+                        pomCustomizationConfiguration)
 
         project.tasks.withType(Upload).all { uploadTask ->
             uploadTask.repositories.withType(PomFilterContainer).all { container ->
