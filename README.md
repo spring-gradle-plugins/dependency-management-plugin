@@ -154,6 +154,17 @@ also set the version of all of the Spring Framework dependencies to `4.0.6.RELEA
 
 #### Overriding versions in a bom
 
+If you want to deviate slightly from the dependency management provided by a bom, it can be
+useful to be able to override a particular managed version. There are two ways to do this;
+changing the value of a version property and overriding the dependency management.
+
+##### Changing the value of a version property
+
+If the bom has been written to use properties for its versions then you can override the version
+by providing a different value for the relevant version property. You should only use this
+approach if you do not intend to [generate and publish a Maven pom](#pom-generation) for your
+project as it will result in a pom that does not override the version.
+
 When the bom is being processed, Gradle's properties are used as a source during the property
 resolution process. If the bom is written to use properties for its versions, this allows you to
 override a version.
@@ -209,6 +220,48 @@ compile - Compile classpath for source set 'main'.
      +--- org.springframework:spring-context:4.0.5.RELEASE -> 4.0.4.RELEASE (*)
      \--- org.springframework:spring-aop:4.0.5.RELEASE -> 4.0.4.RELEASE (*)
 ```
+
+##### Overriding the dependency management
+
+If the bom that you have imported does not use properties, or you want the override to be honoured
+in the Maven pom that's generated for your Gradle project, you should use dependency management to
+perform the override. For example, if you'reusing the Spring IO Platform bom, you can override its
+version of Guava and have that override apply to the generated pom:
+
+```groovy
+dependencyManagement {
+    imports {
+        mavenBom 'io.spring.platform:platform-bom:1.1.1.RELEASE'
+    }
+    dependencies {
+        'com.google.guava:guava' '18.0'
+    }
+}
+```
+
+This will produce the following `<dependencyManagement>` in the generated pom file:
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>io.spring.platform</groupId>
+            <artifactId>platform-bom</artifactId>
+            <version>1.1.1.RELEASE</version>
+            <scope>import</scope>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+The dependency management for Guava that's declared directly in the pom takes precedence over
+any dependency management for Guava in the `platform-bom` that's been imported.
 
 ### Dependency management for specific configurations
 
