@@ -102,8 +102,10 @@ class PomDependencyManagementConfigurerSpec extends Specification {
             dependency.version[0].value() == '1.0'
             dependency.scope[0].value() == 'runtime'
             dependency.type[0].value() == 'foo'
-            dependency.exclusions.exclusion.groupId[0].value()[0] == 'commons-logging'
-            dependency.exclusions.exclusion.artifactId[0].value()[0] == 'commons-logging'
+            dependency.exclusions.exclusion.groupId[0].value() == 'commons-logging'
+            dependency.exclusions.exclusion.artifactId[0].value() == 'commons-logging'
+            dependency.exclusions.exclusion.groupId[1].value() == 'foo'
+            dependency.exclusions.exclusion.artifactId[1].value() == 'bar'
     }
 
     def "Multiple imports are copied in the order in which they were imported"() {
@@ -133,8 +135,10 @@ class PomDependencyManagementConfigurerSpec extends Specification {
             dependency2.version[0].value() == '1.0'
             dependency2.scope[0].value() == 'runtime'
             dependency2.type[0].value() == 'foo'
-            dependency2.exclusions.exclusion.groupId[0].value()[0] == 'commons-logging'
-            dependency2.exclusions.exclusion.artifactId[0].value()[0] == 'commons-logging'
+            dependency2.exclusions.exclusion.groupId[0].value() == 'commons-logging'
+            dependency2.exclusions.exclusion.artifactId[0].value() == 'commons-logging'
+            dependency2.exclusions.exclusion.groupId[1].value() == 'foo'
+            dependency2.exclusions.exclusion.artifactId[1].value() == 'bar'
     }
 
     def "Customization of published poms can be disabled"() {
@@ -154,7 +158,7 @@ class PomDependencyManagementConfigurerSpec extends Specification {
         given: 'Dependency management that manages a dependency'
             DependencyManagement dependencyManagement = new DependencyManagement(project, null)
             dependencyManagement.addExplicitManagedVersion('org.springframework', 'spring-core',
-                    '4.1.3.RELEASE')
+                    '4.1.3.RELEASE', [])
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             new PomDependencyManagementConfigurer(dependencyManagement, new PomCustomizationConfiguration()).configurePom(pom)
@@ -181,5 +185,25 @@ class PomDependencyManagementConfigurerSpec extends Specification {
             dependency.version[0].value() == '1.0.3.RELEASE'
             dependency.scope[0].value() == 'import'
             dependency.type[0].value() == 'pom'
+    }
+
+    def "Dependency management exclusions are added to the pom"() {
+        given: 'Dependency management that manages a dependency with an exclusion'
+            DependencyManagement dependencyManagement = new DependencyManagement(project, null)
+            dependencyManagement.addExplicitManagedVersion('org.springframework', 'spring-core',
+                    '4.1.3.RELEASE', ['commons-logging:commons-logging', 'foo:bar'])
+        when: 'The pom is configured'
+            Node pom = new XmlParser().parseText("<project></project>")
+            new PomDependencyManagementConfigurer(dependencyManagement, new PomCustomizationConfiguration()).configurePom(pom)
+        then: 'The managed dependency has been added with its exclusions'
+            pom.dependencyManagement.dependencies.dependency.size() == 1
+            def dependency = pom.dependencyManagement.dependencies.dependency[0]
+            dependency.groupId[0].value() == 'org.springframework'
+            dependency.artifactId[0].value() == 'spring-core'
+            dependency.version[0].value() == '4.1.3.RELEASE'
+            dependency.exclusions.exclusion.groupId[0].value() == 'commons-logging'
+            dependency.exclusions.exclusion.artifactId[0].value() == 'commons-logging'
+            dependency.exclusions.exclusion.groupId[1].value() == 'foo'
+            dependency.exclusions.exclusion.artifactId[1].value() == 'bar'
     }
 }

@@ -96,6 +96,39 @@ dependencyManagement {
 }
 ```
 
+#### Exclusions
+
+You can use the DSL to declare exclusions. The two main advantages of using this mechanism
+are that they will be included in the `<dependencyManagement>` of your project's
+[generated pom](#pom-generation) and that they will be applied using
+[Maven's exclusion semantics](#maven-exclusions).
+
+An exclusion can be declared on individual dependencies:
+
+```groovy
+dependencyManagement {
+    dependencies {
+        'org.springframework:spring-core' '4.0.3.RELEASE', {
+            exclude 'commons-logging:commons-logging'
+        }
+    }
+}
+```
+
+An exclusion can also be declared on an entry in a dependency set:
+
+```groovy
+dependencyManagement {
+    dependencies {
+        dependencySet(group:'org.springframework', version: '4.1.4.RELEASE') {
+            entry 'spring-core' {
+                exclude 'commons-logging:commons-logging'
+            }
+        }
+    }
+}
+```
+
 ### Importing a Maven bom
 
 The plugin also allows you to import an existing Maven bom to utilise its dependency management.
@@ -379,7 +412,7 @@ dependencyManagement {
           mavenBom 'com.example:bom:1.0'
      }
      dependencies {
-          'com.example:dependency:1.5'
+          'com.example:dependency' '1.5'
      }
 }
 ```

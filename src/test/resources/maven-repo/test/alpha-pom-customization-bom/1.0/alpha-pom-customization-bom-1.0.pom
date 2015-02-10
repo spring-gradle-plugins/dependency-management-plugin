@@ -21,6 +21,10 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>foo</groupId>
+                        <artifactId>bar</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
         </dependencies>

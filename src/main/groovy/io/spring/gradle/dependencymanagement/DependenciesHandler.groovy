@@ -55,7 +55,17 @@ class DependenciesHandler {
 
     def methodMissing(String name, args) {
         String[] components = name.split(':')
-        container.addExplicitManagedVersion(configuration, components[0], components[1], args[0])
+
+        def excludeHandler = new DependencyExcludeHandler()
+
+        if (args.length == 2) {
+            Closure closure = args[1]
+            closure.delegate = excludeHandler;
+            closure.call();
+        }
+
+        container.addExplicitManagedVersion(configuration, components[0], components[1], args[0],
+                excludeHandler.exclusions)
     }
 
     def hasText(String string) {
@@ -73,8 +83,27 @@ class DependenciesHandler {
             this.version = version
         }
 
-        def entry(String entry) {
-            container.addExplicitManagedVersion(configuration, group, entry, version)
+        def entry(String module) {
+            entry(module, null)
+        }
+
+        def entry(String module, Closure closure) {
+            def excludeHandler = new DependencyExcludeHandler()
+            if (closure) {
+                closure.delegate = excludeHandler;
+                closure.call();
+            }
+            container.addExplicitManagedVersion(configuration, group, module, version,
+                    excludeHandler.exclusions)
+        }
+    }
+
+    private class DependencyExcludeHandler {
+
+        def exclusions = []
+
+        def exclude(String exclusion) {
+            exclusions << exclusion
         }
     }
 }

@@ -47,9 +47,10 @@ class DependencyManagementContainer {
                 name, version)
     }
 
-    void addExplicitManagedVersion(configuration, String group, String name, String version) {
+    void addExplicitManagedVersion(configuration, String group, String name, String version,
+            List<String> exclusions) {
         dependencyManagementForConfiguration(configuration).addExplicitManagedVersion(group,
-                name, version)
+                name, version, exclusions)
     }
 
     void importBom(Configuration configuration, String coordinates) {

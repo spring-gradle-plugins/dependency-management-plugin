@@ -122,7 +122,9 @@ public class DependencyManagementPluginSpec extends Specification {
             project.dependencyManagement {
                 dependencies {
                     'org.springframework:spring-core' '4.0.4.RELEASE'
-                    'commons-logging:commons-logging' '1.1.2'
+                    'commons-logging:commons-logging' '1.1.2', {
+                        exclude 'foo:bar'
+                    }
                 }
             }
             project.dependencies {
@@ -134,6 +136,27 @@ public class DependencyManagementPluginSpec extends Specification {
             files.size() == 2
             files.collect { it.name }
                     .containsAll(['spring-core-4.0.4.RELEASE.jar', 'commons-logging-1.1.2.jar'])
+    }
+
+    def "Dependency management with exclusions can be declared in the build"() {
+        given: 'A project with inline dependency management'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.dependencyManagement {
+                dependencies {
+                    'org.springframework:spring-core' '4.0.4.RELEASE', {
+                        exclude 'commons-logging:commons-logging'
+                    }
+                }
+            }
+            project.dependencies {
+                compile 'org.springframework:spring-core'
+            }
+        when: 'A configuration is resolved'
+            def files = project.configurations.compile.resolve()
+        then: 'Dependency management and its exclusions has been applied'
+            files.size() == 1
+            files.collect { it.name }.containsAll(['spring-core-4.0.4.RELEASE.jar'])
     }
 
     def "Versions of direct dependencies take precedence over direct dependency management"() {
@@ -439,6 +462,29 @@ public class DependencyManagementPluginSpec extends Specification {
         then: 'The dependency management has been applied'
             files.size() == 2
             files.collect { it.name }.containsAll(['slf4j-api-1.7.7.jar', 'slf4j-simple-1.7.7.jar'])
+    }
+
+    def 'An exclusion can be declared on an entry in a dependency set'() {
+        given: 'A project with dependency management that uses a dependency set'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.dependencyManagement {
+                dependencies {
+                    dependencySet(group: 'org.springframework', version: '4.1.4.RELEASE') {
+                        entry 'spring-core', {
+                            exclude 'commons-logging:commons-logging'
+                        }
+                    }
+                }
+            }
+            project.dependencies {
+                compile 'org.springframework:spring-core'
+            }
+        when: 'The configuration is resolved'
+            def files = project.configurations.compile.resolve()
+        then: 'The dependency management and its exclusions has been applied'
+            files.size() == 1
+            files.collect { it.name }.containsAll(['spring-core-4.1.4.RELEASE.jar'])
     }
 
     def 'The build fails if a dependency set is configured without a group'() {

@@ -92,7 +92,7 @@ class PomDependencyManagementConfigurer {
         }
         if (dependencyToAdd.exclusions) {
             def exclusions = dependency.appendNode('exclusions')
-            dependencyToAdd.exclusions.each { addExclusion(exclusions, dependencyToAdd.exclusions) }
+            dependencyToAdd.exclusions.each { addExclusion(exclusions, it) }
         }
     }
 
@@ -103,11 +103,21 @@ class PomDependencyManagementConfigurer {
     }
 
     private void configureDependencies(Node dependencies) {
-        this.dependencyManagement.explicitManagedVersions { groupId, artifactId, version ->
+        this.dependencyManagement.explicitManagedVersions { groupId, artifactId, version,
+                exclusions ->
             def dependency = dependencies.appendNode('dependency')
             dependency.appendNode('groupId').value = groupId
             dependency.appendNode('artifactId').value = artifactId
             dependency.appendNode('version').value = version
+            if (exclusions) {
+                def exclusionsNode = dependency.appendNode('exclusions')
+                exclusions.each { exclusion ->
+                    def exclusionNode = exclusionsNode.appendNode('exclusion')
+                    def (excludedGroupId, excludedArtifactId) = exclusion.split(':')
+                    exclusionNode.appendNode('groupId').value = excludedGroupId
+                    exclusionNode.appendNode('artifactId').value = excludedArtifactId
+                }
+            }
         }
     }
 }

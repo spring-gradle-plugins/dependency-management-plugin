@@ -46,7 +46,9 @@ class DependencyManagement {
 
     private Map explicitVersions = [:]
 
-    private Exclusions bomExclusions = new Exclusions()
+    private Exclusions explicitExclusions = new Exclusions()
+
+    private Exclusions allExclusions = new Exclusions()
 
     Map bomDependencyManagement = [:] as LinkedHashMap
 
@@ -77,8 +79,14 @@ class DependencyManagement {
         addManagedVersion(group, name, version)
     }
 
-    void addExplicitManagedVersion(String group, String name, String version) {
-        explicitVersions[createKey(group, name)] = version
+    void addExplicitManagedVersion(String group, String name, String version, List<String>
+            exclusions) {
+        def key = createKey(group, name)
+        explicitVersions[key] = version
+        exclusions.each { exclusion ->
+            explicitExclusions.add(exclusion: exclusion, from: key)
+            allExclusions.add(exclusion: exclusion, from: key)
+        }
         addManagedVersion(group, name, version)
     }
 
@@ -90,7 +98,7 @@ class DependencyManagement {
     void explicitManagedVersions(Closure closure) {
         explicitVersions.each { key, value ->
             def (groupId, artifactId) = key.split(':')
-            closure.call(groupId, artifactId, value)
+            closure.call(groupId, artifactId, value, explicitExclusions.exclusionsForDependency(key))
         }
     }
 
@@ -100,7 +108,7 @@ class DependencyManagement {
 
     Exclusions getExclusions() {
         resolveIfNecessary()
-        bomExclusions
+        allExclusions
     }
 
     private void resolveIfNecessary() {
@@ -135,7 +143,7 @@ class DependencyManagement {
                             ] = dependency.version
                 }
                 bomDependencyManagement[bomCoordinates] = effectiveModel.dependencyManagement.dependencies
-                bomExclusions.addAll(
+                allExclusions.addAll(
                         new ModelExclusionCollector().collectExclusions(effectiveModel))
             }
         }
