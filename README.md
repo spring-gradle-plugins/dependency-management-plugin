@@ -225,7 +225,7 @@ compile - Compile classpath for source set 'main'.
 
 If the bom that you have imported does not use properties, or you want the override to be honoured
 in the Maven pom that's generated for your Gradle project, you should use dependency management to
-perform the override. For example, if you'reusing the Spring IO Platform bom, you can override its
+perform the override. For example, if you're using the Spring IO Platform bom, you can override its
 version of Guava and have that override apply to the generated pom:
 
 ```groovy
