@@ -50,7 +50,9 @@ class DependencyManagement {
 
     private Exclusions allExclusions = new Exclusions()
 
-    Map bomDependencyManagement = [:] as LinkedHashMap
+    private Map bomDependencyManagement = [:] as LinkedHashMap
+
+    private Properties bomProperties = new Properties()
 
     def DependencyManagement(Project project) {
         this(project, null)
@@ -69,6 +71,11 @@ class DependencyManagement {
     Map getImportedBoms() {
         resolveIfNecessary()
         bomDependencyManagement
+    }
+
+    Properties getImportedProperties() {
+        resolveIfNecessary()
+        bomProperties
     }
 
     void addManagedVersion(String group, String name, String version) {
@@ -142,6 +149,7 @@ class DependencyManagement {
                     versions["$dependency.groupId:$dependency.artifactId" as String
                             ] = dependency.version
                 }
+                bomProperties.putAll(effectiveModel.properties)
                 bomDependencyManagement[bomCoordinates] = effectiveModel.dependencyManagement.dependencies
                 allExclusions.addAll(
                         new ModelExclusionCollector().collectExclusions(effectiveModel))

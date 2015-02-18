@@ -332,6 +332,23 @@ dependencyManagement {
 }
 ```
 
+## Accessing properties from imported boms
+
+The plugin makes all of the properties from imported boms available for use in your Gradle build.
+Properties from both global dependency management and configuration-specific dependency management
+can be accessed. For example, accessing a property named `spring.version` from global dependency
+management:
+
+```groovy
+dependencyManagement.importedProperties['spring.version']
+```
+
+And the same property from the compile configuration's dependency management:
+
+```groovy
+dependencyManagement.compile.importedProperties['spring.version']
+```
+
 ## Maven exclusions
 
 While Gradle can consume dependencies described with a Maven pom file, Gradle doesn't not

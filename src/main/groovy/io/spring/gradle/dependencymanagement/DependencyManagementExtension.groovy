@@ -66,16 +66,15 @@ class DependencyManagementExtension {
                 getManagedVersion(group, name)
     }
 
+    Properties getImportedProperties() {
+        dependencyManagementContainer.importedPropertiesForConfiguration(null)
+    }
+
     def methodMissing(String name, args) {
         Closure closure
         if ("configurations" == name) {
             closure = args.last()
-            def dependencyManagementContainer = this.dependencyManagementContainer
-
-            List handlers = args.take(args.size() - 1).collect { Configuration configuration ->
-                new DependencyManagementHandler(dependencyManagementContainer, configuration)
-            }
-
+            List handlers = args.take(args.size() - 1)
             closure.delegate = new CompoundDependencyManagementHandler(handlers)
         }
         else {
@@ -90,7 +89,8 @@ class DependencyManagementExtension {
     }
 
     def propertyMissing(String name) {
-        project.configurations.getAt(name)
+        new DependencyManagementHandler(dependencyManagementContainer,
+                project.configurations.getAt(name))
     }
 
     private class VersionHandler {

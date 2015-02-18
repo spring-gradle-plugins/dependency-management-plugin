@@ -564,6 +564,52 @@ public class DependencyManagementPluginSpec extends Specification {
                     getManagedVersion('com.alpha', 'charlie') == '1.0'
     }
 
+    def 'Properties imported from a bom can be accessed'() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'A bom is imported'
+            project.configurations {
+                myConfiguration
+            }
+            project.dependencyManagement {
+                imports {
+                    mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+                }
+                myConfiguration {
+                    imports {
+                        mavenBom 'org.springframework.boot:spring-boot-dependencies:1.2.1.RELEASE'
+                    }
+                }
+            }
+        then: 'The properties in the bom can be accessed'
+            '4.3.5.Final' == project.dependencyManagement.importedProperties['hibernate.version']
+            '4.1.4.RELEASE' == project.dependencyManagement.myConfiguration
+                    .importedProperties['spring.version']
+            '1.7.12' == project.dependencyManagement.myConfiguration.importedProperties['jruby.version']
+    }
+
+    def 'A bom property can be used to version a dependency'() {
+        given: 'A project that imports a bom'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.configurations {
+                myConfiguration
+            }
+            project.dependencyManagement {
+                imports {
+                    mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+                }
+            }
+        when: 'A property is used to version a dependency that is not included in the bom'
+            project.dependencies {
+                myConfiguration "org.hibernate:hibernate-envers:${project.dependencyManagement.importedProperties['hibernate.version']}"
+            }
+        then: 'The dependency has the expected version'
+            def files = project.configurations.myConfiguration.resolve()
+            files.collect { it.name }.contains('hibernate-envers-4.3.5.Final.jar')
+    }
+
     def 'Bom that references java home can be imported'() {
         given: 'A project with the plugin applied'
             project.apply plugin: 'io.spring.dependency-management'

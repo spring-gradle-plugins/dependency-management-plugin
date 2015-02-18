@@ -91,6 +91,17 @@ class DependencyManagementContainer {
         exclusions
     }
 
+    Properties importedPropertiesForConfiguration(Configuration configuration) {
+        Properties properties = new Properties()
+        properties.putAll(globalDependencyManagement.importedProperties)
+        if (configuration) {
+            (configuration.hierarchy as List).reverse().each {
+                properties.putAll(dependencyManagementForConfiguration(it).importedProperties)
+            }
+        }
+        properties
+    }
+
     private DependencyManagement dependencyManagementForConfiguration(
             Configuration configuration) {
         if (!configuration) {

@@ -50,4 +50,8 @@ class DependencyManagementHandler {
         closure.delegate = new DependenciesHandler(this.container, this.configuration)
         closure.call()
     }
+
+    def getImportedProperties() {
+        this.container.importedPropertiesForConfiguration(configuration);
+    }
 }
