@@ -30,15 +30,12 @@ class DependencyManagementExtension {
 
     protected Project project
 
-    VersionHandler versions
-
     boolean applyMavenExclusions = true
 
     PomCustomizationConfiguration generatedPomCustomization = new PomCustomizationConfiguration()
 
     protected setDependencyManagementContainer(DependencyManagementContainer container) {
         this.dependencyManagementContainer = container;
-        this.versions = new VersionHandler(container, null)
     }
 
     void imports(Closure closure) {
@@ -56,14 +53,8 @@ class DependencyManagementExtension {
         closure.call()
     }
 
-    VersionHandler forConfiguration(String configurationName) {
-        return new VersionHandler(dependencyManagementContainer,
-                project.configurations.getByName(configurationName))
-    }
-
-    String getManagedVersion(String group, String name) {
-        return new VersionHandler(dependencyManagementContainer, null).
-                getManagedVersion(group, name)
+    def getManagedVersions() {
+        dependencyManagementContainer.managedVersionsForConfiguration(null)
     }
 
     Properties getImportedProperties() {
@@ -91,28 +82,6 @@ class DependencyManagementExtension {
     def propertyMissing(String name) {
         new DependencyManagementHandler(dependencyManagementContainer,
                 project.configurations.getAt(name))
-    }
-
-    private class VersionHandler {
-
-        private final DependencyManagementContainer container
-
-        private final Configuration configuration
-
-        VersionHandler(DependencyManagementContainer container,
-                Configuration configuration) {
-            this.container = container
-            this.configuration = configuration
-        }
-
-        String getManagedVersion(String group, String name) {
-            container.getManagedVersion(configuration, group, name)
-        }
-
-        VersionHandler forConfiguration(String configurationName) {
-            return new VersionHandler(this.container,
-                    project.configurations.getByName(configurationName))
-        }
     }
 
     static class PomCustomizationConfiguration {

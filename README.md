@@ -486,16 +486,17 @@ dependencyManagement {
 ## Accessing the managed versions
 
 The plugin provides an API for accessing the versions provided by the configured dependency
-management. Accessing versions from global dependency management:
+management. For example, accessing the version for `org.springframework:spring-core` from
+global dependency management:
 
 ```groovy
-dependencyManagement.getManagedVersion('org.springframework', 'spring-core')
+dependencyManagement.managedVersions['org.springframework:spring-core']
 ```
 
-Accessing versions from configuration-specific dependency management:
+And from the compile configuration's dependency management:
 
 ```groovy
-dependencyManagement.forConfiguration('compile').getManagedVersion('org.springframework', 'spring-core')
+dependencyManagement.compile.managedVersions['org.springframework:spring-core']
 ```
 
 [1]: https://build.spring.io/browse/GRADLEPLUGINS-DMP

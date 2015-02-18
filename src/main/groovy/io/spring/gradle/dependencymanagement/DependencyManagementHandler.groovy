@@ -52,6 +52,10 @@ class DependencyManagementHandler {
     }
 
     def getImportedProperties() {
-        this.container.importedPropertiesForConfiguration(configuration);
+        this.container.importedPropertiesForConfiguration(configuration)
+    }
+
+    def getManagedVersions() {
+        this.container.managedVersionsForConfiguration(configuration)
     }
 }

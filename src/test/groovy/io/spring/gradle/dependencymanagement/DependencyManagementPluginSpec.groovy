@@ -436,9 +436,8 @@ public class DependencyManagementPluginSpec extends Specification {
                 }
             }
         expect: "The bom's versions are available"
-            project.dependencyManagement.versions.forConfiguration('compile').
-                    getManagedVersion('org.springframework.cloud',
-                            'spring-cloud-starter-eureka-server') == '1.0.0.M3'
+            project.dependencyManagement.compile
+                    .managedVersions['org.springframework.cloud:spring-cloud-starter-eureka-server'] == '1.0.0.M3'
     }
 
     def 'A dependency set can be used to provide dependency management for multiple modules with the same group and version'() {
@@ -539,29 +538,24 @@ public class DependencyManagementPluginSpec extends Specification {
                 }
             }
         then: 'The managed versions can be accessed'
-            project.dependencyManagement.versions.forConfiguration('compile').
-                    getManagedVersion('org.springframework', 'spring-core') == '4.0.6.RELEASE'
-            project.dependencyManagement.versions.forConfiguration('testRuntime').
-                    getManagedVersion('org.springframework', 'spring-core') == '4.0.6.RELEASE'
-            project.dependencyManagement.versions.
-                    getManagedVersion('org.springframework', 'spring-core') == '4.0.6.RELEASE'
-            project.dependencyManagement.versions.forConfiguration('compile').
-                    getManagedVersion('com.foo', 'bar') == null
-            project.dependencyManagement.versions.forConfiguration('testRuntime').
-                    getManagedVersion('com.foo', 'bar') == '1.2.3'
-            project.dependencyManagement.versions.getManagedVersion('com.foo', 'bar') == null
-            project.dependencyManagement.versions.forConfiguration('compile').
-                    getManagedVersion('com.alpha', 'bravo') == '1.0'
-            project.dependencyManagement.versions.forConfiguration('testRuntime').
-                    getManagedVersion('com.alpha', 'bravo') == '1.0'
-            project.dependencyManagement.versions.
-                    getManagedVersion('com.alpha', 'bravo') == '1.0'
-            project.dependencyManagement.versions.forConfiguration('compile').
-                    getManagedVersion('com.alpha', 'charlie') == '1.0'
-            project.dependencyManagement.versions.forConfiguration('testRuntime').
-                    getManagedVersion('com.alpha', 'charlie') == '1.0'
-            project.dependencyManagement.versions.
-                    getManagedVersion('com.alpha', 'charlie') == '1.0'
+            project.dependencyManagement.compile
+                    .managedVersions['org.springframework:spring-core'] == '4.0.6.RELEASE'
+            project.dependencyManagement.testRuntime
+                    .managedVersions['org.springframework:spring-core'] == '4.0.6.RELEASE'
+            project.dependencyManagement
+                    .managedVersions['org.springframework:spring-core'] == '4.0.6.RELEASE'
+
+            project.dependencyManagement.compile.managedVersions['com.foo:bar'] == null
+            project.dependencyManagement.testRuntime.managedVersions['com.foo:bar'] == '1.2.3'
+            project.dependencyManagement.managedVersions['com.foo:bar'] == null
+
+            project.dependencyManagement.compile.managedVersions['com.alpha:bravo'] == '1.0'
+            project.dependencyManagement.testRuntime.managedVersions['com.alpha:bravo'] == '1.0'
+            project.dependencyManagement.managedVersions['com.alpha:bravo'] == '1.0'
+
+            project.dependencyManagement.compile.managedVersions['com.alpha:charlie'] == '1.0'
+            project.dependencyManagement.testRuntime.managedVersions['com.alpha:charlie'] == '1.0'
+            project.dependencyManagement.managedVersions['com.alpha:charlie'] == '1.0'
     }
 
     def 'Properties imported from a bom can be accessed'() {
@@ -621,8 +615,7 @@ public class DependencyManagementPluginSpec extends Specification {
                 }
             }
         then: 'Its dependency management can be accessed'
-            project.dependencyManagement.versions.
-                    getManagedVersion('com.sun', 'tools') == '1.6'
+            project.dependencyManagement.managedVersions['com.sun:tools'] == '1.6'
     }
 
     def 'Dependency versions can be defined using properties'() {
@@ -643,12 +636,12 @@ public class DependencyManagementPluginSpec extends Specification {
                 }
             }
         then: 'The expected version has been applied'
-            project.dependencyManagement.versions.
-                    getManagedVersion('org.springframework', 'spring-core') == '4.1.1.RELEASE'
-            project.dependencyManagement.versions.
-                    getManagedVersion('org.springframework', 'spring-tx') == '4.1.1.RELEASE'
-            project.dependencyManagement.versions.
-                    getManagedVersion('org.slf4j', 'slf4j-api') == '1.7.7'
+            project.dependencyManagement
+                    .managedVersions['org.springframework:spring-core'] == '4.1.1.RELEASE'
+            project.dependencyManagement
+                    .managedVersions['org.springframework:spring-tx'] == '4.1.1.RELEASE'
+            project.dependencyManagement
+                    .managedVersions['org.slf4j:slf4j-api'] == '1.7.7'
 
     }
 
@@ -664,8 +657,8 @@ public class DependencyManagementPluginSpec extends Specification {
                 }
             }
         then: 'The dependency management from the bom has been applied'
-            project.dependencyManagement.versions.
-                    getManagedVersion('org.springframework', 'spring-core') == '4.0.6.RELEASE'
+            project.dependencyManagement
+                    .managedVersions['org.springframework:spring-core'] == '4.0.6.RELEASE'
 
     }
 

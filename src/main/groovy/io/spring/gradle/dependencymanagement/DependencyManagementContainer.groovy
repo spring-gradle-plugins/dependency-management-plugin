@@ -102,6 +102,10 @@ class DependencyManagementContainer {
         properties
     }
 
+    def managedVersionsForConfiguration(Configuration configuration) {
+        return new ManagedVersions(configuration)
+    }
+
     private DependencyManagement dependencyManagementForConfiguration(
             Configuration configuration) {
         if (!configuration) {
@@ -110,6 +114,20 @@ class DependencyManagementContainer {
         else {
             configurationDependencyManagement.
                     get(configuration, new DependencyManagement(project, configuration))
+        }
+    }
+
+    private class ManagedVersions {
+
+        private final Configuration configuration
+
+        ManagedVersions(Configuration configuration) {
+            this.configuration = configuration
+        }
+
+        def getAt(String index) {
+            def (group, name) = index.split(':')
+            getManagedVersion(configuration, group, name)
         }
     }
 }
