@@ -11,13 +11,13 @@ poms of your project's dependencies.
 
 ## Using the plugin
 
-The plugin is [available from Gradle's plugin portal][3]. The latest release is `0.3.1.RELEASE`.
+The plugin is [available from Gradle's plugin portal][3]. The latest release is `0.4.0.RELEASE`.
 
 With Gradle 2.1 or later, you can use it as follows:
 
 ```groovy
 plugins {
-    id "io.spring.dependency-management" version "0.3.1.RELEASE"
+    id "io.spring.dependency-management" version "0.4.0.RELEASE"
 }
 
 ```
@@ -30,7 +30,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:0.3.1.RELEASE"
+        classpath "io.spring.gradle:dependency-management-plugin:0.4.0.RELEASE"
     }
 }
 
