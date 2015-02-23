@@ -905,4 +905,17 @@ public class DependencyManagementPluginSpec extends Specification {
         then: "groovy-all has been excluded"
             files.collect { it.name }.findAll { it.startsWith 'groovy-all' } .size() == 0
     }
+
+    def "Transitive dependencies with a circular reference are tolerated (see gh-33)"() {
+        given: 'A project that depends on org.apache.xmlgraphics:batik-rasterizer'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.dependencies {
+                compile 'org.apache.xmlgraphics:batik-rasterizer:1.7'
+            }
+        when: "its compile configuration is resolved"
+            def files = project.configurations.compile.resolve()
+        then: "there is no StackOverflowException and resolution succeeds"
+            files.size() == 24
+    }
 }
