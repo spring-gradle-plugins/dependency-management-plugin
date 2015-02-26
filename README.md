@@ -1,5 +1,7 @@
 # Dependency management plugin [![Build status][2]][1]
 
+[![Join the chat at https://gitter.im/spring-gradle-plugins/dependency-management-plugin](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/spring-gradle-plugins/dependency-management-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A Gradle plugin that provides Maven-like dependency management and exclusions. Based on the
 configured dependency management metadata, the plugin will control the versions of your
 project's direct and transitive dependencies and will honour any exclusions declared in the
