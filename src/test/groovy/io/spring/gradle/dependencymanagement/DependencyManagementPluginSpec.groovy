@@ -947,6 +947,6 @@ public class DependencyManagementPluginSpec extends Specification {
         when: "its compile configuration is resolved"
             def files = project.configurations.compile.resolve()
         then: "there is no StackOverflowException and resolution succeeds"
-            files.size() == 24
+            !files.empty
     }
 }

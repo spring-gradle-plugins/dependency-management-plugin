@@ -14,7 +14,7 @@ group = 'io.spring.gradle'
 description = 'Dependency Management Plugin'
 
 ext {
-    spockVersion = project.properties.get('spockVersion', '0.7-groovy-1.8')
+    spockVersion = GroovySystem.version.startsWith('1.') ? '0.7-groovy-1.8' : '0.7-groovy-2.0'
 }
 
 dependencies {
