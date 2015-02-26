@@ -138,6 +138,37 @@ public class DependencyManagementPluginSpec extends Specification {
                     .containsAll(['spring-core-4.0.4.RELEASE.jar', 'commons-logging-1.1.2.jar'])
     }
 
+    def "Dependency management can be declared in the build using the new syntax"() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'Dependency management is configured'
+            project.dependencyManagement {
+                dependencies {
+                    dependency 'org.springframework:spring-core:4.0.4.RELEASE'
+                    dependency('commons-logging:commons-logging:1.1.2') {
+                        exclude 'foo:bar'
+                    }
+                    dependency group:'alpha', name: 'bravo', version: '1.0'
+                    dependency(group:'charlie', name: 'delta', version: '2.0') {
+                        exclude group:'bar', name:'baz'
+                    }
+                }
+            }
+        then: 'The configuration has taken effect'
+            project.dependencyManagement
+                    .managedVersions['org.springframework:spring-core'] == '4.0.4.RELEASE'
+            project.dependencyManagement
+                    .managedVersions['commons-logging:commons-logging'] == '1.1.2'
+            project.dependencyManagement.managedVersions['alpha:bravo'] == '1.0'
+            project.dependencyManagement.managedVersions['charlie:delta'] == '2.0'
+            def exclusions =  project.dependencyManagement.dependencyManagementContainer
+                    .getExclusions(null)
+            exclusions.exclusionsForDependency('charlie:delta') as List == ['bar:baz']
+            exclusions.exclusionsForDependency('commons-logging:commons-logging') as List ==
+                    ['foo:bar']
+    }
+
     def "Dependency management with exclusions can be declared in the build"() {
         given: 'A project with inline dependency management'
             project.apply plugin: 'io.spring.dependency-management'
@@ -470,7 +501,7 @@ public class DependencyManagementPluginSpec extends Specification {
             project.dependencyManagement {
                 dependencies {
                     dependencySet(group: 'org.springframework', version: '4.1.4.RELEASE') {
-                        entry 'spring-core', {
+                        entry('spring-core') {
                             exclude 'commons-logging:commons-logging'
                         }
                     }

@@ -34,10 +34,6 @@ class DependencyManagementExtension {
 
     PomCustomizationConfiguration generatedPomCustomization = new PomCustomizationConfiguration()
 
-    protected setDependencyManagementContainer(DependencyManagementContainer container) {
-        this.dependencyManagementContainer = container;
-    }
-
     void imports(Closure closure) {
         new DependencyManagementHandler(dependencyManagementContainer).imports(closure)
     }

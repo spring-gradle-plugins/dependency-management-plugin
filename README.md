@@ -49,14 +49,14 @@ configurations.
 
 ### Dependency management DSL
 
-The DSL allows you to declare dependency management in the form `'groupId:artifactId' 'version'`.
-For example:
+The DSL allows you to declare dependency management using `dependency 'groupId:artifactId:version'`
+or `dependency group:'group', name:'name', version:version'`. For example:
 
 ```groovy
 dependencyManagement {
      dependencies {
-          'org.springframework:spring-core' '4.0.3.RELEASE'
-          'commons-logging:commons-logging' '1.1.2'
+          dependency 'org.springframework:spring-core:4.0.3.RELEASE'
+          dependency group:'commons-logging', name:'commons-logging', version:'1.1.2'
      }
 }
 
@@ -98,7 +98,7 @@ dependencyManagement {
 
 #### Exclusions
 
-You can use the DSL to declare exclusions. The two main advantages of using this mechanism
+You can also use the DSL to declare exclusions. The two main advantages of using this mechanism
 are that they will be included in the `<dependencyManagement>` of your project's
 [generated pom](#pom-generation) and that they will be applied using
 [Maven's exclusion semantics](#maven-exclusions).
@@ -108,7 +108,7 @@ An exclusion can be declared on individual dependencies:
 ```groovy
 dependencyManagement {
     dependencies {
-        'org.springframework:spring-core' '4.0.3.RELEASE', {
+        dependency('org.springframework:spring-core:4.0.3.RELEASE') {
             exclude 'commons-logging:commons-logging'
         }
     }
@@ -121,13 +121,16 @@ An exclusion can also be declared on an entry in a dependency set:
 dependencyManagement {
     dependencies {
         dependencySet(group:'org.springframework', version: '4.1.4.RELEASE') {
-            entry 'spring-core' {
-                exclude 'commons-logging:commons-logging'
+            entry('spring-core') {
+                exclude group: 'commons-logging', name: 'commons-logging'
             }
         }
     }
 }
 ```
+
+Note that, as shown in the two examples above, an exclusion can be identified using `'group:name'`
+or `group: 'group', name: 'name'`.
 
 ### Importing a Maven bom
 
@@ -267,7 +270,7 @@ dependencyManagement {
         mavenBom 'io.spring.platform:platform-bom:1.1.1.RELEASE'
     }
     dependencies {
-        'com.google.guava:guava' '18.0'
+        dependency 'com.google.guava:guava:18.0'
     }
 }
 ```
@@ -429,7 +432,7 @@ dependencyManagement {
           mavenBom 'com.example:bom:1.0'
      }
      dependencies {
-          'com.example:dependency' '1.5'
+          dependency 'com.example:dependency:1.5'
      }
 }
 ```

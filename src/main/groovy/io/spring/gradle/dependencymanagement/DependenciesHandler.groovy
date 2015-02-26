@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package io.spring.gradle.dependencymanagement
 
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.Configuration
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Internal handler for the {@code dependencies} block of the dependency management DSL
@@ -25,6 +27,8 @@ import org.gradle.api.artifacts.Configuration
  * @author Andy Wilkinson
  */
 class DependenciesHandler {
+
+    private final Logger log = LoggerFactory.getLogger(DependenciesHandler)
 
     private final DependencyManagementContainer container
 
@@ -49,27 +53,42 @@ class DependenciesHandler {
         }
     }
 
+    private def hasText(String string) {
+        return string != null && string.trim().length() > 0
+    }
+
+    def dependency(def id) {
+        dependency(id, null)
+    }
+
+    def dependency(def id, Closure closure) {
+        if (id instanceof String) {
+            def (group, name, version) = id.split(':')
+            configureDependency(group, name, version, closure)
+        }
+        else {
+            configureDependency(id['group'], id['name'], id['version'], closure)
+        }
+    }
+
+    private def configureDependency(String group, String name, String version, Closure closure) {
+        def excludeHandler = new DependencyExcludeHandler()
+        if (closure) {
+            closure.delegate = excludeHandler;
+            closure.call()
+        }
+        container.addExplicitManagedVersion(configuration, group, name, version,
+                excludeHandler.exclusions)
+    }
+
     def propertyMissing(String name) {
         this.container.project.property(name)
     }
 
     def methodMissing(String name, args) {
-        String[] components = name.split(':')
-
-        def excludeHandler = new DependencyExcludeHandler()
-
-        if (args.length == 2) {
-            Closure closure = args[1]
-            closure.delegate = excludeHandler;
-            closure.call();
-        }
-
-        container.addExplicitManagedVersion(configuration, components[0], components[1], args[0],
-                excludeHandler.exclusions)
-    }
-
-    def hasText(String string) {
-        return string != null && string.trim().length() > 0
+        log.warn "The 'group:name' 'version' syntax is deprecated and will be removed in a " +
+                "future release. Please use dependency 'group:name:version' instead."
+        dependency(name + ':' + args[0], args.length == 2 ? args[1]: null)
     }
 
     private class DependencySetHandler {
@@ -104,6 +123,10 @@ class DependenciesHandler {
 
         def exclude(String exclusion) {
             exclusions << exclusion
+        }
+
+        def exclude(Map exclusion) {
+            exclusions << exclusion['group'] + ':' + exclusion['name']
         }
     }
 }
