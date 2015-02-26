@@ -1,5 +1,7 @@
 # Dependency management plugin [![Build status][2]][1]
 
+[![Chat on Gitter][6]][5]
+
 A Gradle plugin that provides Maven-like dependency management and exclusions. Based on the
 configured dependency management metadata, the plugin will control the versions of your
 project's direct and transitive dependencies and will honour any exclusions declared in the
@@ -506,3 +508,5 @@ dependencyManagement.compile.managedVersions['org.springframework:spring-core']
 [2]: https://build.spring.io/plugins/servlet/buildStatusImage/GRADLEPLUGINS-DMP (Build status)
 [3]: http://plugins.gradle.org/plugin/io.spring.dependency-management
 [4]: http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions
+[5]: https://gitter.im/spring-gradle-plugins/dependency-management-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+[6]: https://badges.gitter.im/Join%20Chat.svg
