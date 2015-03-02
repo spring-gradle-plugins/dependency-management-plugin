@@ -949,4 +949,16 @@ public class DependencyManagementPluginSpec extends Specification {
         then: "there is no StackOverflowException and resolution succeeds"
             !files.empty
     }
+
+    def "The resolution strategy of a dependency management configuration can be customized"() {
+        when: 'A project has the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        then: "The resolution strategy can be customized"
+            project.dependencyManagement {
+                resolutionStrategy {
+                    cacheChangingModulesFor 0, 'seconds'
+                }
+            }
+    }
 }

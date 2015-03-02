@@ -43,6 +43,10 @@ class DependencyManagementExtension {
                 .dependencies(closure)
     }
 
+    void resolutionStrategy(Closure closure) {
+        this.dependencyManagementContainer.resolutionStrategy closure
+    }
+
     void generatedPomCustomization(Closure closure) {
         closure.delegate = this.generatedPomCustomization
         closure.resolveStrategy = Closure.DELEGATE_FIRST

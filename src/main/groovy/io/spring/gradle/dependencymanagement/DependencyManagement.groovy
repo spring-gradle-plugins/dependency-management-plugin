@@ -54,13 +54,14 @@ class DependencyManagement {
 
     private Properties bomProperties = new Properties()
 
-    def DependencyManagement(Project project) {
-        this(project, null)
+    def DependencyManagement(Project project, Configuration dependencyManagementConfiguration) {
+        this(project, null, dependencyManagementConfiguration)
     }
 
-    def DependencyManagement(Project project, Configuration targetConfiguration) {
+    def DependencyManagement(Project project, Configuration targetConfiguration, Configuration
+            dependencyManagementConfiguration) {
         this.project = project
-        this.configuration = this.project.configurations.detachedConfiguration()
+        this.configuration = dependencyManagementConfiguration
         this.targetConfiguration = targetConfiguration
     }
 

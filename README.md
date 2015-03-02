@@ -301,6 +301,18 @@ This will produce the following `<dependencyManagement>` in the generated pom fi
 The dependency management for Guava that's declared directly in the pom takes precedence over
 any dependency management for Guava in the `platform-bom` that's been imported.
 
+#### Configuring caching of imported boms
+
+You may want to configure the caching of an imported bom, for example because you're using a
+snapshot. You can do so by using a [`resolutionStrategy`][7] closure, for example:
+
+```groovy
+dependencyManagement {
+    resolutionStrategy {
+        cacheChangingModulesFor 0, 'seconds'
+    }
+}
+
 ### Dependency management for specific configurations
 
 To target dependency management at a single configuration, you nest the dependency management
@@ -510,3 +522,4 @@ dependencyManagement.compile.managedVersions['org.springframework:spring-core']
 [4]: http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions
 [5]: https://gitter.im/spring-gradle-plugins/dependency-management-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [6]: https://badges.gitter.im/Join%20Chat.svg
+[7]: http://gradle.org/docs/current/dsl/org.gradle.api.artifacts.ResolutionStrategy.html

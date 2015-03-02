@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement
 
 import io.spring.gradle.dependencymanagement.exclusions.Exclusions
+import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.slf4j.Logger
@@ -31,6 +32,8 @@ class DependencyManagementContainer {
 
     private final Logger log = LoggerFactory.getLogger(DependencyManagementContainer)
 
+    private final DomainObjectCollection<Configuration> dependencyManagementConfigurations
+
     protected final DependencyManagement globalDependencyManagement
 
     final Project project
@@ -38,8 +41,11 @@ class DependencyManagementContainer {
     private final Map<Configuration, DependencyManagement> configurationDependencyManagement = [:]
 
     DependencyManagementContainer(Project project) {
-        this.globalDependencyManagement = new DependencyManagement(project)
         this.project = project
+        this.dependencyManagementConfigurations = this.project.container(Configuration)
+        Configuration dependencyManagementConfiguration = this.project.configurations.detachedConfiguration()
+        this.dependencyManagementConfigurations.add(dependencyManagementConfiguration)
+        this.globalDependencyManagement = new DependencyManagement(this.project, dependencyManagementConfiguration)
     }
 
     void addImplicitManagedVersion(configuration, String group, String name, String version) {
@@ -55,6 +61,12 @@ class DependencyManagementContainer {
 
     void importBom(Configuration configuration, String coordinates) {
         dependencyManagementForConfiguration(configuration).importBom(coordinates)
+    }
+
+    void resolutionStrategy(Closure closure) {
+        this.dependencyManagementConfigurations.all { Configuration configuration ->
+            configuration.resolutionStrategy closure
+        }
     }
 
     String getManagedVersion(Configuration configuration, String group, String name) {
@@ -114,8 +126,14 @@ class DependencyManagementContainer {
             globalDependencyManagement
         }
         else {
-            configurationDependencyManagement.
-                    get(configuration, new DependencyManagement(project, configuration))
+            DependencyManagement dependencyManagement = configurationDependencyManagement.get(configuration)
+            if (!dependencyManagement) {
+                Configuration dependencyManagementConfiguration = this.project.configurations.detachedConfiguration()
+                this.dependencyManagementConfigurations.add(dependencyManagementConfiguration)
+                dependencyManagement = new DependencyManagement(project, configuration, dependencyManagementConfiguration)
+                configurationDependencyManagement.put(configuration, dependencyManagement)
+            }
+            dependencyManagement
         }
     }
 
