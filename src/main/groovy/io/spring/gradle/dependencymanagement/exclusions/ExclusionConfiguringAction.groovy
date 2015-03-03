@@ -24,6 +24,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.ResolvableDependencies
 import org.gradle.api.artifacts.result.ResolvedComponentResult
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -82,15 +83,15 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
         def configurationCopy = this.configuration.copyRecursive()
         def resolutionResult = configurationCopy.incoming.resolutionResult
 
-        def dependencies = resolutionResult.allComponents
+        def dependencyGraph = DependencyGraph.create(resolutionResult.root)
+        def dependencies = [] as LinkedHashSet
+        collectDependencies(dependencyGraph, dependencies)
 
         def allExclusions = this.exclusionResolver.resolveExclusions(dependencies)
         allExclusions.addAll(this.dependencyManagementContainer.getExclusions(this.configuration))
 
         def exclusionCandidates = [] as Set
         exclusionCandidates.addAll(dependencies)
-
-        def dependencyGraph = DependencyGraph.create(resolutionResult.root)
 
         if (log.debugEnabled) {
             log.debug "Exclusions: ${allExclusions}"
@@ -101,6 +102,13 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
         removeUnexcludedDependencies(dependencyGraph, allExclusions, [] as Set, exclusionCandidates)
 
         exclusionCandidates
+    }
+
+    private void collectDependencies(DependencyGraphNode node, Set<ResolvedComponentResult> collected) {
+        if (!collected.add(node.dependency)) {
+            return;
+        }
+        node.children.each { collectDependencies(it, collected) }
     }
 
     private void dumpGraph(DependencyGraphNode node, String indent) {
