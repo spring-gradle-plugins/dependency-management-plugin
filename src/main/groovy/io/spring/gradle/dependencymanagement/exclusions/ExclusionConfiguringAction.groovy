@@ -92,9 +92,21 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
         def dependencyGraph = DependencyGraph.create(resolutionResult.root)
 
+        if (log.debugEnabled) {
+            log.debug "Exclusions: ${allExclusions}"
+            log.debug "Dependency graph:"
+            dumpGraph(dependencyGraph, "")
+        }
+
         removeUnexcludedDependencies(dependencyGraph, allExclusions, [] as Set, exclusionCandidates)
 
         exclusionCandidates
+    }
+
+    private void dumpGraph(DependencyGraphNode node, String indent) {
+        log.debug("${indent}${node.id}")
+        indent += "    "
+        node.children.each { dumpGraph it, indent }
     }
 
     private void removeUnexcludedDependencies(DependencyGraphNode node, Exclusions allExclusions,

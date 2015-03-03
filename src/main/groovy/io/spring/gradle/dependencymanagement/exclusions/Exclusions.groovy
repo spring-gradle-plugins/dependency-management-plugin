@@ -29,7 +29,7 @@ class Exclusions {
 
     private final Logger log = LoggerFactory.getLogger(Exclusions)
 
-    def exclusionsByExcluder = [:]
+    private def exclusionsByExcluder = [:]
 
     void add(params) {
         def exclusion = getId(params.exclusion)
@@ -58,5 +58,9 @@ class Exclusions {
 
     private String getId(def toIdentify) {
         toIdentify instanceof String ? toIdentify : "$toIdentify.groupId:$toIdentify.artifactId"
+    }
+
+    String toString() {
+        return exclusionsByExcluder.toString()
     }
 }
