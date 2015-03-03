@@ -144,16 +144,17 @@ class DependencyManagement {
         configuration.resolve().each { File file ->
             log.debug("Processing '{}'", file)
             Model effectiveModel = effectiveModelBuilder.buildModel(file)
-            if (effectiveModel) {
+            if (effectiveModel.dependencyManagement?.dependencies) {
                 String bomCoordinates = "${effectiveModel.groupId}:${effectiveModel.artifactId}:${effectiveModel.version}"
                 effectiveModel.dependencyManagement.dependencies.each { dependency ->
-                    versions["$dependency.groupId:$dependency.artifactId" as String
-                            ] = dependency.version
+                    versions["$dependency.groupId:$dependency.artifactId" as String] = dependency.version
                 }
-                bomProperties.putAll(effectiveModel.properties)
                 bomDependencyManagement[bomCoordinates] = effectiveModel.dependencyManagement.dependencies
                 allExclusions.addAll(
                         new ModelExclusionCollector().collectExclusions(effectiveModel))
+            }
+            if (effectiveModel.properties) {
+                bomProperties.putAll(effectiveModel.properties)
             }
         }
 
