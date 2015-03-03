@@ -312,6 +312,7 @@ dependencyManagement {
         cacheChangingModulesFor 0, 'seconds'
     }
 }
+```
 
 ### Dependency management for specific configurations
 
