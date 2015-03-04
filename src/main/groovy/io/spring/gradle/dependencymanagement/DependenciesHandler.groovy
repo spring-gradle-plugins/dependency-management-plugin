@@ -62,7 +62,7 @@ class DependenciesHandler {
     }
 
     def dependency(def id, Closure closure) {
-        if (id instanceof String) {
+        if (id instanceof String || id instanceof GString) {
             def (group, name, version) = id.split(':')
             configureDependency(group, name, version, closure)
         }

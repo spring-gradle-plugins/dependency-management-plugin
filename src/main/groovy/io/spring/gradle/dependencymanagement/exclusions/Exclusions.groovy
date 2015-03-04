@@ -57,7 +57,7 @@ class Exclusions {
     }
 
     private String getId(def toIdentify) {
-        toIdentify instanceof String ? toIdentify : "$toIdentify.groupId:$toIdentify.artifactId"
+        toIdentify instanceof CharSequence ? toIdentify : "$toIdentify.groupId:$toIdentify.artifactId"
     }
 
     String toString() {
