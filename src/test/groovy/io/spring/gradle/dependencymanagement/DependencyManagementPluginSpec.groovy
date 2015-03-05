@@ -981,4 +981,19 @@ public class DependencyManagementPluginSpec extends Specification {
                 }
             }
     }
+
+    def "A managed dependency can be configured using a GString"() {
+        given: 'A project that has the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: "A managed dependency is configured using a GString"
+            def springVersion = '4.1.5.RELEASE'
+            project.dependencyManagement {
+                dependencies {
+                    dependency "org.springframework:spring-core:$springVersion"
+                }
+            }
+        then: 'The managed version has been configured correctly'
+            '4.1.5.RELEASE' == project.dependencyManagement.managedVersions['org.springframework:spring-core']
+    }
 }
