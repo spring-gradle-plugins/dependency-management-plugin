@@ -996,4 +996,19 @@ public class DependencyManagementPluginSpec extends Specification {
         then: 'The managed version has been configured correctly'
             '4.1.5.RELEASE' == project.dependencyManagement.managedVersions['org.springframework:spring-core']
     }
+
+    def "Exclusions are handled correctly for dependencies that appear multiple times"() {
+        given: 'A project that has the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: "It has dependencies that depend on and exclude javax.validation:validation-api"
+            project.dependencies {
+                compile("org.springframework.cloud:spring-cloud-starter-eureka:1.0.0.RELEASE")
+                compile("org.springframework.boot:spring-boot-starter-web:1.2.3.RELEASE")
+            }
+        then: 'validation-api has not been excluded'
+            def files = project.configurations.compile.resolve()
+            files.collect { it.name }.containsAll(['validation-api-1.1.0.Final.jar'])
+
+    }
 }

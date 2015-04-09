@@ -27,12 +27,12 @@ import org.gradle.api.artifacts.result.ResolvedDependencyResult
 class DependencyGraph {
 
     static create(ResolvedComponentResult root) {
-        def seen = [] as Set
-        process(null, root, seen)
+        def ancestors = [] as Set
+        process(null, root, ancestors)
     }
 
     private static DependencyGraphNode process(DependencyGraphNode parent,
-            ResolvedComponentResult dependency, Set seen) {
+            ResolvedComponentResult dependency, Set ancestors) {
 
         DependencyGraphNode node = new DependencyGraphNode(parent, dependency)
 
@@ -40,14 +40,14 @@ class DependencyGraph {
             parent.children << node
         }
 
-        if (!seen.contains(node.id)) {
-            seen.add(node.id)
+        if (!ancestors.contains(node.id)) {
             def dependencies = dependency.dependencies
                     .findAll { it instanceof ResolvedDependencyResult }
                     .collect { ResolvedDependencyResult it -> it.selected }
-
+            ancestors = new HashSet(ancestors)
+            ancestors.add(node.id)
             if (dependencies) {
-                dependencies.each { process(node, it, seen) }
+                dependencies.each { process(node, it, ancestors) }
             }
         }
         node
