@@ -128,8 +128,8 @@ public class DependencyManagementPluginSpec extends Specification {
             project.apply plugin: 'java'
             project.dependencyManagement {
                 dependencies {
-                    'org.springframework:spring-core' '4.0.4.RELEASE'
-                    'commons-logging:commons-logging' '1.1.2', {
+                    dependency 'org.springframework:spring-core:4.0.4.RELEASE'
+                    dependency ('commons-logging:commons-logging:1.1.2') {
                         exclude 'foo:bar'
                     }
                 }
@@ -182,7 +182,7 @@ public class DependencyManagementPluginSpec extends Specification {
             project.apply plugin: 'java'
             project.dependencyManagement {
                 dependencies {
-                    'org.springframework:spring-core' '4.0.4.RELEASE', {
+                    dependency ('org.springframework:spring-core:4.0.4.RELEASE') {
                         exclude 'commons-logging:commons-logging'
                     }
                 }
@@ -203,7 +203,7 @@ public class DependencyManagementPluginSpec extends Specification {
             project.apply plugin: 'java'
             project.dependencyManagement {
                 dependencies {
-                    'org.springframework:spring-core' '4.0.4.RELEASE'
+                    dependency 'org.springframework:spring-core:4.0.4.RELEASE'
                 }
             }
             project.dependencies {
@@ -228,7 +228,7 @@ public class DependencyManagementPluginSpec extends Specification {
             project.apply plugin: 'java'
             project.dependencyManagement {
                 dependencies {
-                    'test:child' '1.0.0'
+                    dependency 'test:child:1.0.0'
                 }
             }
             project.dependencies {
@@ -261,8 +261,8 @@ public class DependencyManagementPluginSpec extends Specification {
 
             project.dependencyManagement {
                 dependencies {
-                    'test:child' '1.0.0'
-                    'test-other:grandchild' '1.0.0'
+                    dependency 'test:child:1.0.0'
+                    dependency 'test-other:grandchild:1.0.0'
                 }
             }
             project.dependencies {
@@ -310,7 +310,7 @@ public class DependencyManagementPluginSpec extends Specification {
             project.dependencyManagement {
                 managed {
                     dependencies {
-                        'commons-logging:commons-logging' '1.1.2'
+                        dependency 'commons-logging:commons-logging:1.1.2'
                     }
                 }
             }
@@ -345,7 +345,7 @@ public class DependencyManagementPluginSpec extends Specification {
             project.dependencyManagement {
                 configurations(managed1, managed2) {
                     dependencies {
-                        'commons-logging:commons-logging' '1.1.2'
+                        dependency 'commons-logging:commons-logging:1.1.2'
                     }
                 }
             }
@@ -378,11 +378,11 @@ public class DependencyManagementPluginSpec extends Specification {
 
             project.dependencyManagement {
                 dependencies {
-                    'commons-logging:commons-logging' '1.1.2'
+                    dependency 'commons-logging:commons-logging:1.1.2'
                 }
                 compile {
                     dependencies {
-                        'commons-logging:commons-logging' '1.1.1'
+                        dependency 'commons-logging:commons-logging:1.1.1'
                     }
                 }
             }
@@ -406,7 +406,7 @@ public class DependencyManagementPluginSpec extends Specification {
             project.dependencyManagement {
                 compile {
                     dependencies {
-                        'commons-logging:commons-logging' '1.1.1'
+                        dependency 'commons-logging:commons-logging:1.1.1'
                     }
                 }
             }
@@ -428,7 +428,7 @@ public class DependencyManagementPluginSpec extends Specification {
 
             project.dependencyManagement {
                 dependencies {
-                    'commons-logging:commons-logging' '1.1.1'
+                    dependency 'commons-logging:commons-logging:1.1.1'
                 }
             }
 
@@ -585,7 +585,7 @@ public class DependencyManagementPluginSpec extends Specification {
                 }
                 testRuntime {
                     dependencies {
-                        'com.foo:bar' '1.2.3'
+                        dependency 'com.foo:bar:1.2.3'
                     }
                 }
                 dependencies {
@@ -685,9 +685,9 @@ public class DependencyManagementPluginSpec extends Specification {
         when: 'Dependency management that contains a dependency that references the property is declared'
             project.dependencyManagement {
                 dependencies {
-                    "org.springframework:spring-core" springVersion
-                    "org.springframework:spring-beans" "$springVersion"
-                    "org.springframework:spring-tx" project.ext['springVersion']
+                    dependency "org.springframework:spring-core:$springVersion"
+                    dependency "org.springframework:spring-beans:$springVersion"
+                    dependency "org.springframework:spring-tx:${project.ext['springVersion']}"
                     dependencySet(group: 'org.slf4j', version: slf4jVersion) {
                         entry 'slf4j-api'
                     }

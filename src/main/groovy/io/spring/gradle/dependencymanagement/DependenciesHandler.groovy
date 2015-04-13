@@ -85,12 +85,6 @@ class DependenciesHandler {
         this.container.project.property(name)
     }
 
-    def methodMissing(String name, args) {
-        log.warn "The 'group:name' 'version' syntax is deprecated and will be removed in a " +
-                "future release. Please use dependency 'group:name:version' instead."
-        dependency(name + ':' + args[0], args.length == 2 ? args[1]: null)
-    }
-
     private class DependencySetHandler {
 
         private final String group
