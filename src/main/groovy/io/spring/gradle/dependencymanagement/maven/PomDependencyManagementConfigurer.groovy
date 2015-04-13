@@ -37,6 +37,11 @@ class PomDependencyManagementConfigurer {
         this.configuration = configuration
     }
 
+    /**
+     * Configures the dependency management of the given {@code pom}
+     *
+     * @param pom the pom to configure
+     */
     void configurePom(Node pom) {
         if (configuration.enabled) {
             doConfigurePom(pom)

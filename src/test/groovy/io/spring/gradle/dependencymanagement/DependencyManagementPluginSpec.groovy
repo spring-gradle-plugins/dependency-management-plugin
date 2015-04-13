@@ -60,6 +60,13 @@ public class DependencyManagementPluginSpec extends Specification {
         !configuration.enabled
     }
 
+    def "The pom configurer is available"() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+        expect: 'The pom configurer is available'
+            project.dependencyManagement.pomConfigurer
+    }
+
     def "Customization of published poms can be configured to copy imported boms"() {
         given: 'A project with the plugin applied'
             project.apply plugin: 'io.spring.dependency-management'

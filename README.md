@@ -501,6 +501,15 @@ dependencyManagement {
 }
 ```
 
+### Configuring your own pom
+
+If your build creates a pom outside of Gradle's standard `maven` and `maven-publish` mechanisms you
+can still configure its dependency management:
+
+```groovy
+dependencyManagement.pomConfigurer.configurePom(yourPom)
+```
+
 ## Working with the managed versions
 
 ### Dependency management task

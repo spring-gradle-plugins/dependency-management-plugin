@@ -16,6 +16,7 @@
 
 package io.spring.gradle.dependencymanagement
 
+import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfigurer
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 
@@ -33,6 +34,12 @@ class DependencyManagementExtension {
     boolean applyMavenExclusions = true
 
     PomCustomizationConfiguration generatedPomCustomization = new PomCustomizationConfiguration()
+
+    DependencyManagementExtension(DependencyManagementContainer dependencyManagementContainer,
+            Project project) {
+        this.dependencyManagementContainer = dependencyManagementContainer
+        this.project = project
+    }
 
     void imports(Closure closure) {
         new DependencyManagementHandler(dependencyManagementContainer).imports(closure)
@@ -55,6 +62,11 @@ class DependencyManagementExtension {
 
     def getManagedVersions() {
         dependencyManagementContainer.managedVersionsForConfiguration(null)
+    }
+
+    def getPomConfigurer() {
+        new PomDependencyManagementConfigurer(dependencyManagementContainer
+                .globalDependencyManagement, generatedPomCustomization)
     }
 
     Properties getImportedProperties() {

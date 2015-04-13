@@ -51,14 +51,8 @@ class DependencyManagementPlugin implements Plugin<Project> {
         DependencyManagementContainer dependencyManagementContainer =
                 new DependencyManagementContainer(project)
 
-        project.extensions.add("dependencyManagement", DependencyManagementExtension)
-        project.extensions.configure(DependencyManagementExtension, new Action() {
-
-            void execute(extension) {
-                extension.dependencyManagementContainer = dependencyManagementContainer
-                extension.project = project
-            }
-        })
+        DependencyManagementExtension extension = project.extensions.create("dependencyManagement",
+                DependencyManagementExtension, dependencyManagementContainer, project)
 
         project.tasks.create("dependencyManagement", DependencyManagementReportTask) { task ->
             task.dependencyManagement = dependencyManagementContainer
@@ -81,7 +75,7 @@ class DependencyManagementPlugin implements Plugin<Project> {
             }
         }
 
-        def ExclusionResolver exclusionResolver = new ExclusionResolver(project.dependencies,
+        ExclusionResolver exclusionResolver = new ExclusionResolver(project.dependencies,
                 project.configurations, new EffectiveModelBuilder(project))
 
         project.configurations.all { Configuration c ->
@@ -116,23 +110,16 @@ class DependencyManagementPlugin implements Plugin<Project> {
             }
         }
 
-        PomCustomizationConfiguration pomCustomizationConfiguration =
-                project.extensions.getByType(DependencyManagementExtension).generatedPomCustomization
-
-        PomDependencyManagementConfigurer pomDependencyManagementConfigurer = new
-                PomDependencyManagementConfigurer(dependencyManagementContainer.globalDependencyManagement,
-                        pomCustomizationConfiguration)
-
         project.tasks.withType(Upload).all { uploadTask ->
             uploadTask.repositories.withType(PomFilterContainer).all { container ->
-                configurePom(container.pom, pomDependencyManagementConfigurer)
+                configurePom(container.pom, extension.pomConfigurer)
             }
         }
 
         project.plugins.withType(MavenPublishPlugin) {
             project.extensions.configure(PublishingExtension, new ClosureBackedAction({
                 publications.withType(MavenPublication).all { publication ->
-                    configurePom(publication.pom, pomDependencyManagementConfigurer)
+                    configurePom(publication.pom, extension.pomConfigurer)
                 }
             }))
         }
