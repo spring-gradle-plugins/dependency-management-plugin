@@ -9,7 +9,7 @@ poms of your project's dependencies.
 
 ## Requirements
 
- - Gradle 1.x or 2.x (the plugin is tested against 1.12 and 2.0)
+ - Gradle 1.x or 2.x (the plugin is tested against 1.12 and 2.3)
 
 ## Using the plugin
 
