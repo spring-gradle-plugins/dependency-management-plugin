@@ -21,6 +21,7 @@ import io.spring.gradle.dependencymanagement.exclusions.ExclusionConfiguringActi
 import io.spring.gradle.dependencymanagement.exclusions.ExclusionResolver
 import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
 import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfigurer
+import io.spring.gradle.dependencymanagement.report.DependencyManagementReportTask
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -58,6 +59,10 @@ class DependencyManagementPlugin implements Plugin<Project> {
                 extension.project = project
             }
         })
+
+        project.tasks.create("dependencyManagement", DependencyManagementReportTask) { task ->
+            task.dependencyManagement = dependencyManagementContainer
+        }
 
         project.configurations.all { Configuration root ->
             root.incoming.beforeResolve {

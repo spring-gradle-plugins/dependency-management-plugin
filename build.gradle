@@ -15,6 +15,7 @@ description = 'Dependency Management Plugin'
 
 ext {
     spockVersion = GroovySystem.version.startsWith('1.') ? '0.7-groovy-1.8' : '0.7-groovy-2.0'
+    cglibVersion = '3.1'
 }
 
 dependencies {
@@ -23,6 +24,7 @@ dependencies {
     testCompile("org.spockframework:spock-core:$spockVersion") {
         exclude group: 'org.codehaus.groovy'
     }
+    testCompile("cglib:cglib-nodep:$cglibVersion")
 }
 
 tasks.findByPath('artifactoryPublish')?.configure {

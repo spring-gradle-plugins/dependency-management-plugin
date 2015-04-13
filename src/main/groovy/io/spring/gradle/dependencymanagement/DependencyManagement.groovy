@@ -103,6 +103,11 @@ class DependencyManagement {
         versions[createKey(group, name)]
     }
 
+    Map getManagedVersions() {
+        resolveIfNecessary()
+        return new HashMap(versions)
+    }
+
     void explicitManagedVersions(Closure closure) {
         explicitVersions.each { key, value ->
             def (groupId, artifactId) = key.split(':')

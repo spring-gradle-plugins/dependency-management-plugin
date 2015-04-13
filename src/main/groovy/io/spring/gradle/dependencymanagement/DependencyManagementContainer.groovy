@@ -117,7 +117,13 @@ class DependencyManagementContainer {
     }
 
     def managedVersionsForConfiguration(Configuration configuration) {
-        return new ManagedVersions(configuration)
+        def managedVersions = dependencyManagementForConfiguration(null).managedVersions
+        if (configuration) {
+            new ArrayList(configuration.hierarchy).reverseEach { Configuration c ->
+                managedVersions.putAll(dependencyManagementForConfiguration(c).managedVersions)
+            }
+        }
+        managedVersions
     }
 
     private DependencyManagement dependencyManagementForConfiguration(
@@ -137,17 +143,4 @@ class DependencyManagementContainer {
         }
     }
 
-    private class ManagedVersions {
-
-        private final Configuration configuration
-
-        ManagedVersions(Configuration configuration) {
-            this.configuration = configuration
-        }
-
-        def getAt(String index) {
-            def (group, name) = index.split(':')
-            getManagedVersion(configuration, group, name)
-        }
-    }
 }

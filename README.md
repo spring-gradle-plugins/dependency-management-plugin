@@ -501,20 +501,78 @@ dependencyManagement {
 }
 ```
 
-## Accessing the managed versions
+## Working with the managed versions
 
-The plugin provides an API for accessing the versions provided by the configured dependency
-management. For example, accessing the version for `org.springframework:spring-core` from
-global dependency management:
+### Dependency management task
 
-```groovy
-dependencyManagement.managedVersions['org.springframework:spring-core']
+The plugin provides a task, `dependencyManagement` that will output a report of the
+project's dependency management. For example:
+
+```
+$ gradle dependencyManagement
+
+:dependencyManagement
+
+------------------------------------------------------------
+Root project
+------------------------------------------------------------
+
+global - Default dependency management for all configurations
+    org.springframework:spring-core 4.1.5.RELEASE
+
+archives - Dependency management for the archives configuration
+No configuration-specific dependency management
+
+compile - Dependency management for the compile configuration
+No configuration-specific dependency management
+
+default - Dependency management for the default configuration
+No configuration-specific dependency management
+
+runtime - Dependency management for the runtime configuration
+No configuration-specific dependency management
+
+testCompile - Dependency management for the testCompile configuration
+    org.springframework:spring-beans 4.1.5.RELEASE
+    org.springframework:spring-core 4.1.5.RELEASE
+
+testRuntime - Dependency management for the testRuntime configuration
+    org.springframework:spring-beans 4.1.5.RELEASE
+    org.springframework:spring-core 4.1.5.RELEASE
 ```
 
-And from the compile configuration's dependency management:
+This report is produced by a project with the following dependency management:
 
 ```groovy
-dependencyManagement.compile.managedVersions['org.springframework:spring-core']
+dependencyManagement {
+    dependencies {
+        dependency 'org.springframework:spring-core:4.1.5.RELEASE'
+    }
+    testCompile {
+        dependencies {
+            dependency 'org.springframework:spring-beans:4.1.5.RELEASE'
+        }
+    }
+}
+```
+
+### Programmatic access
+
+The plugin provides an API for accessing the versions provided by the configured
+dependency management. The managed versions from global dependency management are
+available from `dependencyManagement.managedVersions`:
+
+```groovy
+def managedVersions = dependencyManagement.managedVersions
+```
+
+ Managed versions from
+configuration-specific dependency management are available from
+`dependencyManagement.<configuration>.managedVersions`. For example, to access the
+managed versions from the compile configuration:
+
+```groovy
+def managedVersions = dependencyManagement.compile.managedVersions
 ```
 
 [1]: https://build.spring.io/browse/GRADLEPLUGINS-DMP
