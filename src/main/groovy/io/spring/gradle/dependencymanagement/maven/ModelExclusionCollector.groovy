@@ -42,8 +42,11 @@ class ModelExclusionCollector {
                 .findAll { "provided" != it.scope }
                 .findAll { "test" != it.scope }
                 .each { dependency ->
-            dependency.exclusions.each { exclusion ->
-                exclusions.add(exclusion: exclusion, from: dependency)
+            String dependencyId = "${dependency.groupId}:${dependency.artifactId}"
+            if (dependency.exclusions) {
+                exclusions.add(dependencyId, dependency.exclusions.collect { exclusion ->
+                    "${exclusion.groupId}:${exclusion.artifactId}" as String
+                } as Set<String>)
             }
         }
         exclusions

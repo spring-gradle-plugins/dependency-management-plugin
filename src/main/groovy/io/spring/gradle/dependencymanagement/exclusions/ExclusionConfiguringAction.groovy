@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.ResolvableDependencies
 import org.gradle.api.artifacts.result.ResolvedComponentResult
-import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -81,27 +80,51 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
     private Set findExcludedDependencies() {
         def configurationCopy = this.configuration.copyRecursive()
-        def resolutionResult = configurationCopy.incoming.resolutionResult
-
-        def dependencyGraph = DependencyGraph.create(resolutionResult.root)
-        def dependencies = [] as LinkedHashSet
-        collectDependencies(dependencyGraph, dependencies)
-
-        def allExclusions = this.exclusionResolver.resolveExclusions(dependencies)
-        allExclusions.addAll(this.dependencyManagementContainer.getExclusions(this.configuration))
-
-        def exclusionCandidates = [] as Set
-        exclusionCandidates.addAll(dependencies)
-
-        if (log.debugEnabled) {
-            log.debug "Exclusions: ${allExclusions}"
-            log.debug "Dependency graph:"
-            dumpGraph(dependencyGraph, "")
+        def root = configurationCopy.incoming.resolutionResult.root
+        Set allDependencies = []
+        use (ResolvedComponentResultCategory) {
+            root.visit { def dependency, def parent ->
+                allDependencies << dependency
+            }
         }
 
-        removeUnexcludedDependencies(dependencyGraph, allExclusions, [] as Set, exclusionCandidates)
+        DependencyGraphNode dependencyGraph = DependencyGraph.create(root,
+                this.dependencyManagementContainer.getExclusions(this.configuration))
+        if (log.debugEnabled) {
+            log.debug "Initial dependency graph:"
+            dumpGraph(dependencyGraph)
+        }
 
-        exclusionCandidates
+        def exclusionsFromDependencies = this.exclusionResolver.resolveExclusions(allDependencies)
+
+        if (log.debugEnabled) {
+            log.debug "Exclusions from dependencies:"
+            exclusionsFromDependencies.each { pom, exclusionsByDependency ->
+                log.debug "    ${pom} depends on:"
+                exclusionsByDependency.all().each { dependency, exclusions ->
+                    log.debug "        ${dependency} excludes:"
+                    exclusions.each { log.debug "            ${it}" }
+                }
+            }
+        }
+
+        dependencyGraph.applyExclusions(exclusionsFromDependencies)
+        if (log.debugEnabled) {
+            log.debug "Dependency graph with exclusions applied:"
+            dumpGraph(dependencyGraph)
+        }
+
+        dependencyGraph.prune()
+        if (log.debugEnabled) {
+            log.debug "Dependency graph after pruning:"
+            dumpGraph(dependencyGraph)
+        }
+
+        Set unexcludedDependencies = []
+        collectDependencies(dependencyGraph, unexcludedDependencies)
+
+        allDependencies.removeAll(unexcludedDependencies)
+        allDependencies
     }
 
     private void collectDependencies(DependencyGraphNode node, Set<ResolvedComponentResult> collected) {
@@ -111,37 +134,13 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
         node.children.each { collectDependencies(it, collected) }
     }
 
+    private void dumpGraph(DependencyGraphNode node) {
+        dumpGraph(node, "")
+    }
+
     private void dumpGraph(DependencyGraphNode node, String indent) {
         log.debug("${indent}${node.id}")
         indent += "    "
         node.children.each { dumpGraph it, indent }
-    }
-
-    private void removeUnexcludedDependencies(DependencyGraphNode node, Exclusions allExclusions,
-            Set<String> exclusions, Set exclusionCandidates) {
-        if (exclusionCandidates.contains(node.dependency) && !exclusions.contains(node.id)) {
-            exclusionCandidates.remove(node.dependency)
-            if (log.debugEnabled) {
-                log.debug "${node.id} is not excluded due to path ${getPath(node)}"
-            }
-            Set<String> exclusionsForChildren = new HashSet<String>(exclusions)
-            def exclusionsForDependency = allExclusions.exclusionsForDependency(node.id)
-            if (exclusionsForDependency) {
-                exclusionsForChildren.addAll(allExclusions.exclusionsForDependency(node.id))
-            }
-            node.children.each {
-                removeUnexcludedDependencies(it, allExclusions, exclusionsForChildren, exclusionCandidates)
-            }
-        }
-    }
-
-    private String getPath(DependencyGraphNode node) {
-        String path = node.id
-        def current = node.parent
-        while (current != null) {
-            path += " -> " + current.id
-            current = current.parent
-        }
-        path
     }
 }

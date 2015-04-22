@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@
 package io.spring.gradle.dependencymanagement.exclusions
 
 import org.gradle.api.artifacts.result.ResolvedComponentResult
-import org.gradle.api.artifacts.result.ResolvedDependencyResult
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * A model of a dependency graph
@@ -26,34 +27,39 @@ import org.gradle.api.artifacts.result.ResolvedDependencyResult
  */
 class DependencyGraph {
 
-    static create(ResolvedComponentResult root) {
-        def ancestors = [] as Set
-        process(null, root, ancestors)
-    }
+    private static Logger log = LoggerFactory.getLogger(DependencyGraph)
 
-    private static DependencyGraphNode process(DependencyGraphNode parent,
-            ResolvedComponentResult dependency, Set ancestors) {
-
-        DependencyGraphNode node = new DependencyGraphNode(parent, dependency)
-
-        if (parent) {
-            parent.children << node
+    static DependencyGraphNode create(ResolvedComponentResult root,
+            Exclusions dependencyManagementExclusions) {
+        use(ResolvedComponentResultCategory) {
+            root.visit { def dependency, def parent ->
+                DependencyGraphNode node = new DependencyGraphNode(parent?.node, dependency)
+                Set ancestorExclusions
+                if (parent) {
+                    ancestorExclusions = new HashSet(parent.ancestorExclusions)
+                    Set exclusionsForDependency =
+                            dependencyManagementExclusions.exclusionsForDependency(parent.node.id)
+                    if (exclusionsForDependency?.contains(node.id) || ancestorExclusions.contains (node.id)) {
+                        log.debug("Excluding ${node.id} from ${parent.node.id} due to dependency " +
+                                "management exclusion")
+                        return null
+                    }
+                    if (exclusionsForDependency) {
+                        ancestorExclusions.addAll(exclusionsForDependency)
+                    }
+                    parent.node.children << node
+                }
+                else {
+                    ancestorExclusions = []
+                }
+                [ 'node':node, 'ancestorExclusions':ancestorExclusions]
+            }.node
         }
-
-        if (!ancestors.contains(node.id)) {
-            def dependencies = dependency.dependencies
-                    .findAll { it instanceof ResolvedDependencyResult }
-                    .collect { ResolvedDependencyResult it -> it.selected }
-            ancestors = new HashSet(ancestors)
-            ancestors.add(node.id)
-            if (dependencies) {
-                dependencies.each { process(node, it, ancestors) }
-            }
-        }
-        node
     }
 
     static class DependencyGraphNode {
+
+        private static final Comparator NODE_COMPARATOR = { a, b -> return a.depth - b.depth} as Comparator
 
         final DependencyGraphNode parent
 
@@ -63,10 +69,73 @@ class DependencyGraph {
 
         final List<DependencyGraphNode> children = []
 
+        final int depth;
+
         DependencyGraphNode(DependencyGraphNode parent, ResolvedComponentResult dependency) {
             this.parent = parent;
+            if (this.parent) {
+                this.depth = parent.depth + 1
+            }
+            else {
+                this.depth = 0
+            }
             this.dependency = dependency
             this.id = "$dependency.moduleVersion.group:$dependency.moduleVersion.name"
         }
+
+        void applyExclusions(Map<String, Exclusions> dependencyExclusions) {
+            doApplyExclusions(dependencyExclusions, [] as Set)
+        }
+
+        private void doApplyExclusions(Map<String, Exclusions> dependencyExclusions,
+                Set<String> exclusionsFromAncestors) {
+            exclusionsFromAncestors = new HashSet(exclusionsFromAncestors)
+            if (parent) {
+                Exclusions exclusions = dependencyExclusions[parent.id];
+                Set<String> exclusionsForDependency = exclusions?.exclusionsForDependency(id)
+                if (exclusionsForDependency || exclusionsFromAncestors) {
+                    Iterator<DependencyGraphNode> each = children.iterator()
+                    while (each.hasNext()) {
+                        DependencyGraphNode child = each.next()
+                        if (exclusionsForDependency?.contains(child.id) ||
+                                exclusionsFromAncestors?.contains(child.id)) {
+                            log.debug("Excluding ${child.id} from ${id}")
+                            each.remove()
+                        }
+                    }
+                }
+                if (exclusionsForDependency) {
+                    exclusionsFromAncestors.addAll(exclusionsForDependency)
+                }
+            }
+            children.each { it.doApplyExclusions(dependencyExclusions, exclusionsFromAncestors) }
+        }
+
+        void prune() {
+            Map<String, SortedSet<DependencyGraphNode>> nodesById = [:]
+            collectById(nodesById)
+            nodesById.each { key, List nodes ->
+                nodes.sort(NODE_COMPARATOR)
+                nodes.remove(0)
+                nodes.each { node ->
+                    node.parent.children.remove(node)
+                }
+            }
+        }
+
+        private void collectById(Map<String, SortedSet<DependencyGraphNode>> nodesById) {
+            List<DependencyGraphNode> nodes = nodesById[id]
+            if (!nodes) {
+                nodes = []
+                nodesById[id] = nodes
+            }
+            nodes.add this
+            children.each { it.collectById(nodesById) }
+        }
+
+        public String toString() {
+            return "${id} ${depth}"
+        }
+
     }
 }

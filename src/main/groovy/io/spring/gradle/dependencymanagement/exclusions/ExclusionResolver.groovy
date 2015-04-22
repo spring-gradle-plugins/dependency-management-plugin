@@ -1,3 +1,19 @@
+/*
+ * Copyright 2014-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.spring.gradle.dependencymanagement.exclusions
 
 import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
@@ -33,10 +49,10 @@ class ExclusionResolver {
         this.effectiveModelBuilder = effectiveModelBuilder
     }
 
-    Exclusions resolveExclusions(Collection<ResolvedComponentResult>
+    Map<String, Exclusions> resolveExclusions(Collection<ResolvedComponentResult>
             resolvedComponents) {
         def dependencies = []
-        def exclusions = new Exclusions()
+        Map<String, Exclusions> exclusions = [:]
 
         resolvedComponents
                 .findAll { !(it.id instanceof ProjectComponentIdentifier) }
@@ -45,7 +61,7 @@ class ExclusionResolver {
                     def id = "$it.moduleVersion.group:$it.moduleVersion.name"
                     def existing = this.exclusionsCache[id]
                     if (existing) {
-                        exclusions.addAll(existing)
+                        exclusions[id] = existing
                     } else {
                         dependencies << this.dependencyHandler
                                 .create(id + ":$it.moduleVersion.version@pom")
@@ -62,10 +78,10 @@ class ExclusionResolver {
             def model = this.effectiveModelBuilder.buildModel(pom)
 
             def newExclusions = new ModelExclusionCollector().collectExclusions(model)
-            exclusions.addAll(newExclusions)
 
             String id = "$moduleId.group:$moduleId.name"
             this.exclusionsCache[id] = newExclusions
+            exclusions[id] = newExclusions
         }
 
         return exclusions

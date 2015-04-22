@@ -782,6 +782,27 @@ public class DependencyManagementPluginSpec extends Specification {
                                                    'spring-core-4.1.2.RELEASE.jar'])
     }
 
+    def 'A dependency with an otherwise excluded transitive dependency overrides the exclude'() {
+        given: 'A project with the plugin applied'
+            project.plugins.apply(DependencyManagementPlugin)
+            project.apply plugin: 'java'
+            project.repositories {
+                maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+            }
+        when: 'It depends on a module that directly excludes commons-logging and one that does not'
+            project.dependencies {
+                compile 'test:direct-exclude:1.0'
+                compile 'org.springframework:spring-core:4.1.2.RELEASE'
+            }
+            def files = project.configurations.compile.resolve()
+        then: "commons-logging has not been excluded"
+            files.size() == 5
+            files.collect { it.name }.containsAll(['direct-exclude-1.0.jar',
+                                                   'spring-tx-4.1.2.RELEASE.jar',
+                                                   'spring-beans-4.1.2.RELEASE.jar',
+                                                   'spring-core-4.1.2.RELEASE.jar'])
+    }
+
     def 'An exclusion that applies transitively is honoured'() {
         given: 'A project with the plugin applied'
             project.apply plugin: 'io.spring.dependency-management'

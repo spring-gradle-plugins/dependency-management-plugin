@@ -42,9 +42,9 @@ class DependencyManagement {
 
     private boolean resolved
 
-    private Map versions = [:]
+    private Map<String, String> versions = [:]
 
-    private Map explicitVersions = [:]
+    private Map<String, String> explicitVersions = [:]
 
     private Exclusions explicitExclusions = new Exclusions()
 
@@ -91,10 +91,8 @@ class DependencyManagement {
             exclusions) {
         def key = createKey(group, name)
         explicitVersions[key] = version
-        exclusions.each { exclusion ->
-            explicitExclusions.add(exclusion: exclusion, from: key)
-            allExclusions.add(exclusion: exclusion, from: key)
-        }
+        explicitExclusions.add(key, exclusions)
+        allExclusions.add(key, exclusions)
         addManagedVersion(group, name, version)
     }
 
