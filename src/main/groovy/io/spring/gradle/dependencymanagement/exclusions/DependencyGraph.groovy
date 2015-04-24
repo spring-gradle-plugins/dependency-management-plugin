@@ -115,7 +115,7 @@ class DependencyGraph {
             Map<String, SortedSet<DependencyGraphNode>> nodesById = [:]
             collectById(nodesById)
             nodesById.each { key, List nodes ->
-                nodes.sort(NODE_COMPARATOR)
+                Collections.sort(nodes, NODE_COMPARATOR)
                 nodes.remove(0)
                 nodes.each { node ->
                     node.parent.children.remove(node)
