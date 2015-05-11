@@ -13,10 +13,18 @@ poms of your project's dependencies.
 
 ## Using the plugin
 
-Regretably, the latest versions of the plugin are not available in the Gradle Plugin Portal.
-This is due to [apparent][3] [limitations][8] of the new publication process.
+The plugin is [available from Gradle's plugin portal][3]. The latest release is `0.5.0.RELEASE`.
 
-Releases of the plugin are available from JCenter. It can be used as follows:
+With Gradle 2.1 or later, you can use it as follows:
+
+```groovy
+plugins {
+    id "io.spring.dependency-management" version "0.5.0.RELEASE"
+}
+
+```
+
+Alternatively, on earlier versions of Gradle:
 
 ```groovy
 buildscript {
@@ -578,9 +586,8 @@ def managedVersions = dependencyManagement.compile.managedVersions
 
 [1]: https://build.spring.io/browse/GRADLEPLUGINS-DMP
 [2]: https://build.spring.io/plugins/servlet/buildStatusImage/GRADLEPLUGINS-DMP (Build status)
-[3]: http://discuss.gradle.org/t/publishing-to-the-plugin-portal-via-artifactory/9083/1
+[3]: http://plugins.gradle.org/plugin/io.spring.dependency-management
 [4]: http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions
 [5]: https://gitter.im/spring-gradle-plugins/dependency-management-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [6]: https://badges.gitter.im/Join%20Chat.svg
 [7]: http://gradle.org/docs/current/dsl/org.gradle.api.artifacts.ResolutionStrategy.html
-[8]: http://discuss.gradle.org/t/customising-the-pom-created-by-the-plugin-publish-plugin/9082/1
