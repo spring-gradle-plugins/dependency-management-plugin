@@ -92,6 +92,6 @@ artifacts {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.12'
-    distributionUrl = 'http://services.gradle.org/distributions/gradle-1.12-all.zip'
+    gradleVersion = project.hasProperty('gradleVersion') ? project.getProperty('gradleVersion') :'1.12'
+    distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
