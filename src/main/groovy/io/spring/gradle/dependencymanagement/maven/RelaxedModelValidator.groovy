@@ -1,11 +1,11 @@
 package io.spring.gradle.dependencymanagement.maven
 
-import org.gradle.mvn3.org.apache.maven.model.DistributionManagement
-import org.gradle.mvn3.org.apache.maven.model.Model
-import org.gradle.mvn3.org.apache.maven.model.building.ModelBuildingRequest
-import org.gradle.mvn3.org.apache.maven.model.building.ModelProblemCollector
-import org.gradle.mvn3.org.apache.maven.model.validation.DefaultModelValidator
-import org.gradle.mvn3.org.apache.maven.model.validation.ModelValidator
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.DistributionManagement
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingRequest
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelProblemCollector
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.validation.DefaultModelValidator
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.validation.ModelValidator
 
 /**
  * A {@link ModelValidator} that is more relaxed than {@link DefaultModelValidator}

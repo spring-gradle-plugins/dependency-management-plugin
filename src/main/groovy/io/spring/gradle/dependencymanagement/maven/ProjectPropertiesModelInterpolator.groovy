@@ -16,17 +16,17 @@
 
 package io.spring.gradle.dependencymanagement.maven
 
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingRequest
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelProblemCollector
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.interpolation.StringSearchModelInterpolator
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.path.DefaultPathTranslator
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.path.DefaultUrlNormalizer
+import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.MapBasedValueSource
+import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.PropertiesBasedValueSource
+import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.ValueSource
+
 import org.gradle.api.Project
-import org.gradle.mvn3.org.apache.maven.model.Model
-import org.gradle.mvn3.org.apache.maven.model.building.ModelBuildingRequest
-import org.gradle.mvn3.org.apache.maven.model.building.ModelProblemCollector
-import org.gradle.mvn3.org.apache.maven.model.interpolation.ModelInterpolator
-import org.gradle.mvn3.org.apache.maven.model.interpolation.StringSearchModelInterpolator
-import org.gradle.mvn3.org.apache.maven.model.path.DefaultPathTranslator
-import org.gradle.mvn3.org.apache.maven.model.path.DefaultUrlNormalizer
-import org.gradle.mvn3.org.codehaus.plexus.interpolation.MapBasedValueSource
-import org.gradle.mvn3.org.codehaus.plexus.interpolation.PropertiesBasedValueSource
-import org.gradle.mvn3.org.codehaus.plexus.interpolation.ValueSource
 
 /**
  * A {@link ModelInterpolator} that uses a Gradle project's properties as a {@link ValueSource}

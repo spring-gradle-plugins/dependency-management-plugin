@@ -16,8 +16,6 @@
 
 package io.spring.gradle.dependencymanagement
 
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -33,9 +31,6 @@ public class DependencyManagementPluginSpec extends Specification {
         project.repositories {
             mavenCentral()
         }
-        def factory = StaticLoggerBinder.singleton.loggerFactory
-        factory.getLogger(Logger.ROOT_LOGGER_NAME).level = Level.WARN
-        factory.getLogger("io.spring").level = Level.DEBUG
     }
 
     def "Plugin provides the dependency management extension"() {

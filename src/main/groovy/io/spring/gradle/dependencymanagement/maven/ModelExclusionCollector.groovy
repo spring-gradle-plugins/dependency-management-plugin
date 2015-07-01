@@ -17,7 +17,7 @@
 package io.spring.gradle.dependencymanagement.maven
 
 import io.spring.gradle.dependencymanagement.exclusions.Exclusions
-import org.gradle.mvn3.org.apache.maven.model.Model
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model
 
 /**
  * Collects exclusions from a Maven {@link Model}

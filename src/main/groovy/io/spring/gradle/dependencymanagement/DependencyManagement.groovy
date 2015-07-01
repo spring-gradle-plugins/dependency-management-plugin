@@ -21,7 +21,7 @@ import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
 import io.spring.gradle.dependencymanagement.maven.ModelExclusionCollector
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.mvn3.org.apache.maven.model.Model
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

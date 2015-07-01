@@ -1,9 +1,15 @@
 package io.spring.gradle.dependencymanagement.maven
 
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.DefaultModelBuilder
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.DefaultModelBuilderFactory
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.DefaultModelBuildingRequest
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.FileModelSource
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingException
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelProblem
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.ModelResolver
+
 import org.gradle.api.Project
-import org.gradle.mvn3.org.apache.maven.model.Model
-import org.gradle.mvn3.org.apache.maven.model.building.*
-import org.gradle.mvn3.org.apache.maven.model.resolution.ModelResolver
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

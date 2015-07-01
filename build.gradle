@@ -8,23 +8,52 @@ apply from: 'publish-maven.gradle'
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.gradle.org/gradle/libs-releases' }
 }
 
 group = 'io.spring.gradle'
 description = 'Dependency Management Plugin'
 
 ext {
-    spockVersion = GroovySystem.version.startsWith('1.') ? '0.7-groovy-1.8' : '0.7-groovy-2.0'
     cglibVersion = '3.1'
+    jarjarVersion = '1.2.1'
+    mavenVersion = '3.0.4'
+    spockVersion = GroovySystem.version.startsWith('1.') ? '0.7-groovy-1.8' : '0.7-groovy-2.0'
+
+}
+
+configurations {
+    jarjar
+    maven
+}
+
+task mavenRepackJar(type: Jar) { repackJar ->
+    repackJar.baseName = "maven-repack"
+    repackJar.version = mavenVersion
+
+    doLast() {
+        project.ant {
+            taskdef name: "jarjar", classname: "com.tonicsystems.jarjar.JarJarTask", classpath: configurations.jarjar.asPath
+            jarjar(destfile: repackJar.archivePath) {
+                configurations.maven.each { originalJar ->
+                    zipfileset(src: originalJar)
+                }
+                rule(pattern: 'org.**', result: 'io.spring.gradle.dependencymanagement.org.@1')
+            }
+        }
+    }
 }
 
 dependencies {
     compile gradleApi()
     compile localGroovy()
+    compile(files(mavenRepackJar))
+    jarjar "org.gradle.jarjar:jarjar:$jarjarVersion"
+    maven "org.apache.maven:maven-model-builder:$mavenVersion"
     testCompile("org.spockframework:spock-core:$spockVersion") {
         exclude group: 'org.codehaus.groovy'
     }
-    testCompile("cglib:cglib-nodep:$cglibVersion")
+    testCompile "cglib:cglib-nodep:$cglibVersion"
 }
 
 tasks.findByPath('artifactoryPublish')?.configure {
@@ -33,6 +62,14 @@ tasks.findByPath('artifactoryPublish')?.configure {
             'bintray.package': "${project.group}:dependency-management",
             'bintray.version': "${project.version}"
     ]
+}
+
+jar {
+    dependsOn mavenRepackJar
+    from(zipTree(mavenRepackJar.archivePath)) {
+        include 'io/spring/gradle/**'
+        include 'META-INF/plexus/**'
+    }
 }
 
 groovydoc {
