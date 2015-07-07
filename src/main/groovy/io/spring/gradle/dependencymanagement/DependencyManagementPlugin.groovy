@@ -60,7 +60,7 @@ class DependencyManagementPlugin implements Plugin<Project> {
 
         project.configurations.all { Configuration root ->
             root.incoming.beforeResolve {
-				if (extension.dependenciesOverrideDependencyManagement) {
+				if (extension.overriddenByDependencies) {
 	                root.hierarchy.each { Configuration configuration ->
 	                    configuration.incoming.dependencies.findAll {
 	                        it in ModuleDependency && it.version

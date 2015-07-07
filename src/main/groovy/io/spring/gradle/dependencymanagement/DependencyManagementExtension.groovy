@@ -33,7 +33,7 @@ class DependencyManagementExtension {
 
     boolean applyMavenExclusions = true
 
-	boolean dependenciesOverrideDependencyManagement = true
+	boolean overriddenByDependencies = true
 
     PomCustomizationConfiguration generatedPomCustomization = new PomCustomizationConfiguration()
 
