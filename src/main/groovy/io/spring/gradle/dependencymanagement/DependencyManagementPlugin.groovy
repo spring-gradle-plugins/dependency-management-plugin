@@ -60,18 +60,20 @@ class DependencyManagementPlugin implements Plugin<Project> {
 
         project.configurations.all { Configuration root ->
             root.incoming.beforeResolve {
-                root.hierarchy.each { Configuration configuration ->
-                    configuration.incoming.dependencies.findAll {
-                        it in ModuleDependency && it.version
-                    }.each {
-                        log.debug(
-                                "Adding managed version in configuration '{}' for dependency '{}'",
-                                configuration.name, it)
-                        dependencyManagementContainer.
-                                addImplicitManagedVersion(configuration, it.group, it.name,
-                                        it.version)
-                    }
-                }
+				if (extension.dependenciesOverrideDependencyManagement) {
+	                root.hierarchy.each { Configuration configuration ->
+	                    configuration.incoming.dependencies.findAll {
+	                        it in ModuleDependency && it.version
+	                    }.each {
+	                        log.debug(
+	                                "Adding managed version in configuration '{}' for dependency '{}'",
+	                                configuration.name, it)
+	                        dependencyManagementContainer.
+	                                addImplicitManagedVersion(configuration, it.group, it.name,
+	                                        it.version)
+	                    }
+	                }
+				}
             }
         }
 

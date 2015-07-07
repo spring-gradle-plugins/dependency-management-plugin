@@ -33,6 +33,8 @@ class DependencyManagementExtension {
 
     boolean applyMavenExclusions = true
 
+	boolean dependenciesOverrideDependencyManagement = true
+
     PomCustomizationConfiguration generatedPomCustomization = new PomCustomizationConfiguration()
 
     DependencyManagementExtension(DependencyManagementContainer dependencyManagementContainer,
@@ -92,9 +94,13 @@ class DependencyManagementExtension {
     }
 
     def propertyMissing(String name) {
-        new DependencyManagementHandler(dependencyManagementContainer,
-                project.configurations.getAt(name))
+        return forConfiguration(name)
     }
+
+	DependencyManagementHandler forConfiguration(String name) {
+		new DependencyManagementHandler(dependencyManagementContainer,
+			project.configurations.getAt(name))
+	}
 
     static class PomCustomizationConfiguration {
 
