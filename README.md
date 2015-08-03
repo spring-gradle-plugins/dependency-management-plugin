@@ -467,9 +467,9 @@ Will result in the following `<dependencyManagement>` in the generated pom file:
 
 ### Using a bom that is not in Maven Central
 
-Gradle's pom generation requires any boms referenced in a pom's `<dependencyManagement>`
-section to be available from Maven Central and publishing will fail if this is not the
-case. To work around this limitation the plugin can be configured to copy a bom into the
+In Gradle 2.3 and earlier, pom generation requires any boms referenced in a pom's
+`<dependencyManagement>` section to be available from Maven Central. Publishing will fail if this
+is not the case. To work around this limitation the plugin can be configured to copy a bom into the
 generated pom rather than importing it:
 
 ```groovy
