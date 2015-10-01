@@ -18,9 +18,12 @@ package io.spring.gradle.dependencymanagement.exclusions
 
 import io.spring.gradle.dependencymanagement.DependencyManagementContainer
 import io.spring.gradle.dependencymanagement.DependencyManagementExtension
+import io.spring.gradle.dependencymanagement.VersionConfiguringAction
 import io.spring.gradle.dependencymanagement.exclusions.DependencyGraph.DependencyGraphNode
 import org.gradle.api.Action
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ConfigurationContainer
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.ResolvableDependencies
 import org.gradle.api.artifacts.result.ResolvedComponentResult
@@ -41,17 +44,24 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
     private final DependencyManagementContainer dependencyManagementContainer
 
+    private final ConfigurationContainer configurationContainer
+
     private final Configuration configuration
 
     private final ExclusionResolver exclusionResolver
 
+    private final VersionConfiguringAction versionConfiguringAction
+
     ExclusionConfiguringAction(DependencyManagementExtension dependencyManagementExtension,
             DependencyManagementContainer dependencyManagementContainer,
-            Configuration configuration, ExclusionResolver exclusionResolver) {
+            ConfigurationContainer configurationContainer, Configuration configuration,
+            ExclusionResolver exclusionResolver, VersionConfiguringAction versionConfiguringAction) {
         this.dependencyManagementExtension = dependencyManagementExtension
         this.dependencyManagementContainer = dependencyManagementContainer
+        this.configurationContainer = configurationContainer
         this.configuration = configuration
         this.exclusionResolver = exclusionResolver
+        this.versionConfiguringAction = versionConfiguringAction
     }
 
     @Override
@@ -79,7 +89,9 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
     }
 
     private Set findExcludedDependencies() {
-        def configurationCopy = this.configuration.copyRecursive()
+        def configurationCopy = this.configurationContainer.detachedConfiguration(this
+                .configuration.allDependencies as Dependency[])
+        configurationCopy.resolutionStrategy.eachDependency(this.versionConfiguringAction)
         def root = configurationCopy.incoming.resolutionResult.root
         Set allDependencies = []
         use (ResolvedComponentResultCategory) {

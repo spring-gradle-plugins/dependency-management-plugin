@@ -84,32 +84,15 @@ class DependencyManagementPlugin implements Plugin<Project> {
             log.info("Applying dependency management to configuration '{}' in project '{}'",
                     c.name, project.name)
 
+            VersionConfiguringAction versionConfiguringAction = new VersionConfiguringAction(project,
+                    dependencyManagementContainer, c)
+
             c.incoming.beforeResolve(new ExclusionConfiguringAction(
                     project.extensions.findByType(DependencyManagementExtension),
-                    dependencyManagementContainer, c, exclusionResolver))
+                    dependencyManagementContainer, project.configurations, c, exclusionResolver,
+                    versionConfiguringAction))
 
-            resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-                log.debug("Processing dependency '{}'", details.requested)
-                if (!isDependencyOnLocalProject(project, details)) {
-                    String version = dependencyManagementContainer.
-                            getManagedVersion(c, details.requested.group,
-                                    details.requested.name)
-                    if (version) {
-                        log.info("Using version '{}' for dependency '{}'", version,
-                                details.requested)
-                        details.useVersion(version)
-                    }
-                    else {
-                        log.debug("No dependency management for dependency '{}'",
-                                details.requested)
-                    }
-                }
-                else {
-                    log.debug(
-                            "'{}' is a local project dependency. Dependency management has not been applied",
-                            details.requested)
-                }
-            }
+            resolutionStrategy.eachDependency(versionConfiguringAction)
         }
 
         project.tasks.withType(Upload).all { uploadTask ->
@@ -131,10 +114,4 @@ class DependencyManagementPlugin implements Plugin<Project> {
         pom.withXml { xml -> configurer.configurePom(xml.asNode()) }
     }
 
-    private static boolean isDependencyOnLocalProject(Project project,
-            DependencyResolveDetails details) {
-        project.rootProject.allprojects
-                .collect { "$it.group:$it.name" as String }
-                .contains("$details.requested.group:$details.requested.name" as String)
-    }
 }
