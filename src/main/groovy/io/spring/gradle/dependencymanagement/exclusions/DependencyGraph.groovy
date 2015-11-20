@@ -16,7 +16,9 @@
 
 package io.spring.gradle.dependencymanagement.exclusions
 
+import org.gradle.api.artifacts.result.DependencyResult
 import org.gradle.api.artifacts.result.ResolvedComponentResult
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -31,30 +33,41 @@ class DependencyGraph {
 
     static DependencyGraphNode create(ResolvedComponentResult root,
             Exclusions dependencyManagementExclusions) {
-        use(ResolvedComponentResultCategory) {
-            root.visit { def dependency, def parent ->
-                DependencyGraphNode node = new DependencyGraphNode(parent?.node, dependency)
-                Set ancestorExclusions
-                if (parent) {
-                    ancestorExclusions = new HashSet(parent.ancestorExclusions)
-                    Set exclusionsForDependency =
-                            dependencyManagementExclusions.exclusionsForDependency(parent.node.id)
-                    if (exclusionsForDependency?.contains(node.id) || ancestorExclusions.contains (node.id)) {
-                        log.debug("Excluding ${node.id} from ${parent.node.id} due to dependency " +
-                                "management exclusion")
-                        return null
-                    }
-                    if (exclusionsForDependency) {
-                        ancestorExclusions.addAll(exclusionsForDependency)
-                    }
-                    parent.node.children << node
+        visit(root) { ResolvedComponentResult component, DependencyGraphNode previous ->
+            DependencyGraphNode current = previous;
+            String id = "${component.moduleVersion.group}:${component.moduleVersion.name}"
+            while (current) {
+                if (current.exclusions?.contains(id) || current.id == id) {
+                    return null;
                 }
-                else {
-                    ancestorExclusions = []
-                }
-                [ 'node':node, 'ancestorExclusions':ancestorExclusions]
-            }.node
+                current = current.parent;
+            }
+            DependencyGraphNode node = new DependencyGraphNode(id, previous, component, dependencyManagementExclusions.exclusionsForDependency(id))
+            if (previous) {
+                previous.children.add(node);
+            }
+            return node
         }
+    }
+
+    private static DependencyGraphNode visit(ResolvedComponentResult component, Closure callback) {
+        return doVisit(new HashSet<String>(), component, null, callback);
+    }
+
+    private static DependencyGraphNode doVisit(Set<String> seen, ResolvedComponentResult
+            component, DependencyGraphNode previous, Closure<DependencyGraphNode> callback) {
+        DependencyGraphNode result = callback.call(component, previous);
+        if (result != null) {
+            Set<? extends DependencyResult> dependencies = component.getDependencies();
+            for (DependencyResult dependencyResult : dependencies) {
+                if (dependencyResult instanceof ResolvedDependencyResult) {
+                    ResolvedComponentResult child = ((ResolvedDependencyResult)dependencyResult).getSelected();
+                    doVisit(seen, child, result, callback);
+                }
+            }
+            return result
+        }
+        return previous
     }
 
     static class DependencyGraphNode {
@@ -71,7 +84,10 @@ class DependencyGraph {
 
         final int depth;
 
-        DependencyGraphNode(DependencyGraphNode parent, ResolvedComponentResult dependency) {
+        final Set<String> exclusions
+
+        DependencyGraphNode(String id, DependencyGraphNode parent, ResolvedComponentResult
+                dependency, Set<String> exclusions) {
             this.parent = parent;
             if (this.parent) {
                 this.depth = parent.depth + 1
@@ -80,7 +96,8 @@ class DependencyGraph {
                 this.depth = 0
             }
             this.dependency = dependency
-            this.id = "$dependency.moduleVersion.group:$dependency.moduleVersion.name"
+            this.id = id
+            this.exclusions = exclusions
         }
 
         void applyExclusions(Map<String, Exclusions> dependencyExclusions) {

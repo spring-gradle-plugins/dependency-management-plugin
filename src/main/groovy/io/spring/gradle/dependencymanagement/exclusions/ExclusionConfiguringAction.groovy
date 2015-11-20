@@ -26,6 +26,7 @@ import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.ResolvableDependencies
+import org.gradle.api.artifacts.result.ResolutionResult
 import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -92,20 +93,16 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
         def configurationCopy = this.configurationContainer.detachedConfiguration(this
                 .configuration.allDependencies as Dependency[])
         configurationCopy.resolutionStrategy.eachDependency(this.versionConfiguringAction)
-        def root = configurationCopy.incoming.resolutionResult.root
-        Set allDependencies = []
-        use (ResolvedComponentResultCategory) {
-            root.visit { def dependency, def parent ->
-                allDependencies << dependency
-            }
-        }
-
+        ResolutionResult resolutionResult = configurationCopy.incoming.resolutionResult
+        def root = resolutionResult.root
         DependencyGraphNode dependencyGraph = DependencyGraph.create(root,
                 this.dependencyManagementContainer.getExclusions(this.configuration))
         if (log.debugEnabled) {
             log.debug "Initial dependency graph:"
             dumpGraph(dependencyGraph)
         }
+
+        Set allDependencies = resolutionResult.allComponents
 
         def exclusionsFromDependencies = this.exclusionResolver.resolveExclusions(allDependencies)
 
@@ -134,7 +131,6 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
         Set unexcludedDependencies = []
         collectDependencies(dependencyGraph, unexcludedDependencies)
-
         allDependencies.removeAll(unexcludedDependencies)
         allDependencies
     }
