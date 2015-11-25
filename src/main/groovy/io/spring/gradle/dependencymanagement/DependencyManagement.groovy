@@ -22,6 +22,7 @@ import io.spring.gradle.dependencymanagement.maven.ModelExclusionCollector
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model
+import org.gradle.api.artifacts.Dependency
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -54,6 +55,8 @@ class DependencyManagement {
 
     private Properties bomProperties = new Properties()
 
+    private List<Dependency> importedBoms = [];
+
     def DependencyManagement(Project project, Configuration dependencyManagementConfiguration) {
         this(project, null, dependencyManagementConfiguration)
     }
@@ -66,7 +69,7 @@ class DependencyManagement {
     }
 
     void importBom(bomCoordinates) {
-        configuration.dependencies.add(project.dependencies.create(bomCoordinates + '@pom'))
+        importedBoms << project.dependencies.create(bomCoordinates + '@pom')
     }
 
     Map getImportedBoms() {
@@ -144,7 +147,13 @@ class DependencyManagement {
 
         def effectiveModelBuilder = new EffectiveModelBuilder(project)
 
-        configuration.resolve().each { File file ->
+        importedBoms.each { configuration.dependencies.add(it) }
+
+        Map<String, File> artifacts = configuration.resolvedConfiguration.resolvedArtifacts.collectEntries {
+            [("${it.moduleVersion.id.group}:${it.moduleVersion.id.name}" as String) : it.file]}
+
+        importedBoms.each {
+            File file = artifacts["${it.group}:${it.name}" as String]
             log.debug("Processing '{}'", file)
             Model effectiveModel = effectiveModelBuilder.buildModel(file)
             if (effectiveModel.dependencyManagement?.dependencies) {

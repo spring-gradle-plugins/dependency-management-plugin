@@ -182,6 +182,13 @@ compile - Compile classpath for source set 'main'.
 It's provided a version of `4.0.2.RELEASE` for the `spring-integration-core` dependency. It has
 also set the version of all of the Spring Framework dependencies to `4.0.6.RELEASE`
 
+#### Importing multiple boms
+
+If you import more than one bom, the order in which the boms are imported can be important.
+The boms are processed in the order in which they are imported. If multiple boms provide
+dependency management for the same dependency, the dependency management from the last bom
+will be used.
+
 #### Overriding versions in a bom
 
 If you want to deviate slightly from the dependency management provided by a bom, it can be

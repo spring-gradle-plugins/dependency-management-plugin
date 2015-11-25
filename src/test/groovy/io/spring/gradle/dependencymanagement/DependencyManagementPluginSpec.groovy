@@ -1034,4 +1034,19 @@ public class DependencyManagementPluginSpec extends Specification {
             files.collect { it.name }.containsAll(['validation-api-1.1.0.Final.jar'])
 
     }
+
+    def "The order in which boms are imported is reflected in the managed versions"() {
+        given: 'A project that has the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'Multiple boms are imported'
+            project.dependencyManagement {
+                imports {
+                    mavenBom 'org.springframework.boot:spring-boot-dependencies:1.2.7.RELEASE'
+                    mavenBom 'io.spring.platform:platform-bom:2.0.0.RELEASE'
+                }
+            }
+        then: 'The versions from the second bom override the versions from the first'
+            '4.2.3.RELEASE' == project.dependencyManagement.managedVersions['org.springframework:spring-core']
+    }
 }
