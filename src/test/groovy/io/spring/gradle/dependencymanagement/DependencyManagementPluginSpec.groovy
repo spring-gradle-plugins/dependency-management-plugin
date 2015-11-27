@@ -33,6 +33,10 @@ public class DependencyManagementPluginSpec extends Specification {
         }
     }
 
+    def cleanup() {
+        project.projectDir.deleteDir()
+    }
+
     def "Plugin provides the dependency management extension"() {
         when: 'The plugin is applied'
             project.apply plugin: 'io.spring.dependency-management'
