@@ -9,7 +9,7 @@ poms of your project's dependencies.
 
 ## Requirements
 
- - Gradle 1.x or 2.x (the plugin is tested against 1.12, 2.4, and 2.5)
+ - Gradle 1.x or 2.x (the plugin is [tested against][8] 1.12, and 2.4 to 2.9 inclusive).
 
 ## Using the plugin
 
@@ -599,3 +599,4 @@ def managedVersions = dependencyManagement.compile.managedVersions
 [5]: https://gitter.im/spring-gradle-plugins/dependency-management-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [6]: https://badges.gitter.im/Join%20Chat.svg
 [7]: http://gradle.org/docs/current/dsl/org.gradle.api.artifacts.ResolutionStrategy.html
+[8]: https://build.spring.io/browse/GRADLEPLUGINS-DMP/latest
