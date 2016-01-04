@@ -309,6 +309,26 @@ This will produce the following `<dependencyManagement>` in the generated pom fi
 The dependency management for Guava that's declared directly in the pom takes precedence over
 any dependency management for Guava in the `platform-bom` that's been imported.
 
+You can also override the dependency management by declaring a dependency and configuring it with
+the desired version. For example:
+
+```
+dependencies {
+    compile 'com.google.guava:guava:18.0'
+}
+```
+
+This will cause any dependency (direct or transitive) on `com.google.guava:guava:18.0` in the
+`compile` configuration to use version `18.0`, overriding any dependency management that may
+exist. If you do not want a project's dependencies to override its dependency management, this
+behavior can be disabled:
+
+```
+dependencyManagement {
+    overriddenByDependencies = false
+}
+```
+
 #### Configuring caching of imported boms
 
 You may want to configure the caching of an imported bom, for example because you're using a
