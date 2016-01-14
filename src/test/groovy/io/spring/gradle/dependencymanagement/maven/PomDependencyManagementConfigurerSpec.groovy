@@ -214,4 +214,60 @@ class PomDependencyManagementConfigurerSpec extends Specification {
             dependency.exclusions.exclusion.groupId[1].value() == 'foo'
             dependency.exclusions.exclusion.artifactId[1].value() == 'bar'
     }
+
+    def "Classifiers are added to the pom"() {
+        given: 'Dependency management that manages a dependency with a classifier'
+        DependencyManagement dependencyManagement = new DependencyManagement(project,
+                project.configurations.detachedConfiguration())
+        dependencyManagement.addExplicitManagedVersion('org.springframework', 'spring-core',
+                '4.1.3.RELEASE', 'tests', [])
+        when: 'The pom is configured'
+        Node pom = new XmlParser().parseText("<project></project>")
+        new PomDependencyManagementConfigurer(dependencyManagement, new PomCustomizationConfiguration()).configurePom(pom)
+        then: 'The managed dependency has been added with its exclusions'
+        pom.dependencyManagement.dependencies.dependency.size() == 1
+        def dependency = pom.dependencyManagement.dependencies.dependency[0]
+        dependency.groupId[0].value() == 'org.springframework'
+        dependency.artifactId[0].value() == 'spring-core'
+        dependency.version[0].value() == '4.1.3.RELEASE'
+        dependency.classifier[0].value() == 'tests'
+        dependency.exclusions.isEmpty()
+    }
+
+    def "Dependencies of the same name, group and version but with differen classifiers are all added to the pom"() {
+        given: 'Dependency management that manages a dependency with a classifier, without a classifier and with a different classifier'
+        DependencyManagement dependencyManagement = new DependencyManagement(project,
+                project.configurations.detachedConfiguration())
+        String group = 'org.springframework'
+        String name = 'spring-core'
+        String version = '4.1.3.RELEASE'
+        dependencyManagement.addExplicitManagedVersion(group, name, version, 'tests', [])
+        dependencyManagement.addExplicitManagedVersion(group, name, version, [])
+        dependencyManagement.addExplicitManagedVersion(group, name, version, 'sources', [])
+        when: 'The pom is configured'
+        Node pom = new XmlParser().parseText("<project></project>")
+        new PomDependencyManagementConfigurer(dependencyManagement, new PomCustomizationConfiguration()).configurePom(pom)
+        then: 'The managed dependency has been added with its exclusions'
+        pom.dependencyManagement.dependencies.dependency.size() == 3
+        def testsDependency = pom.dependencyManagement.dependencies.dependency[0]
+        testsDependency.groupId[0].value() == group
+        testsDependency.artifactId[0].value() == name
+        testsDependency.version[0].value() == version
+        testsDependency.classifier[0].value() == 'tests'
+        testsDependency.exclusions.isEmpty()
+
+        def dependency = pom.dependencyManagement.dependencies.dependency[1]
+        dependency.groupId[0].value() == group
+        dependency.artifactId[0].value() == name
+        dependency.version[0].value() == version
+        dependency.classifier[0] == null
+        dependency.exclusions.isEmpty()
+
+        def sourcesDependency = pom.dependencyManagement.dependencies.dependency[2]
+        sourcesDependency.groupId[0].value() == group
+        sourcesDependency.artifactId[0].value() == name
+        sourcesDependency.version[0].value() == version
+        sourcesDependency.classifier[0].value() == 'sources'
+        sourcesDependency.exclusions.isEmpty()
+    }
 }
