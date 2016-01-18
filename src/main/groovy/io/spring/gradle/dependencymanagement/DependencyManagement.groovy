@@ -92,7 +92,12 @@ class DependencyManagement {
 
     void addExplicitManagedVersion(String group, String name, String version, List<String>
             exclusions) {
-        def key = createKey(group, name)
+        addExplicitManagedVersion(group, name, version, null, exclusions)
+    }
+
+    void addExplicitManagedVersion(String group, String name, String version, String classifier, List<String>
+            exclusions) {
+        def key = createKey(group, name, classifier)
         explicitVersions[key] = version
         explicitExclusions.add(key, exclusions)
         allExclusions.add(key, exclusions)
@@ -111,13 +116,19 @@ class DependencyManagement {
 
     void explicitManagedVersions(Closure closure) {
         explicitVersions.each { key, value ->
-            def (groupId, artifactId) = key.split(':')
-            closure.call(groupId, artifactId, value, explicitExclusions.exclusionsForDependency(key))
+            def splitted = key.split(':') as List
+            splitted << ''
+            def (groupId, artifactId, classifier) = splitted
+            closure.call(groupId, artifactId, value, classifier, explicitExclusions.exclusionsForDependency(key))
         }
     }
 
-    private String createKey(String group, String name) {
-        "$group:$name"
+    private String createKey(String group, String name, String classifier = null) {
+        if (classifier) {
+            "$group:$name:$classifier"
+        } else {
+            "$group:$name"
+        }
     }
 
     Exclusions getExclusions() {
