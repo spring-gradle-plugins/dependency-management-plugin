@@ -612,6 +612,15 @@ managed versions from the compile configuration:
 def managedVersions = dependencyManagement.compile.managedVersions
 ```
 
+## Contributing
+
+Contributors to this project agree to uphold its [code of conduct][9].
+[Pull requests][10] are welcome. Please see the [contributor guidelines][11] for details.
+
+## Licence
+
+Dependency Management Plugin is open source software released under the [Apache 2.0 license][12].
+
 [1]: https://build.spring.io/browse/GRADLEPLUGINS-DMP
 [2]: https://build.spring.io/plugins/servlet/buildStatusImage/GRADLEPLUGINS-DMP (Build status)
 [3]: http://plugins.gradle.org/plugin/io.spring.dependency-management
@@ -620,3 +629,8 @@ def managedVersions = dependencyManagement.compile.managedVersions
 [6]: https://badges.gitter.im/Join%20Chat.svg
 [7]: http://gradle.org/docs/current/dsl/org.gradle.api.artifacts.ResolutionStrategy.html
 [8]: https://build.spring.io/browse/GRADLEPLUGINS-DMP/latest
+[9]: CODE_OF_CONDUCT.md
+[10]: https://help.github.com/articles/using-pull-requests/
+[11]: CONTRIBUTING.md
+[12]: http://www.apache.org/licenses/LICENSE-2.0.html
+
