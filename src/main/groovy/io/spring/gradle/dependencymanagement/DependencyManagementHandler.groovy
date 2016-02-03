@@ -56,6 +56,14 @@ class DependencyManagementHandler {
     }
 
     def getManagedVersions() {
-        this.container.managedVersionsForConfiguration(configuration)
+        managedVersions(true)
+    }
+
+    def getOwnManagedVersions() {
+        managedVersions(false)
+    }
+
+    private def managedVersions(boolean inherited) {
+        this.container.managedVersionsForConfiguration(configuration, inherited)
     }
 }

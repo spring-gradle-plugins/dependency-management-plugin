@@ -117,14 +117,22 @@ class DependencyManagementContainer {
     }
 
     def managedVersionsForConfiguration(Configuration configuration) {
-        def managedVersions = dependencyManagementForConfiguration(null).managedVersions
-        if (configuration) {
-            new ArrayList(configuration.hierarchy).reverseEach { Configuration c ->
-                managedVersions.putAll(dependencyManagementForConfiguration(c).managedVersions)
-            }
-        }
-        managedVersions
+        managedVersionsForConfiguration(configuration, true)
     }
+
+    def managedVersionsForConfiguration(Configuration configuration, boolean inherited) {
+        if (inherited) {
+            def managedVersions = dependencyManagementForConfiguration(null).managedVersions
+            if (configuration) {
+                new ArrayList(configuration.hierarchy).reverseEach { Configuration c ->
+                    managedVersions.putAll(dependencyManagementForConfiguration(c).managedVersions)
+                }
+            }
+            return managedVersions
+        }
+        dependencyManagementForConfiguration(configuration).managedVersions
+    }
+
 
     private DependencyManagement dependencyManagementForConfiguration(
             Configuration configuration) {

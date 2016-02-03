@@ -1053,4 +1053,21 @@ public class DependencyManagementPluginSpec extends Specification {
         then: 'The versions from the second bom override the versions from the first'
             '4.2.3.RELEASE' == project.dependencyManagement.managedVersions['org.springframework:spring-core']
     }
+
+    def "A configuration's own managed versions can be accessed"() {
+        given: 'A project that has the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'A bom is imported globally'
+            project.dependencyManagement {
+                compile {
+                    imports {
+                        mavenBom 'org.springframework.boot:spring-boot-dependencies:1.2.7.RELEASE'
+                    }
+                }
+            }
+        then: "The configuration's own managed versions do not include inherited versions"
+            '4.1.8.RELEASE' == project.dependencyManagement.runtime.managedVersions['org.springframework:spring-core']
+            null == project.dependencyManagement.runtime.ownManagedVersions['org.springframework:spring-core']
+    }
 }
