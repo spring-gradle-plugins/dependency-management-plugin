@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,8 @@ class DependencyManagement {
 
     private final Configuration targetConfiguration
 
+    private final EffectiveModelBuilder effectiveModelBuilder
+
     private boolean resolved
 
     private Map<String, String> versions = [:]
@@ -57,15 +59,17 @@ class DependencyManagement {
 
     private List<Dependency> importedBoms = [];
 
-    def DependencyManagement(Project project, Configuration dependencyManagementConfiguration) {
-        this(project, null, dependencyManagementConfiguration)
+    def DependencyManagement(Project project, Configuration dependencyManagementConfiguration,
+            EffectiveModelBuilder effectiveModelBuilder) {
+        this(project, null, dependencyManagementConfiguration, effectiveModelBuilder)
     }
 
     def DependencyManagement(Project project, Configuration targetConfiguration, Configuration
-            dependencyManagementConfiguration) {
+            dependencyManagementConfiguration, EffectiveModelBuilder effectiveModelBuilder) {
         this.project = project
         this.configuration = dependencyManagementConfiguration
         this.targetConfiguration = targetConfiguration
+        this.effectiveModelBuilder = effectiveModelBuilder
     }
 
     void importBom(bomCoordinates) {
@@ -145,8 +149,6 @@ class DependencyManagement {
 
         log.debug("Preserving existing versions: {}", existingVersions)
 
-        def effectiveModelBuilder = new EffectiveModelBuilder(project)
-
         importedBoms.each { configuration.dependencies.add(it) }
 
         Map<String, File> artifacts = configuration.resolvedConfiguration.resolvedArtifacts.collectEntries {
@@ -155,7 +157,7 @@ class DependencyManagement {
         importedBoms.each {
             File file = artifacts["${it.group}:${it.name}" as String]
             log.debug("Processing '{}'", file)
-            Model effectiveModel = effectiveModelBuilder.buildModel(file)
+            Model effectiveModel = this.effectiveModelBuilder.buildModel(file)
             if (effectiveModel.dependencyManagement?.dependencies) {
                 String bomCoordinates = "${effectiveModel.groupId}:${effectiveModel.artifactId}:${effectiveModel.version}"
                 effectiveModel.dependencyManagement.dependencies.each { dependency ->

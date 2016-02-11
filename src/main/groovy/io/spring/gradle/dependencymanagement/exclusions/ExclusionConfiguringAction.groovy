@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package io.spring.gradle.dependencymanagement.exclusions
 
+import io.spring.gradle.dependencymanagement.DependencyManagementConfigurationContainer
 import io.spring.gradle.dependencymanagement.DependencyManagementContainer
 import io.spring.gradle.dependencymanagement.DependencyManagementExtension
 import io.spring.gradle.dependencymanagement.VersionConfiguringAction
@@ -45,7 +46,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
     private final DependencyManagementContainer dependencyManagementContainer
 
-    private final ConfigurationContainer configurationContainer
+    private final DependencyManagementConfigurationContainer configurationContainer
 
     private final Configuration configuration
 
@@ -55,7 +56,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
     ExclusionConfiguringAction(DependencyManagementExtension dependencyManagementExtension,
             DependencyManagementContainer dependencyManagementContainer,
-            ConfigurationContainer configurationContainer, Configuration configuration,
+            DependencyManagementConfigurationContainer configurationContainer, Configuration configuration,
             ExclusionResolver exclusionResolver, VersionConfiguringAction versionConfiguringAction) {
         this.dependencyManagementExtension = dependencyManagementExtension
         this.dependencyManagementContainer = dependencyManagementContainer
@@ -90,8 +91,8 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
     }
 
     private Set findExcludedDependencies() {
-        def configurationCopy = this.configurationContainer.detachedConfiguration(this
-                .configuration.allDependencies as Dependency[])
+        def configurationCopy = this.configurationContainer
+                .newConfiguration(configuration.allDependencies as Dependency[])
         configurationCopy.resolutionStrategy.eachDependency(this.versionConfiguringAction)
         ResolutionResult resolutionResult = configurationCopy.incoming.resolutionResult
         def root = resolutionResult.root

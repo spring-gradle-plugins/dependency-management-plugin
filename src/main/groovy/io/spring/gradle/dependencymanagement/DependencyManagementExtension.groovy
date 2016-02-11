@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,11 @@ import org.gradle.api.artifacts.Configuration
  */
 class DependencyManagementExtension {
 
-    protected DependencyManagementContainer dependencyManagementContainer
+    protected final DependencyManagementContainer dependencyManagementContainer
 
-    protected Project project
+    private final Project project
+
+    private final DependencyManagementConfigurationContainer configurationContainer
 
     boolean applyMavenExclusions = true
 
@@ -38,8 +40,9 @@ class DependencyManagementExtension {
     PomCustomizationConfiguration generatedPomCustomization = new PomCustomizationConfiguration()
 
     DependencyManagementExtension(DependencyManagementContainer dependencyManagementContainer,
-            Project project) {
+            DependencyManagementConfigurationContainer configurationContainer, Project project) {
         this.dependencyManagementContainer = dependencyManagementContainer
+        this.configurationContainer = configurationContainer
         this.project = project
     }
 
@@ -53,7 +56,7 @@ class DependencyManagementExtension {
     }
 
     void resolutionStrategy(Closure closure) {
-        this.dependencyManagementContainer.resolutionStrategy closure
+        configurationContainer.resolutionStrategy closure
     }
 
     void generatedPomCustomization(Closure closure) {

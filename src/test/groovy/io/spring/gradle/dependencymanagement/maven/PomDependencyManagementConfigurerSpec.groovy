@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,36 @@
 package io.spring.gradle.dependencymanagement.maven
 
 import io.spring.gradle.dependencymanagement.DependencyManagement
+import io.spring.gradle.dependencymanagement.DependencyManagementConfigurationContainer
 import io.spring.gradle.dependencymanagement.DependencyManagementExtension.PomCustomizationConfiguration
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
-
+/**
+ * Tests for {@link PomDependencyManagementConfigurer}
+ *
+ * @author Andy Wilkinson
+ */
 class PomDependencyManagementConfigurerSpec extends Specification {
 
     Project project
+
+    EffectiveModelBuilder effectiveModelBuilder
 
     def setup() {
         project = new ProjectBuilder().build()
         project.repositories {
             mavenCentral()
         }
+        effectiveModelBuilder = new EffectiveModelBuilder(project, new
+                DependencyManagementConfigurationContainer(project))
     }
 
     def "An imported bom can be imported in the pom"() {
         given: 'Dependency management that imports a bom'
             DependencyManagement dependencyManagement = new DependencyManagement(project, project
-                    .configurations.detachedConfiguration())
+                    .configurations.detachedConfiguration(), effectiveModelBuilder)
             dependencyManagement.importBom('io.spring.platform:platform-bom:1.0.3.RELEASE')
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
@@ -59,7 +68,7 @@ class PomDependencyManagementConfigurerSpec extends Specification {
                 maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
             }
             DependencyManagement dependencyManagement = new DependencyManagement(project,
-                    project.configurations.detachedConfiguration())
+                    project.configurations.detachedConfiguration(), effectiveModelBuilder)
             dependencyManagement.importBom('test:bravo-pom-customization-bom:1.0')
             dependencyManagement.importBom('test:alpha-pom-customization-bom:1.0')
 
@@ -90,7 +99,7 @@ class PomDependencyManagementConfigurerSpec extends Specification {
                 maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
             }
             DependencyManagement dependencyManagement = new DependencyManagement(project,
-                    project.configurations.detachedConfiguration())
+                    project.configurations.detachedConfiguration(), effectiveModelBuilder)
             dependencyManagement.importBom('test:alpha-pom-customization-bom:1.0')
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
@@ -117,7 +126,7 @@ class PomDependencyManagementConfigurerSpec extends Specification {
                 maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
             }
             DependencyManagement dependencyManagement = new DependencyManagement(project,
-                    project.configurations.detachedConfiguration())
+                    project.configurations.detachedConfiguration(), effectiveModelBuilder)
             dependencyManagement.importBom('test:bravo-pom-customization-bom:1.0')
             dependencyManagement.importBom('test:alpha-pom-customization-bom:1.0')
         when: 'The pom is configured'
@@ -148,7 +157,7 @@ class PomDependencyManagementConfigurerSpec extends Specification {
     def "Customization of published poms can be disabled"() {
         given: 'Dependency management that imports a bom'
             DependencyManagement dependencyManagement = new DependencyManagement(project,
-                    project.configurations.detachedConfiguration())
+                    project.configurations.detachedConfiguration(), effectiveModelBuilder)
             dependencyManagement.importBom('io.spring.platform:platform-bom:1.0.3.RELEASE')
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
@@ -162,7 +171,7 @@ class PomDependencyManagementConfigurerSpec extends Specification {
     def "Individual dependency management is added to the pom"() {
         given: 'Dependency management that manages a dependency'
             DependencyManagement dependencyManagement = new DependencyManagement(project,
-                    project.configurations.detachedConfiguration())
+                    project.configurations.detachedConfiguration(), effectiveModelBuilder)
             dependencyManagement.addExplicitManagedVersion('org.springframework', 'spring-core',
                     '4.1.3.RELEASE', [])
         when: 'The pom is configured'
@@ -179,7 +188,7 @@ class PomDependencyManagementConfigurerSpec extends Specification {
     def "Dependency management can be added to a pom with existing dependency management"() {
         given: 'Dependency management that imports a bom'
             DependencyManagement dependencyManagement = new DependencyManagement(project,
-                    project.configurations.detachedConfiguration())
+                    project.configurations.detachedConfiguration(), effectiveModelBuilder)
             dependencyManagement.importBom('io.spring.platform:platform-bom:1.0.3.RELEASE')
         when: 'The pom with existing dependency management is configured'
             Node pom = new XmlParser().parseText("<project><dependencyManagement><dependencies></dependencies></dependencyManagement></project>")
@@ -197,7 +206,7 @@ class PomDependencyManagementConfigurerSpec extends Specification {
     def "Dependency management exclusions are added to the pom"() {
         given: 'Dependency management that manages a dependency with an exclusion'
             DependencyManagement dependencyManagement = new DependencyManagement(project,
-                    project.configurations.detachedConfiguration())
+                    project.configurations.detachedConfiguration(), effectiveModelBuilder)
             dependencyManagement.addExplicitManagedVersion('org.springframework', 'spring-core',
                     '4.1.3.RELEASE', ['commons-logging:commons-logging', 'foo:bar'])
         when: 'The pom is configured'

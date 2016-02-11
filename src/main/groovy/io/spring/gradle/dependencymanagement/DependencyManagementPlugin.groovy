@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,18 @@ class DependencyManagementPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        DependencyManagementConfigurationContainer configurationContainer = new
+                DependencyManagementConfigurationContainer(project)
+
+        EffectiveModelBuilder effectiveModelBuilder = new EffectiveModelBuilder(project,
+                configurationContainer)
+
         DependencyManagementContainer dependencyManagementContainer =
-                new DependencyManagementContainer(project)
+                new DependencyManagementContainer(project, configurationContainer, effectiveModelBuilder)
 
         DependencyManagementExtension extension = project.extensions.create("dependencyManagement",
-                DependencyManagementExtension, dependencyManagementContainer, project)
+                DependencyManagementExtension, dependencyManagementContainer,
+                configurationContainer, project)
 
         project.tasks.create("dependencyManagement", DependencyManagementReportTask) { task ->
             task.dependencyManagement = dependencyManagementContainer
@@ -78,7 +85,7 @@ class DependencyManagementPlugin implements Plugin<Project> {
         }
 
         ExclusionResolver exclusionResolver = new ExclusionResolver(project.dependencies,
-                project.configurations, new EffectiveModelBuilder(project))
+                configurationContainer, effectiveModelBuilder)
 
         project.configurations.all { Configuration c ->
             log.info("Applying dependency management to configuration '{}' in project '{}'",
@@ -89,7 +96,7 @@ class DependencyManagementPlugin implements Plugin<Project> {
 
             c.incoming.beforeResolve(new ExclusionConfiguringAction(
                     project.extensions.findByType(DependencyManagementExtension),
-                    dependencyManagementContainer, project.configurations, c, exclusionResolver,
+                    dependencyManagementContainer, configurationContainer, c, exclusionResolver,
                     versionConfiguringAction))
 
             resolutionStrategy.eachDependency(versionConfiguringAction)

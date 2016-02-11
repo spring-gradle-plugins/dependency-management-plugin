@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,11 @@
 package io.spring.gradle.dependencymanagement
 
 import io.spring.gradle.dependencymanagement.exclusions.Exclusions
+import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Dependency
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -32,20 +34,24 @@ class DependencyManagementContainer {
 
     private final Logger log = LoggerFactory.getLogger(DependencyManagementContainer)
 
-    private final DomainObjectCollection<Configuration> dependencyManagementConfigurations
+    private final DependencyManagementConfigurationContainer configurationContainer
 
     protected final DependencyManagement globalDependencyManagement
+
+    private final EffectiveModelBuilder effectiveModelBuilder
 
     final Project project
 
     private final Map<Configuration, DependencyManagement> configurationDependencyManagement = [:]
 
-    DependencyManagementContainer(Project project) {
+    DependencyManagementContainer(Project project,
+            DependencyManagementConfigurationContainer configurationContainer,
+            EffectiveModelBuilder effectiveModelBuilder) {
         this.project = project
-        this.dependencyManagementConfigurations = this.project.container(Configuration)
-        Configuration dependencyManagementConfiguration = this.project.configurations.detachedConfiguration()
-        this.dependencyManagementConfigurations.add(dependencyManagementConfiguration)
-        this.globalDependencyManagement = new DependencyManagement(this.project, dependencyManagementConfiguration)
+        this.configurationContainer = configurationContainer
+        this.globalDependencyManagement = new DependencyManagement(this.project,
+                configurationContainer.newConfiguration(), effectiveModelBuilder)
+        this.effectiveModelBuilder = effectiveModelBuilder
     }
 
     void addImplicitManagedVersion(configuration, String group, String name, String version) {
@@ -61,12 +67,6 @@ class DependencyManagementContainer {
 
     void importBom(Configuration configuration, String coordinates) {
         dependencyManagementForConfiguration(configuration).importBom(coordinates)
-    }
-
-    void resolutionStrategy(Closure closure) {
-        this.dependencyManagementConfigurations.all { Configuration configuration ->
-            configuration.resolutionStrategy closure
-        }
     }
 
     String getManagedVersion(Configuration configuration, String group, String name) {
@@ -142,9 +142,9 @@ class DependencyManagementContainer {
         else {
             DependencyManagement dependencyManagement = configurationDependencyManagement.get(configuration)
             if (!dependencyManagement) {
-                Configuration dependencyManagementConfiguration = this.project.configurations.detachedConfiguration()
-                this.dependencyManagementConfigurations.add(dependencyManagementConfiguration)
-                dependencyManagement = new DependencyManagement(project, configuration, dependencyManagementConfiguration)
+                Configuration dependencyManagementConfiguration = this.configurationContainer.newConfiguration()
+                dependencyManagement = new DependencyManagement(project, configuration,
+                        dependencyManagementConfiguration, effectiveModelBuilder)
                 configurationDependencyManagement.put(configuration, dependencyManagement)
             }
             dependencyManagement

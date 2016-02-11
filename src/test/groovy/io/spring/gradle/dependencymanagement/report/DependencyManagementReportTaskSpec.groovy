@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package io.spring.gradle.dependencymanagement.report
 
+import io.spring.gradle.dependencymanagement.DependencyManagementConfigurationContainer
 import io.spring.gradle.dependencymanagement.DependencyManagementContainer
+import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
 import org.gradle.api.Project
-import org.gradle.api.tasks.diagnostics.DependencyReportTask
-import org.gradle.api.tasks.diagnostics.internal.DependencyReportRenderer
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -37,7 +37,10 @@ class DependencyManagementReportTaskSpec extends Specification {
     private DependencyManagementReportRenderer renderer = Mock(DependencyManagementReportRenderer)
 
     def setup() {
-        this.task.dependencyManagement = new DependencyManagementContainer(project)
+        DependencyManagementConfigurationContainer configurationContainer = new
+                DependencyManagementConfigurationContainer(project)
+        this.task.dependencyManagement = new DependencyManagementContainer(project,
+                configurationContainer, new EffectiveModelBuilder(project, configurationContainer))
         this.task.renderer = renderer
     }
 
