@@ -19,6 +19,7 @@ package io.spring.gradle.dependencymanagement
 import io.spring.gradle.dependencymanagement.exclusions.Exclusions
 import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
 import io.spring.gradle.dependencymanagement.maven.ModelExclusionCollector
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model
@@ -131,9 +132,22 @@ class DependencyManagement {
 
     private void resolveIfNecessary() {
         if (!resolved) {
-            resolve()
+            try {
+                resolve()
+                resolved = true
+            } catch (Exception ex) {
+                throw new GradleException("Failed to resolve imported Maven boms:" +
+                        " ${getRootCause(ex).message}", ex)
+            }
         }
-        resolved = true
+    }
+
+    private Throwable getRootCause(Exception ex) {
+        Throwable candidate = ex;
+        while(candidate.cause) {
+            candidate = candidate.cause
+        }
+        return candidate
     }
 
     private void resolve() {
