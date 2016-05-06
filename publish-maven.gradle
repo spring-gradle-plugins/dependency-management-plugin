@@ -11,7 +11,7 @@ install {
                     url = 'http://spring.io'
                 }
                 licenses {
-                    license {
+                    license([:]) { // force evaluation of pretended method, otherwise this node collides with the license plugin
                         name = 'The Apache Software License, Version 2.0'
                         url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
