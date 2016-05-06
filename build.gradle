@@ -19,7 +19,6 @@ ext {
     jarjarVersion = '1.2.1'
     mavenVersion = '3.0.4'
     spockVersion = GroovySystem.version.startsWith('1.') ? '0.7-groovy-1.8' : '0.7-groovy-2.0'
-
 }
 
 sourceCompatibility = 1.7
@@ -72,6 +71,15 @@ jar {
     from(zipTree(mavenRepackJar.archivePath)) {
         include 'io/spring/gradle/**'
         include 'META-INF/plexus/**'
+    }
+
+    manifest {
+        attributes(
+            'Created-By': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})".toString(),
+            'Specification-Title': project.name,
+            'Specification-Version': project.version,
+            'Specification-Vendor': 'spring.io'
+        )
     }
 }
 
