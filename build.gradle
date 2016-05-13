@@ -77,9 +77,9 @@ jar {
     manifest {
         attributes(
             'Created-By': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})".toString(),
-            'Specification-Title': project.name,
-            'Specification-Version': project.version,
-            'Specification-Vendor': 'spring.io'
+            'Implementation-Title': project.description,
+            'Implementation-Version': project.version,
+            'Implementation-Vendor': 'Pivotal Software, Inc.'
         )
     }
 }
