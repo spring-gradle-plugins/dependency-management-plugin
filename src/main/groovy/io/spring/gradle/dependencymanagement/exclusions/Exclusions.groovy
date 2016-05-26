@@ -42,11 +42,11 @@ class Exclusions {
         }
     }
 
-    def exclusionsForDependency(String dependency) {
+    Set<String> exclusionsForDependency(String dependency) {
         exclusionsByDependency[dependency]
     }
 
-    def all() {
+    Map<String, Set<String>> all() {
         exclusionsByDependency
     }
 
