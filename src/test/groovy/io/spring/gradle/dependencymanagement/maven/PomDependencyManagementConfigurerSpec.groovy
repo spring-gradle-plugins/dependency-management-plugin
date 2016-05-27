@@ -218,9 +218,11 @@ class PomDependencyManagementConfigurerSpec extends Specification {
             dependency.groupId[0].value() == 'org.springframework'
             dependency.artifactId[0].value() == 'spring-core'
             dependency.version[0].value() == '4.1.3.RELEASE'
-            dependency.exclusions.exclusion.groupId[0].value() == 'commons-logging'
-            dependency.exclusions.exclusion.artifactId[0].value() == 'commons-logging'
-            dependency.exclusions.exclusion.groupId[1].value() == 'foo'
-            dependency.exclusions.exclusion.artifactId[1].value() == 'bar'
+            def exclusions = [dependency.exclusions.exclusion.groupId[0].value() + ":" +
+                                      dependency.exclusions.exclusion.artifactId[0].value(),
+                              dependency.exclusions.exclusion.groupId[1].value() + ":" +
+                                      dependency.exclusions.exclusion.artifactId[1].value()]
+            exclusions.contains("commons-logging:commons-logging")
+            exclusions.contains("foo:bar")
     }
 }
