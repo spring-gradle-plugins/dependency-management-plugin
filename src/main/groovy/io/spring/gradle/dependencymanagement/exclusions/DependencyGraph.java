@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,12 @@ import org.slf4j.LoggerFactory;
  * A model of a dependency graph
  *
  * @author Andy Wilkinson
+ * @author Lari Hotari
  */
 public class DependencyGraph {
+
+	private static Logger log = LoggerFactory.getLogger(DependencyGraph.class);
+
 	public static DependencyGraphNode create(ResolvedComponentResult root,
 			final Exclusions dependencyManagementExclusions) {
 		return visit(root, new GraphNodeCallback() {
@@ -47,18 +51,18 @@ public class DependencyGraph {
 				String id = component.getModuleVersion().getGroup() + ":" + component
 						.getModuleVersion().getName();
 				while (current != null) {
-					if (current.getExclusions() != null && current.getExclusions().contains(id)
-							|| current.getId().equals(id)) {
+					if (current.exclusions != null && current.exclusions.contains(id)
+							|| current.id.equals(id)) {
 						return null;
 					}
-					current = current.getParent();
+					current = current.parent;
 				}
 
 				DependencyGraphNode node = new DependencyGraphNode(id, previous,
 						component,
 						dependencyManagementExclusions.exclusionsForDependency(id));
 				if (previous != null) {
-					previous.getChildren().add(node);
+					previous.children.add(node);
 				}
 
 				return node;
@@ -95,9 +99,7 @@ public class DependencyGraph {
 		return previous;
 	}
 
-	private static Logger log = LoggerFactory.getLogger(DependencyGraph.class);
-
-	public static class DependencyGraphNode {
+	static class DependencyGraphNode {
 
 		private static final Comparator<DependencyGraphNode> NODE_COMPARATOR = new Comparator<DependencyGraphNode>() {
 			@Override
@@ -106,19 +108,19 @@ public class DependencyGraph {
 			}
 		};
 
-		final DependencyGraphNode parent;
+		private final DependencyGraphNode parent;
 
-		final ResolvedComponentResult dependency;
+		private final ResolvedComponentResult dependency;
 
-		final String id;
+		private final String id;
 
-		final List<DependencyGraphNode> children = new ArrayList<DependencyGraphNode>();
+		private final List<DependencyGraphNode> children = new ArrayList<DependencyGraphNode>();
 
-		final int depth;
+		private final int depth;
 
-		final Set<String> exclusions;
+		private final Set<String> exclusions;
 
-		public DependencyGraphNode(String id, DependencyGraphNode parent,
+		private DependencyGraphNode(String id, DependencyGraphNode parent,
 				ResolvedComponentResult dependency, Set<String> exclusions) {
 			this.parent = parent;
 			if (this.parent != null) {
@@ -132,7 +134,7 @@ public class DependencyGraph {
 			this.exclusions = exclusions;
 		}
 
-		public void applyExclusions(Map<String, Exclusions> dependencyExclusions) {
+		void applyExclusions(Map<String, Exclusions> dependencyExclusions) {
 			doApplyExclusions(dependencyExclusions, new HashSet<String>());
 		}
 
@@ -172,7 +174,7 @@ public class DependencyGraph {
 			}
 		}
 
-		public void prune() {
+		void prune() {
 			Map<String, List<DependencyGraphNode>> nodesById = new LinkedHashMap<String, List<DependencyGraphNode>>();
 			collectById(nodesById);
 			for (List<DependencyGraphNode> nodes : nodesById.values()) {
@@ -200,28 +202,6 @@ public class DependencyGraph {
 			return id + " " + String.valueOf(depth);
 		}
 
-		public DependencyGraphNode getParent() {
-			return parent;
-		}
-
-		public ResolvedComponentResult getDependency() {
-			return dependency;
-		}
-
-		public String getId() {
-			return id;
-		}
-
-		public List<DependencyGraphNode> getChildren() {
-			return children;
-		}
-
-		public int getDepth() {
-			return depth;
-		}
-
-		public Set<String> getExclusions() {
-			return exclusions;
-		}
 	}
+
 }
