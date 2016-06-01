@@ -1120,4 +1120,35 @@ public class DependencyManagementPluginSpec extends Specification {
             def thrown = thrown(GradleException)
             thrown.message.startsWith("Failed to resolve imported Maven boms: Could not find com.example:does-not-exist:1.0.")
     }
+
+    def "A dynamic version is not added to dependency management"() {
+        given: 'A project that has the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'A dependency with a dynamic version is declared'
+            project.dependencies {
+                compile 'commons-logging:commons-logging:latest.integration'
+            }
+        then: 'The dynamic version is not added to dependency management'
+            null == project.dependencyManagement.compile.managedVersions['commons-logging:commons-logging']
+    }
+
+
+    def "Dependency management is not applied to a dependency using a latest version"() {
+        given: 'A project that has the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'Dependency management is provided for a dependency with a dynamic version'
+            project.dependencyManagement {
+                dependencies {
+                    dependency "commons-logging:commons-logging:1.1.3"
+                }
+            }
+            project.dependencies {
+                compile "commons-logging:commons-logging:latest.integration"
+            }
+        then: "The dependency's version is not managed"
+            def files = project.configurations.compile.resolve()
+            !files.collect { it.name }.contains('commons-logging-1.1.3.jar')
+    }
 }

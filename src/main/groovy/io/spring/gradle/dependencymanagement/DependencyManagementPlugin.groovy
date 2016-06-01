@@ -72,12 +72,19 @@ class DependencyManagementPlugin implements Plugin<Project> {
 	                    configuration.incoming.dependencies.findAll {
 	                        it in ModuleDependency && it.version
 	                    }.each {
-	                        log.debug(
-	                                "Adding managed version in configuration '{}' for dependency '{}'",
-	                                configuration.name, it)
-	                        dependencyManagementContainer.
-	                                addImplicitManagedVersion(configuration, it.group, it.name,
-	                                        it.version)
+                            if (Versions.isDynamic(it.version)) {
+                                log.debug("Dependency '{}' in configuration '{}' has a dynamic " +
+                                        "version. The version will not be added to the managed " +
+                                        "versions", it, configuration.name);
+                            } else {
+                                log.debug(
+                                        "Adding managed version in configuration '{}' for " +
+                                                "dependency '{}'",
+                                        configuration.name, it)
+                                dependencyManagementContainer.
+                                        addImplicitManagedVersion(configuration, it.group, it.name,
+                                                it.version)
+                            }
 	                    }
 	                }
 				}

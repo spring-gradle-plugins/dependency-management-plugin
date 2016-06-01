@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,23 +49,26 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
     @Override
     void execute(DependencyResolveDetails details) {
         log.debug("Processing dependency '{}'", details.requested)
-        if (!isDependencyOnLocalProject(project, details)) {
-            String version = dependencyManagementContainer.
-                    getManagedVersion(configuration, details.requested.group,
-                            details.requested.name)
-            if (version) {
-                log.info("Using version '{}' for dependency '{}'", version,
-                        details.requested)
-                details.useVersion(version)
-            }
-            else {
-                log.debug("No dependency management for dependency '{}'",
-                        details.requested)
-            }
+        if (isDependencyOnLocalProject(project, details)) {
+            log.debug("'{}' is a local project dependency. Dependency management has not been " +
+                    "applied", details.requested)
+            return;
+        }
+        if (Versions.isDynamic(details.requested.version)) {
+            log.info("'{}' has a dynamic version. Dependency management has not been applied",
+                    details.requested)
+            return;
+        }
+        String version = dependencyManagementContainer.
+                getManagedVersion(configuration, details.requested.group,
+                        details.requested.name)
+        if (version) {
+            log.info("Using version '{}' for dependency '{}'", version,
+                    details.requested)
+            details.useVersion(version)
         }
         else {
-            log.debug(
-                    "'{}' is a local project dependency. Dependency management has not been applied",
+            log.debug("No dependency management for dependency '{}'",
                     details.requested)
         }
     }
@@ -76,4 +79,5 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
                 .collect { "$it.group:$it.name" as String }
                 .contains("$details.requested.group:$details.requested.name" as String)
     }
+
 }
