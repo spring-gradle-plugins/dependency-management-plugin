@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement
 
 import org.gradle.api.GradleException
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.slf4j.impl.StaticLoggerBinder
@@ -1069,5 +1070,35 @@ public class DependencyManagementPluginSpec extends Specification {
         then: "The configuration's own managed versions do not include inherited versions"
             '4.1.8.RELEASE' == project.dependencyManagement.runtime.managedVersions['org.springframework:spring-core']
             null == project.dependencyManagement.runtime.ownManagedVersions['org.springframework:spring-core']
+    }
+
+    def "A dependency with a missing component in its string identifier produces a helpful error" () {
+        given: 'A project that has the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'A managed dependency with a malformed string identifier is declared'
+            project.dependencyManagement {
+                dependencies {
+                    dependency 'a:1.0'
+                }
+            }
+        then:
+            def thrown = thrown(InvalidUserDataException)
+            thrown.message == "Dependency identifier 'a:1.0' is malformed. Required form is 'group:name:version'"
+    }
+
+    def "A dependency with a missing component in its map identifier produces a helpful error" () {
+        given: 'A project that has the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'A managed dependency with a malformed string identifier is declared'
+            project.dependencyManagement {
+                dependencies {
+                    dependency group: 'a'
+                }
+            }
+        then:
+            def thrown = thrown(InvalidUserDataException)
+            thrown.message == "Dependency identifier '[group:a]' did not specify name, version"
     }
 }

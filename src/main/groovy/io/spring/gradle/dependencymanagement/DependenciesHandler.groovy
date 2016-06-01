@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement
 
 import org.gradle.api.GradleException
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.artifacts.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -63,11 +64,25 @@ class DependenciesHandler {
 
     def dependency(def id, Closure closure) {
         if (id instanceof CharSequence) {
-            def (group, name, version) = id.split(':')
-            configureDependency(group, name, version, closure)
+            String[] components = id.split(':')
+            if (components.length == 3) {
+                configureDependency(components[0], components[1], components[2], closure)
+            }
+            else {
+                throw new InvalidUserDataException("Dependency identifier '$id' is malformed." +
+                        " Required form is 'group:name:version'");
+            }
         }
         else {
-            configureDependency(id['group'], id['name'], id['version'], closure)
+            def missingAttributes = ['group', 'name', 'version'];
+            missingAttributes.removeAll(id.keySet());
+            if (missingAttributes) {
+                throw new InvalidUserDataException("Dependency identifier '$id' did not " +
+                        "specify ${missingAttributes.join(', ')}");
+            }
+            else {
+                configureDependency(id['group'], id['name'], id['version'], closure)
+            }
         }
     }
 
