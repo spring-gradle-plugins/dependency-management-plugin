@@ -18,22 +18,20 @@ package io.spring.gradle.dependencymanagement.report
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.logging.StyledTextOutput
-
-import static org.gradle.logging.StyledTextOutput.Style.Description
-import static org.gradle.logging.StyledTextOutput.Style.Header
-import static org.gradle.logging.StyledTextOutput.Style.Identifier
-import static org.gradle.logging.StyledTextOutput.Style.Normal
 
 /**
  * @author Andy Wilkinson.
  */
 class DependencyManagementReportRenderer {
 
-    private StyledTextOutput output;
+    private PrintWriter output
 
-    DependencyManagementReportRenderer(StyledTextOutput output) {
-        this.output = output
+    DependencyManagementReportRenderer() {
+        this(new PrintWriter(System.out))
+    }
+
+    protected DependencyManagementReportRenderer(PrintWriter writer) {
+        this.output = writer;
     }
 
     void startProject(Project project) {
@@ -50,8 +48,8 @@ class DependencyManagementReportRenderer {
             heading += " - ${project.description}"
         }
         output.println(heading)
-        output.withStyle(Header).text("------------------------------------------------------------")
-        output.println().println()
+        output.println("------------------------------------------------------------")
+        output.println()
     }
 
     void renderGlobalManagedVersions(def globalManagedVersions) {
@@ -61,15 +59,14 @@ class DependencyManagementReportRenderer {
             renderManagedVersions(globalManagedVersions)
         }
         else {
-            output.withStyle(Description).text("No dependency management")
-            output.println().println()
+            output.println("No dependency management")
+            output.println()
         }
+        output.flush()
     }
 
     private void renderDependencyManagementHeader(String identifier, String description) {
-        output.withStyle(Identifier).text(identifier)
-        output.withStyle(Description).text(" - ${description}")
-        output.println()
+        output.println("$identifier - $description")
     }
 
     private void renderManagedVersions(def managedVersions) {
@@ -82,8 +79,7 @@ class DependencyManagementReportRenderer {
             }
             return result
         } .each { dependency, version ->
-            output.withStyle(Normal).text("    ${dependency} ${version}")
-            output.println()
+            output.println("    $dependency $version")
         }
         output.println()
     }
@@ -99,13 +95,13 @@ class DependencyManagementReportRenderer {
                 renderManagedVersions(managedVersions)
             }
             else {
-                output.withStyle(Description).text("No configuration-specific dependency " +
-                        "management")
-                output.println().println()
+                output.println("No configuration-specific dependency management")
+                output.println()
             }
         } else {
-            output.withStyle(Description).text("No dependency management")
-            output.println().println()
+            output.println("No dependency management")
+            output.println()
         }
+        output.flush()
     }
 }

@@ -36,8 +36,12 @@ class DependencyManagementReportTask extends DefaultTask {
     DependencyManagementReportRenderer renderer
 
     @Inject
-    DependencyManagementReportTask(StyledTextOutputFactory outputFactory) {
-        this.renderer = new DependencyManagementReportRenderer(outputFactory.create(getClass()))
+    DependencyManagementReportTask() {
+        this.renderer = new DependencyManagementReportRenderer();
+    }
+
+    DependencyManagementReportTask(DependencyManagementReportRenderer renderer) {
+        this.renderer = renderer;
     }
 
     @TaskAction

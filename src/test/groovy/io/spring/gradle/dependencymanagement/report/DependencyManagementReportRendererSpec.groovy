@@ -16,7 +16,6 @@
 
 package io.spring.gradle.dependencymanagement.report
 
-import org.gradle.logging.internal.AbstractStyledTextOutput
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -27,9 +26,9 @@ import spock.lang.Specification
  */
 class DependencyManagementReportRendererSpec extends Specification {
 
-    private TestStyledTextOutput textOutput = new TestStyledTextOutput()
+    private StringWriter textOutput = new StringWriter()
 
-    private DependencyManagementReportRenderer renderer = new DependencyManagementReportRenderer(textOutput)
+    private DependencyManagementReportRenderer renderer = new DependencyManagementReportRenderer(new PrintWriter(textOutput))
 
     def 'Project header for root project'() {
         given:
@@ -37,7 +36,7 @@ class DependencyManagementReportRendererSpec extends Specification {
         when:
             renderer.startProject(rootProject)
         then:
-            textOutput.text.readLines() == [
+            textOutput.toString().readLines() == [
                     '',
                     '------------------------------------------------------------',
                     'Root project',
@@ -53,7 +52,7 @@ class DependencyManagementReportRendererSpec extends Specification {
         when:
             renderer.startProject(subproject)
         then:
-            textOutput.text.readLines() == [
+            textOutput.toString().readLines() == [
                     '',
                     '------------------------------------------------------------',
                     'Project :alpha',
@@ -70,7 +69,7 @@ class DependencyManagementReportRendererSpec extends Specification {
         when:
             renderer.startProject(subproject)
         then:
-            textOutput.text.readLines() == [
+            textOutput.toString().readLines() == [
                     '',
                     '------------------------------------------------------------',
                     'Project :alpha - foo bar baz',
@@ -83,7 +82,7 @@ class DependencyManagementReportRendererSpec extends Specification {
         when:
             renderer.renderGlobalManagedVersions([:])
         then:
-            textOutput.text.readLines() == [
+            textOutput.toString().readLines() == [
                     'global - Default dependency management for all configurations',
                     'No dependency management',
                     ''
@@ -97,7 +96,7 @@ class DependencyManagementReportRendererSpec extends Specification {
                     'com.example:alpha':'1.2.3'
             ])
         then:
-            textOutput.text.readLines() == [
+            textOutput.toString().readLines() == [
                     'global - Default dependency management for all configurations',
                     '    com.example:alpha 1.2.3',
                     '    com.example:bravo 1.0.0',
@@ -111,7 +110,7 @@ class DependencyManagementReportRendererSpec extends Specification {
         when:
             renderer.renderConfigurationManagedVersions([:], configuration, [:])
         then:
-            textOutput.text.readLines() == [
+            textOutput.toString().readLines() == [
                     'test - Dependency management for the test configuration',
                     'No dependency management',
                     ''
@@ -124,7 +123,7 @@ class DependencyManagementReportRendererSpec extends Specification {
         when:
             renderer.renderConfigurationManagedVersions(['a:b':'1.0'], configuration, ['a:b':'1.0'])
         then:
-            textOutput.text.readLines() == [
+            textOutput.toString().readLines() == [
                     'test - Dependency management for the test configuration',
                     'No configuration-specific dependency management',
                     ''
@@ -141,7 +140,7 @@ class DependencyManagementReportRendererSpec extends Specification {
         when:
             renderer.renderConfigurationManagedVersions(managedVersions, configuration, [:])
         then:
-            textOutput.text.readLines() == [
+            textOutput.toString().readLines() == [
                     'test - Dependency management for the test configuration',
                     '    com.example:alpha 1.2.3',
                     '    com.example:bravo 1.0.0',
@@ -149,14 +148,4 @@ class DependencyManagementReportRendererSpec extends Specification {
             ]
     }
 
-    static class TestStyledTextOutput extends AbstractStyledTextOutput {
-
-        StringBuilder text = new StringBuilder()
-
-        @Override
-        protected void doAppend(String s) {
-            text.append(s)
-        }
-
-    }
 }
