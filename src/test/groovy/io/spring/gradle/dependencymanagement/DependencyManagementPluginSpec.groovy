@@ -1101,4 +1101,23 @@ public class DependencyManagementPluginSpec extends Specification {
             def thrown = thrown(InvalidUserDataException)
             thrown.message == "Dependency identifier '[group:a]' did not specify name, version"
     }
+
+    def "Build fails with a helpful error when a bom cannot be imported"() {
+        given: 'A project that imports a bom that does not exist'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.dependencyManagement {
+                imports {
+                    mavenBom 'com.example:does-not-exist:1.0'
+                }
+            }
+            project.dependencies {
+                compile 'commons-logging:commons-logging'
+            }
+        when: 'Dependency management is resolved'
+            project.dependencyManagement.managedVersions
+        then: 'It fails with a helpful error message'
+            def thrown = thrown(GradleException)
+            thrown.message.startsWith("Failed to resolve imported Maven boms: Could not find com.example:does-not-exist:1.0.")
+    }
 }
