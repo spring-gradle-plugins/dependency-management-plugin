@@ -46,8 +46,6 @@ class DependencyManagement {
 
     private boolean resolved
 
-    private Throwable resolutionFailure
-
     private Map<String, String> versions = [:]
 
     private Map<String, String> explicitVersions = [:]
@@ -133,17 +131,13 @@ class DependencyManagement {
     }
 
     private void resolveIfNecessary() {
-        if (resolutionFailure) {
-            throw resolutionFailure
-        }
         if (!resolved) {
             try {
-                resolve()
                 resolved = true
+                resolve()
             } catch (Exception ex) {
-                resolutionFailure = new GradleException("Failed to resolve imported Maven boms:" +
+                throw new GradleException("Failed to resolve imported Maven boms:" +
                         " ${getRootCause(ex).message}", ex)
-                throw resolutionFailure
             }
         }
     }

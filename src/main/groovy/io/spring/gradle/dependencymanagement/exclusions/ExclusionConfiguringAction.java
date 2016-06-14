@@ -112,6 +112,9 @@ public class ExclusionConfiguringAction implements Action<ResolvableDependencies
                 configuration.getAllDependencies()
                         .toArray(new Dependency[configuration.getAllDependencies().size()]));
         configurationCopy.getResolutionStrategy().eachDependency(this.versionConfiguringAction);
+        if (configurationCopy.getResolvedConfiguration().hasError()) {
+            configurationCopy.getResolvedConfiguration().rethrowFailure();
+        }
         ResolutionResult resolutionResult = configurationCopy.getIncoming().getResolutionResult();
         ResolvedComponentResult root = resolutionResult.getRoot();
         Set<ResolvedComponentResult> excludedDependencies = resolutionResult.getAllComponents();
