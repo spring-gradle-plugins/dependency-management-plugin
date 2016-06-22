@@ -25,7 +25,6 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.Fil
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingException
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelProblem
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.ModelResolver
-
 import org.gradle.api.Project
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

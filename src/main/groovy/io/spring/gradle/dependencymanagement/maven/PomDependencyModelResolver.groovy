@@ -17,13 +17,13 @@
 package io.spring.gradle.dependencymanagement.maven
 
 import io.spring.gradle.dependencymanagement.DependencyManagementConfigurationContainer
-import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Repository
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.FileModelSource
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelSource
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.ModelResolver
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.UnresolvableModelException
+import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 
 /**
  * A {@link ModelResolver} that uses a {@link Configuration} to resolve a pom dependency for the

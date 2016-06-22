@@ -16,17 +16,14 @@
 
 package io.spring.gradle.dependencymanagement
 
-import io.spring.gradle.dependencymanagement.DependencyManagementExtension.PomCustomizationConfiguration
 import io.spring.gradle.dependencymanagement.exclusions.ExclusionConfiguringAction
 import io.spring.gradle.dependencymanagement.exclusions.ExclusionResolver
 import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
 import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfigurer
 import io.spring.gradle.dependencymanagement.report.DependencyManagementReportTask
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.maven.PomFilterContainer
 import org.gradle.api.internal.ClosureBackedAction

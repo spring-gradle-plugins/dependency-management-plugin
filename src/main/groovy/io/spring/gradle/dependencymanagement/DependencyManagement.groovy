@@ -19,10 +19,10 @@ package io.spring.gradle.dependencymanagement
 import io.spring.gradle.dependencymanagement.exclusions.Exclusions
 import io.spring.gradle.dependencymanagement.maven.EffectiveModelBuilder
 import io.spring.gradle.dependencymanagement.maven.ModelExclusionCollector
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model
 import org.gradle.api.artifacts.Dependency
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
