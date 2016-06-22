@@ -47,7 +47,7 @@ class PomDependencyManagementConfigurerSpec extends Specification {
         given: 'Dependency management that imports a bom'
             DependencyManagement dependencyManagement = new DependencyManagement(project, project
                     .configurations.detachedConfiguration(), effectiveModelBuilder)
-            dependencyManagement.importBom('io.spring.platform:platform-bom:1.0.3.RELEASE')
+            dependencyManagement.importBom('io.spring.platform:platform-bom:1.0.3.RELEASE', [:])
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             new PomDependencyManagementConfigurer(dependencyManagement, new
@@ -69,8 +69,8 @@ class PomDependencyManagementConfigurerSpec extends Specification {
             }
             DependencyManagement dependencyManagement = new DependencyManagement(project,
                     project.configurations.detachedConfiguration(), effectiveModelBuilder)
-            dependencyManagement.importBom('test:bravo-pom-customization-bom:1.0')
-            dependencyManagement.importBom('test:alpha-pom-customization-bom:1.0')
+            dependencyManagement.importBom('test:bravo-pom-customization-bom:1.0', [:])
+            dependencyManagement.importBom('test:alpha-pom-customization-bom:1.0', [:])
 
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
@@ -100,7 +100,7 @@ class PomDependencyManagementConfigurerSpec extends Specification {
             }
             DependencyManagement dependencyManagement = new DependencyManagement(project,
                     project.configurations.detachedConfiguration(), effectiveModelBuilder)
-            dependencyManagement.importBom('test:alpha-pom-customization-bom:1.0')
+            dependencyManagement.importBom('test:alpha-pom-customization-bom:1.0', [:])
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             PomCustomizationConfiguration configuration = new PomCustomizationConfiguration()
@@ -127,8 +127,8 @@ class PomDependencyManagementConfigurerSpec extends Specification {
             }
             DependencyManagement dependencyManagement = new DependencyManagement(project,
                     project.configurations.detachedConfiguration(), effectiveModelBuilder)
-            dependencyManagement.importBom('test:bravo-pom-customization-bom:1.0')
-            dependencyManagement.importBom('test:alpha-pom-customization-bom:1.0')
+            dependencyManagement.importBom('test:bravo-pom-customization-bom:1.0', [:])
+            dependencyManagement.importBom('test:alpha-pom-customization-bom:1.0', [:])
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             PomCustomizationConfiguration configuration = new PomCustomizationConfiguration()
@@ -158,7 +158,7 @@ class PomDependencyManagementConfigurerSpec extends Specification {
         given: 'Dependency management that imports a bom'
             DependencyManagement dependencyManagement = new DependencyManagement(project,
                     project.configurations.detachedConfiguration(), effectiveModelBuilder)
-            dependencyManagement.importBom('io.spring.platform:platform-bom:1.0.3.RELEASE')
+            dependencyManagement.importBom('io.spring.platform:platform-bom:1.0.3.RELEASE', [:])
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             PomCustomizationConfiguration configuration = new PomCustomizationConfiguration()
@@ -189,7 +189,7 @@ class PomDependencyManagementConfigurerSpec extends Specification {
         given: 'Dependency management that imports a bom'
             DependencyManagement dependencyManagement = new DependencyManagement(project,
                     project.configurations.detachedConfiguration(), effectiveModelBuilder)
-            dependencyManagement.importBom('io.spring.platform:platform-bom:1.0.3.RELEASE')
+            dependencyManagement.importBom('io.spring.platform:platform-bom:1.0.3.RELEASE', [:])
         when: 'The pom with existing dependency management is configured'
             Node pom = new XmlParser().parseText("<project><dependencyManagement><dependencies></dependencies></dependencyManagement></project>")
             new PomDependencyManagementConfigurer(dependencyManagement, new PomCustomizationConfiguration()).configurePom(pom)

@@ -475,7 +475,7 @@ public class DependencyManagementPluginSpec extends Specification {
                     mavenBom 'org.jboss.bom.eap:jboss-eap-bom-parent:6.3.3.GA'
                 }
             }
-        then: "The bom's properties are available"
+        then: "The bom's bomProperties are available"
             '1.1.0.Final' == project.dependencyManagement
                     .importedProperties['version.org.jboss.arquillian']
     }
@@ -633,7 +633,7 @@ public class DependencyManagementPluginSpec extends Specification {
                     }
                 }
             }
-        then: 'The properties in the bom can be accessed'
+        then: 'The bomProperties in the bom can be accessed'
             '4.3.5.Final' == project.dependencyManagement.importedProperties['hibernate.version']
             '4.1.4.RELEASE' == project.dependencyManagement.myConfiguration
                     .importedProperties['spring.version']
@@ -1149,5 +1149,38 @@ public class DependencyManagementPluginSpec extends Specification {
         then: "The dependency's version is not managed"
             def files = project.configurations.compile.resolve()
             !files.collect { it.name }.contains('commons-logging-1.1.3.jar')
+    }
+
+    def "A property in a bom can be overridden when it is imported"() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'A bom is imported and a property is overridden'
+            project.dependencyManagement {
+                imports {
+                    mavenBom('org.springframework.boot:spring-boot-dependencies:1.3.5.RELEASE') {
+                        bomProperties(['spring.version':'4.3.0.RELEASE'])
+                    }
+                }
+            }
+        then: 'The value of the property has been overridden'
+            project.dependencyManagement.managedVersions['org.springframework:spring-core'] == '4.3.0.RELEASE'
+    }
+
+    def "When overriding a bom property, a property on an import takes precedence over a project property"() {
+        given: 'A project with a spring.version property'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.setProperty("spring.version", "4.0.1.RELEASE")
+        when: 'A bom is imported and the spring.version property is overriden'
+            project.dependencyManagement {
+                imports {
+                    mavenBom('org.springframework.boot:spring-boot-dependencies:1.3.5.RELEASE') {
+                        bomProperty 'spring.version', '4.3.0.RELEASE'
+                    }
+                }
+            }
+        then: "The value of the property has been overridden using the import's override"
+            project.dependencyManagement.managedVersions['org.springframework:spring-core'] == '4.3.0.RELEASE'
     }
 }

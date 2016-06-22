@@ -211,15 +211,39 @@ by providing a different value for the relevant version property. You should onl
 approach if you do not intend to [generate and publish a Maven pom](#pom-generation) for your
 project as it will result in a pom that does not override the version.
 
-When the bom is being processed, Gradle's properties are used as a source during the property
-resolution process. If the bom is written to use properties for its versions, this allows you to
-override a version.
-
 Building on the example above, the Spring IO Platform bom that is used contains a property
 named `spring.version`. This property determines the version of all of the Spring Framework modules
-and, by default, its value is `4.0.6.RELEASE`. It can be overridden by configuring the
-`spring.version` property via any of the mechanisms that Gradle provides. For example, you may
-choose to configure it in your `build.gradle` script:
+and, by default, its value is `4.0.6.RELEASE`.
+
+A property can be overriden as part of importing a bom:
+
+```groovy
+dependencyManagement {
+    imports {
+        mavenBom('io.spring.platform:platform-bom:1.0.1.RELEASE') {
+            bomProperty 'spring.version', '4.0.4.RELEASE'
+        }
+    }
+}
+```
+
+You can also use a map:
+
+```groovy
+dependencyManagement {
+    imports {
+        mavenBom('io.spring.platform:platform-bom:1.0.1.RELEASE') {
+            bomProperties([
+                'spring.version': '4.0.4.RELEASE'
+            ])
+        }
+    }
+}
+```
+
+Alternatively, the property can also be overriden using a project's properties configured via any
+of the mechanisms that Gradle provides. For example, you may choose to configure it in your
+`build.gradle` script:
 
 ```groovy
 ext['spring.version'] = '4.0.4.RELEASE'

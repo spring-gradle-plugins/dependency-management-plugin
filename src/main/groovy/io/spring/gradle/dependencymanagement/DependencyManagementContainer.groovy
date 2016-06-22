@@ -63,8 +63,8 @@ class DependencyManagementContainer {
                 name, version, exclusions)
     }
 
-    void importBom(Configuration configuration, String coordinates) {
-        dependencyManagementForConfiguration(configuration).importBom(coordinates)
+    void importBom(Configuration configuration, String coordinates, Map<String, String> properties) {
+        dependencyManagementForConfiguration(configuration).importBom(coordinates, properties)
     }
 
     String getManagedVersion(Configuration configuration, String group, String name) {

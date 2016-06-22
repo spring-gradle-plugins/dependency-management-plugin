@@ -26,7 +26,6 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 /**
  * Encapsulates dependency management information for a particular configuration in a Gradle project
  *
@@ -58,7 +57,7 @@ class DependencyManagement {
 
     private Properties bomProperties = new Properties()
 
-    private List<Dependency> importedBoms = [];
+    private List<ImportedBom> importedBoms = [];
 
     def DependencyManagement(Project project, Configuration dependencyManagementConfiguration,
             EffectiveModelBuilder effectiveModelBuilder) {
@@ -73,8 +72,8 @@ class DependencyManagement {
         this.effectiveModelBuilder = effectiveModelBuilder
     }
 
-    void importBom(bomCoordinates) {
-        importedBoms << project.dependencies.create(bomCoordinates + '@pom')
+    void importBom(String coordinates, Map<String, String> properties) {
+        importedBoms << new ImportedBom(project.dependencies.create(coordinates + '@pom'), properties)
     }
 
     Map getImportedBoms() {
@@ -163,15 +162,15 @@ class DependencyManagement {
 
         log.debug("Preserving existing versions: {}", existingVersions)
 
-        importedBoms.each { configuration.dependencies.add(it) }
+        importedBoms.each { configuration.dependencies.add(it.dependency) }
 
         Map<String, File> artifacts = configuration.resolvedConfiguration.resolvedArtifacts.collectEntries {
             [("${it.moduleVersion.id.group}:${it.moduleVersion.id.name}" as String) : it.file]}
 
         importedBoms.each {
-            File file = artifacts["${it.group}:${it.name}" as String]
+            File file = artifacts["${it.dependency.group}:${it.dependency.name}" as String]
             log.debug("Processing '{}'", file)
-            Model effectiveModel = this.effectiveModelBuilder.buildModel(file)
+            Model effectiveModel = this.effectiveModelBuilder.buildModel(file, it.bomProperties)
             if (effectiveModel.dependencyManagement?.dependencies) {
                 String bomCoordinates = "${effectiveModel.groupId}:${effectiveModel.artifactId}:${effectiveModel.version}"
                 effectiveModel.dependencyManagement.dependencies.each { dependency ->
@@ -190,4 +189,18 @@ class DependencyManagement {
 
         log.info("Resolved versions: {}", versions)
     }
+
+    private class ImportedBom {
+
+        private final Dependency dependency
+
+        private final Map<String, String> bomProperties
+
+        private ImportedBom(Dependency dependency, Map<String, String> properties) {
+            this.dependency = dependency
+            this.bomProperties = properties
+        }
+
+    }
+
 }

@@ -35,10 +35,35 @@ class ImportsHandler {
     }
 
     void mavenBom(String coordinates) {
-        container.importBom(configuration, coordinates)
+        this.mavenBom(coordinates, null)
+    }
+
+    void mavenBom(String coordinates, Closure closure) {
+        BomImport bomImport = new BomImport()
+        if (closure) {
+            closure.delegate = bomImport
+            closure.resolveStrategy = Closure.DELEGATE_ONLY
+            closure.call()
+        }
+        container.importBom(configuration, coordinates, bomImport.bomProperties)
     }
 
     def propertyMissing(String name) {
         return container.project.property(name)
     }
+
+    private class BomImport {
+
+        private Map<String, String> bomProperties = new HashMap<String, String>();
+
+        void bomProperty(String name, String value) {
+            this.bomProperties.put(name, value);
+        }
+
+        void bomProperties(Map<String, String> properties) {
+            this.bomProperties.putAll(properties);
+        }
+
+    }
+
 }
