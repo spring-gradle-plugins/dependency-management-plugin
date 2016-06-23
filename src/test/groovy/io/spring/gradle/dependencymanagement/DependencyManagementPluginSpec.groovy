@@ -1171,7 +1171,7 @@ public class DependencyManagementPluginSpec extends Specification {
         given: 'A project with a spring.version property'
             project.apply plugin: 'io.spring.dependency-management'
             project.apply plugin: 'java'
-            project.setProperty("spring.version", "4.0.1.RELEASE")
+            project.ext['spring.version'] = '4.0.1.RELEASE'
         when: 'A bom is imported and the spring.version property is overriden'
             project.dependencyManagement {
                 imports {
