@@ -9,18 +9,20 @@ poms of your project's dependencies.
 
 ## Requirements
 
- - Gradle 1.x or 2.x (the plugin is [tested against][8] 1.12, and 2.4 to 2.13 inclusive).
+ - Gradle 1.x, 2.x, or 3.x (the plugin is [tested against][8] 1.12, 2.4 to 2.14 inclusive,
+   and 3.0 M2).
+ - Java 7 or later
 
 ## Using the plugin
 
 The plugin is [available from Gradle's plugin portal][3], JCenter, and Maven Central. The latest
-release is `0.5.7.RELEASE`.
+release is `0.6.0.RELEASE`.
 
 With Gradle 2.1 or later, you can use it as follows:
 
 ```groovy
 plugins {
-    id "io.spring.dependency-management" version "0.5.7.RELEASE"
+    id "io.spring.dependency-management" version "0.6.0.RELEASE"
 }
 
 ```
@@ -33,7 +35,7 @@ buildscript {
         jcenter() // or mavenCentral()
     }
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:0.5.7.RELEASE"
+        classpath "io.spring.gradle:dependency-management-plugin:0.6.0.RELEASE"
     }
 }
 
