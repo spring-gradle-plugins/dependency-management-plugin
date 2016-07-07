@@ -108,9 +108,10 @@ public class ExclusionConfiguringAction implements Action<ResolvableDependencies
     }
 
     private Set<ResolvedComponentResult> findExcludedDependencies() {
-        Configuration configurationCopy = this.configurationContainer.newConfiguration(
-                configuration.getAllDependencies()
-                        .toArray(new Dependency[configuration.getAllDependencies().size()]));
+        // use configuration.copy() here so we preserve all of the resolution strategy configuration that
+        // was applied to the original configuration
+        Configuration configurationCopy = configuration.copy();
+        // now add our version configuring action since this was called before we added this rule
         configurationCopy.getResolutionStrategy().eachDependency(this.versionConfiguringAction);
         if (configurationCopy.getResolvedConfiguration().hasError()) {
             configurationCopy.getResolvedConfiguration().rethrowFailure();

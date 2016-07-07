@@ -19,6 +19,7 @@ package io.spring.gradle.dependencymanagement
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -1182,5 +1183,34 @@ public class DependencyManagementPluginSpec extends Specification {
             }
         then: "The value of the property has been overridden using the import's override"
             project.dependencyManagement.managedVersions['org.springframework:spring-core'] == '4.3.0.RELEASE'
+    }
+
+    def "An existing useVersion rule is honored by the exclusion processing"() {
+        given: 'A project with inline dependency management and a useVersion rule'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
+        project.dependencyManagement {
+            dependencies {
+                dependency ('org.springframework:spring-core:4') {
+                    exclude 'commons-logging:commons-logging'
+                }
+            }
+        }
+        project.dependencies {
+            compile 'org.springframework:spring-core'
+        }
+        project.configurations*.resolutionStrategy {
+            eachDependency { DependencyResolveDetails details ->
+                if (details.requested.group == 'org.springframework' &&
+                        details.requested.name == 'spring-core') {
+                    details.useVersion('4.0.4.RELEASE')
+                }
+            }
+        }
+        when: 'A configuration is resolved'
+        def files = project.configurations.compile.resolve()
+        then: 'Dependency management, its exclusions and useVersions has been applied'
+        files.size() == 1
+        files.collect { it.name }.containsAll(['spring-core-4.0.4.RELEASE.jar'])
     }
 }
