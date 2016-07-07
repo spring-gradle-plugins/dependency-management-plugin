@@ -16,9 +16,11 @@
 
 package io.spring.gradle.dependencymanagement
 
+import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -1182,5 +1184,38 @@ public class DependencyManagementPluginSpec extends Specification {
             }
         then: "The value of the property has been overridden using the import's override"
             project.dependencyManagement.managedVersions['org.springframework:spring-core'] == '4.3.0.RELEASE'
+    }
+
+    def 'User-provided resolution strategy runs after internal resolution strategy'() {
+        given: 'A project with a dependency with an unresolvable version'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.dependencyManagement {
+                dependencies {
+                    dependency 'org.springframework:spring-core:4.2.6.RELEASE'
+                }
+            }
+            project.dependencies {
+                compile 'org.springframework:spring-core:#'
+            }
+        when: 'A dependency management resolution strategy changes the version'
+            Closure versionStrategy = {
+                it.eachDependency(new Action<DependencyResolveDetails>() {
+
+                    @Override
+                    void execute(DependencyResolveDetails details) {
+                        if (details.target.name == 'spring-core') {
+                            details.useVersion('4.2.6.RELEASE')
+                        }
+                    }
+
+                })
+            }
+            project.dependencyManagement.resolutionStrategy versionStrategy
+            project.configurations.all {
+                resolutionStrategy versionStrategy
+            }
+        then: 'The dependency can be resolved'
+            project.configurations.compile.resolve()
     }
 }

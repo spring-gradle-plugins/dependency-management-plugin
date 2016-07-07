@@ -40,7 +40,14 @@ class DependencyManagementConfigurationContainer {
     }
 
     Configuration newConfiguration(Dependency... dependencies) {
+        return this.newConfiguration(null, dependencies)
+    }
+
+    Configuration newConfiguration(ConfigurationConfigurer configurer, Dependency... dependencies) {
         Configuration configuration = delegate.detachedConfiguration(dependencies)
+        if (configurer) {
+            configurer.configure(configuration)
+        }
         configurations.add(configuration)
         return configuration
     }
@@ -49,6 +56,12 @@ class DependencyManagementConfigurationContainer {
         this.configurations.all { Configuration configuration ->
             configuration.resolutionStrategy closure
         }
+    }
+
+    static interface ConfigurationConfigurer {
+
+        void configure(Configuration configuration)
+
     }
 
 }

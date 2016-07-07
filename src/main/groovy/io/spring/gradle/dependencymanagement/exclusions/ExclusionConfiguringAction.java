@@ -17,12 +17,14 @@
 package io.spring.gradle.dependencymanagement.exclusions;
 
 import io.spring.gradle.dependencymanagement.DependencyManagementConfigurationContainer;
+import io.spring.gradle.dependencymanagement.DependencyManagementConfigurationContainer.ConfigurationConfigurer;
 import io.spring.gradle.dependencymanagement.DependencyManagementContainer;
 import io.spring.gradle.dependencymanagement.DependencyManagementExtension;
 import io.spring.gradle.dependencymanagement.VersionConfiguringAction;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.ResolvableDependencies;
 import org.gradle.api.artifacts.result.DependencyResult;
@@ -60,19 +62,26 @@ public class ExclusionConfiguringAction implements Action<ResolvableDependencies
 
     private final ExclusionResolver exclusionResolver;
 
-    private final VersionConfiguringAction versionConfiguringAction;
+    private final ConfigurationConfigurer versionConfigurer;
 
     public ExclusionConfiguringAction(DependencyManagementExtension dependencyManagementExtension,
             DependencyManagementContainer dependencyManagementContainer,
             DependencyManagementConfigurationContainer configurationContainer,
             Configuration configuration, ExclusionResolver exclusionResolver,
-            VersionConfiguringAction versionConfiguringAction) {
+            final VersionConfiguringAction versionConfiguringAction) {
         this.dependencyManagementExtension = dependencyManagementExtension;
         this.dependencyManagementContainer = dependencyManagementContainer;
         this.configurationContainer = configurationContainer;
         this.configuration = configuration;
         this.exclusionResolver = exclusionResolver;
-        this.versionConfiguringAction = versionConfiguringAction;
+        this.versionConfigurer = new ConfigurationConfigurer() {
+
+            @Override
+            public void configure(Configuration configuration) {
+                configuration.getResolutionStrategy().eachDependency(versionConfiguringAction);
+            }
+
+        };
     }
 
     @Override
@@ -108,10 +117,9 @@ public class ExclusionConfiguringAction implements Action<ResolvableDependencies
     }
 
     private Set<ResolvedComponentResult> findExcludedDependencies() {
+        DependencySet allDependencies = configuration.getAllDependencies();
         Configuration configurationCopy = this.configurationContainer.newConfiguration(
-                configuration.getAllDependencies()
-                        .toArray(new Dependency[configuration.getAllDependencies().size()]));
-        configurationCopy.getResolutionStrategy().eachDependency(this.versionConfiguringAction);
+                this.versionConfigurer, allDependencies.toArray(new Dependency[allDependencies.size()]));
         if (configurationCopy.getResolvedConfiguration().hasError()) {
             configurationCopy.getResolvedConfiguration().rethrowFailure();
         }
