@@ -355,10 +355,11 @@ dependencyManagement {
 }
 ```
 
-#### Configuring caching of imported boms
+#### Configuring the dependency management resolution strategy
 
-You may want to configure the caching of an imported bom, for example because you're using a
-snapshot. You can do so by using a [`resolutionStrategy`][7] closure, for example:
+The plugin uses separate, detached configurations when its dependency resolution. You can
+configure the [`resolution strategy`][7] for these configurations using a closure. For example,
+you may want to configure the caching of an imported bom because you're using a snapshot:
 
 ```groovy
 dependencyManagement {
