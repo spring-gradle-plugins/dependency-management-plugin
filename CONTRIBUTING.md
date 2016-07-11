@@ -15,8 +15,7 @@ spring-code-of-conduct@pivotal.io.
 Before we accept a non-trivial patch or pull request we will need you to sign the
 [contributor's license agreement (CLA)][2]. Signing the contributor's agreement does not
 grant anyone commit rights to the main repository, but it does mean that we can accept
-your contributions, and you will get an author credit if we do. Please use "Andy
-Wilkinson" in the project lead field when you complete the form.
+your contributions, and you will get an author credit if we do.
 
 
 ## Code conventions and housekeeping
@@ -49,5 +48,5 @@ $ ./gradlew build
 ```
 
 [1]: CODE_OF_CONDUCT.md
-[2]: https://support.springsource.com/spring_committer_signup
+[2]: https://cla.pivotal.io/sign/spring
 [3]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
