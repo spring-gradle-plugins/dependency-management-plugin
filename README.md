@@ -137,6 +137,10 @@ dependencyManagement {
 Note that, as shown in the two examples above, an exclusion can be identified using `'group:name'`
 or `group: 'group', name: 'name'`.
 
+Gradle does not provide an API for accessing a dependency's classifier during resolution.
+Unfortunately, this means that dependency management-based exclusions will not work when a
+classifier is involved.
+
 ### Importing a Maven bom
 
 The plugin also allows you to import an existing Maven bom to utilise its dependency management.
