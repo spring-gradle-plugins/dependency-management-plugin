@@ -468,18 +468,17 @@ public class DependencyManagementPluginSpec extends Specification {
             project.apply plugin: 'java'
             project.repositories {
                 maven {
-                    url 'https://maven.repository.redhat.com/techpreview/all'
+                    url new File("src/test/resources/maven-repo").toURI().toURL().toString()
                 }
             }
         when: 'A bom with no dependency management is imported'
             project.dependencyManagement {
                 imports {
-                    mavenBom 'org.jboss.bom.eap:jboss-eap-bom-parent:6.3.3.GA'
+                    mavenBom 'test:no-dependency-management-bom:1.0'
                 }
             }
         then: "The bom's bomProperties are available"
-            '1.1.0.Final' == project.dependencyManagement
-                    .importedProperties['version.org.jboss.arquillian']
+            project.dependencyManagement.importedProperties['a'] == 'alpha'
     }
 
     def "The Spring Cloud Starter Parent bom can be imported and used for dependency management"() {
