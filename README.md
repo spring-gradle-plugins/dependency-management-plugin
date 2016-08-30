@@ -11,7 +11,7 @@ poms of your project's dependencies.
 
  - Gradle 1.x, 2.x, or 3.x (the plugin is [tested against][8] 1.12, 2.4 to 2.14 inclusive,
    and 3.0).
- - Java 7 or later
+ - Java 6 or later
 
 ## Using the plugin
 
