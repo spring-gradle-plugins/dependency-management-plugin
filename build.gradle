@@ -1,9 +1,10 @@
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
-        classpath 'org.codehaus.groovy:groovy-backports-compat23:2.3.5'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0'
     }
 }
 
@@ -11,8 +12,8 @@ apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'maven'
+apply plugin: 'com.jfrog.artifactory'
 
-apply from: 'gradle-api-source.gradle'
 apply from: 'publish-maven.gradle'
 
 repositories {
@@ -28,7 +29,6 @@ ext {
     jarjarVersion = '1.2.1'
     mavenVersion = '3.0.4'
     spockVersion = GroovySystem.version.startsWith('1.') ? '0.7-groovy-1.8' : '0.7-groovy-2.0'
-
 }
 
 sourceCompatibility = 1.6
@@ -68,14 +68,6 @@ dependencies {
     testCompile "cglib:cglib-nodep:$cglibVersion"
 }
 
-tasks.findByPath('artifactoryPublish')?.configure {
-    properties = [
-            'gradle-plugin'  : "io.spring.dependency-management:${project.group}:${project.name}",
-            'bintray.package': "${project.group}:dependency-management",
-            'bintray.version': "${project.version}"
-    ]
-}
-
 jar {
     dependsOn mavenRepackJar
     from(zipTree(mavenRepackJar.archivePath)) {
@@ -112,7 +104,35 @@ artifacts {
     archives javadocJar
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = project.hasProperty('gradleVersion') ? project.getProperty('gradleVersion') :'1.12'
-    distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
+test {
+    testLogging {
+        quiet {
+            events 'failed'
+            exceptionFormat 'full'
+        }
+        exceptionFormat 'full'
+    }
+}
+
+artifactory {
+    contextUrl = 'https://repo.spring.io'
+    publish {
+        repository {
+            repoKey = 'plugins-snapshot-local'
+            if (project.hasProperty('artifactoryUsername')
+                    && project.hasProperty('artifactoryPassword')) {
+                username = artifactoryUsername
+                password = artifactoryPassword
+            }
+        }
+    }
+}
+
+artifactoryPublish {
+    publishConfigs 'archives'
+    publishIvy false
+    properties = [
+        'bintray.package': "${project.group}:dependency-management",
+        'bintray.version': "${project.version}"
+    ]
 }

@@ -1,4 +1,4 @@
-# Dependency management plugin [![Build status][2]][1]
+# Dependency management plugin
 
 [![Chat on Gitter][6]][5]
 
@@ -9,7 +9,7 @@ poms of your project's dependencies.
 
 ## Requirements
 
- - Gradle 1.x, 2.x, or 3.x (the plugin is [tested against][8] 1.12, 2.4 to 2.14 inclusive,
+ - Gradle 1.x, 2.x, or 3.x (the plugin is tested against 1.12, 2.4 to 2.14 inclusive,
    and 3.0).
  - Java 6 or later
 
@@ -653,14 +653,11 @@ Contributors to this project agree to uphold its [code of conduct][9].
 
 Dependency Management Plugin is open source software released under the [Apache 2.0 license][12].
 
-[1]: https://build.spring.io/browse/GRADLEPLUGINS-DMP
-[2]: https://build.spring.io/plugins/servlet/buildStatusImage/GRADLEPLUGINS-DMP (Build status)
 [3]: http://plugins.gradle.org/plugin/io.spring.dependency-management
 [4]: http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions
 [5]: https://gitter.im/spring-gradle-plugins/dependency-management-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [6]: https://badges.gitter.im/Join%20Chat.svg
 [7]: http://gradle.org/docs/current/dsl/org.gradle.api.artifacts.ResolutionStrategy.html
-[8]: https://build.spring.io/browse/GRADLEPLUGINS-DMP/latest
 [9]: CODE_OF_CONDUCT.md
 [10]: https://help.github.com/articles/using-pull-requests/
 [11]: CONTRIBUTING.md

@@ -1,0 +1,83 @@
+resources:
+  - name: dependency-management-plugin
+    type: git
+    source:
+      uri: https://github.com/spring-gradle-plugins/dependency-management-plugin
+      branch: master
+jobs:
+  - name: unit-test
+    public: true
+    plan:
+    - get: dependency-management-plugin
+      trigger: true
+    - task: unit-test
+      file: dependency-management-plugin/ci/unit-test.yml
+  - name: integration-test
+    public: true
+    plan:
+    - get: dependency-management-plugin
+      passed:
+      - unit-test
+      trigger: true
+    - aggregate:
+      - task: gradle-2.4
+        file: dependency-management-plugin/ci/integration-test.yml
+        params:
+          - GRADLE_VERSION: '2.4'
+      - task: gradle-2.5
+        file: dependency-management-plugin/ci/integration-test.yml
+        params:
+          - GRADLE_VERSION: '2.5'
+      - task: gradle-2.6
+        file: dependency-management-plugin/ci/integration-test.yml
+        params:
+          - GRADLE_VERSION: '2.6'
+      - task: gradle-2.7
+        file: dependency-management-plugin/ci/integration-test.yml
+        params:
+          - GRADLE_VERSION: '2.7'
+      - task: gradle-2.8
+        file: dependency-management-plugin/ci/integration-test.yml
+        params:
+          - GRADLE_VERSION: '2.8'
+      - task: gradle-2.9
+        file: dependency-management-plugin/ci/integration-test.yml
+        params:
+          - GRADLE_VERSION: '2.9'
+      - task: gradle-2.10
+        file: dependency-management-plugin/ci/integration-test.yml
+        params:
+          - GRADLE_VERSION: '2.10'
+      - task: gradle-2.11
+        file: dependency-management-plugin/ci/integration-test.yml
+        params:
+          - GRADLE_VERSION: '2.11'
+      - task: gradle-2.12
+        file: dependency-management-plugin/ci/integration-test.yml
+        params:
+          - GRADLE_VERSION: '2.12'
+      - task: gradle-2.13
+        file: dependency-management-plugin/ci/integration-test.yml
+        params:
+          - GRADLE_VERSION: '2.13'
+      - task: gradle-2.14.1
+        file: dependency-management-plugin/ci/integration-test.yml
+        params:
+          - GRADLE_VERSION: '2.14.1'
+      - task: gradle-3.0
+        file: dependency-management-plugin/ci/integration-test.yml
+        params:
+          - GRADLE_VERSION: '3.0'
+
+  - name: deploy
+    public: true
+    plan:
+    - get: dependency-management-plugin
+      passed:
+      - integration-test
+      trigger: true
+    - task: deploy
+      file: dependency-management-plugin/ci/deploy.yml
+      params:
+      - ARTIFACTORY_USERNAME: {{artifactory_username}}
+      - ARTIFACTORY_PASSWORD: {{artifactory_password}}
