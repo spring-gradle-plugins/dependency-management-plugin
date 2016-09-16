@@ -2,19 +2,36 @@ buildscript {
     repositories {
         mavenCentral()
         jcenter()
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0'
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:1.2'
     }
 }
 
 apply plugin: 'groovy'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'checkstyle'
 
 apply from: 'publish-maven.gradle'
+
+apply plugin: 'org.sonarqube'
+
+sonarqube {
+    properties {
+        property 'sonar.links.homepage', 'https://github.com/spring-gradle-plugins/dependency-management-plugin'
+        property 'sonar.links.issue', 'https://github.com/spring-gradle-plugins/dependency-management-plugin/issues'
+        property 'sonar.links.scm', 'https://github.com/spring-gradle-plugins/dependency-management-plugin'
+    }
+}
+
+checkstyle {
+    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+    configProperties = [ 'checkstyle.config.dir' : rootProject.file('config/checkstyle') ]
+    toolVersion = '7.3'
+}
 
 repositories {
     mavenCentral()
@@ -85,8 +102,14 @@ jar {
     }
 }
 
-groovydoc {
-    docTitle = "$project.description $project.version API"
+javadoc {
+    title = "$project.description $project.version API"
+    exclude 'io/spring/gradle/dependencymanagement/internal/**'
+    options {
+        links "https://docs.gradle.org/${GradleVersion.current().version}/javadoc/",
+            'https://docs.oracle.com/javase/6/docs/api/',
+            "http://docs.groovy-lang.org/${GroovySystem.version}/html/gapi/"
+    }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -96,7 +119,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 task javadocJar(type: Jar) {
     classifier = "javadoc"
-    from groovydoc
+    from javadoc
 }
 
 artifacts {

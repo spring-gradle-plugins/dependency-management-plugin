@@ -16,6 +16,8 @@
 
 package io.spring.gradle.dependencymanagement
 
+import io.spring.gradle.dependencymanagement.DependencyManagementSettings.PomCustomizationSettings.ImportedBomAction
+import io.spring.gradle.dependencymanagement.internal.dsl.StandardDependencyManagementExtension
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
@@ -56,9 +58,8 @@ public class DependencyManagementPluginSpec extends Specification {
                 }
             }
         then: 'The configuration change has taken effect'
-        def extension = project.extensions.getByType(DependencyManagementExtension)
-        def configuration = extension.generatedPomCustomization
-        !configuration.enabled
+        def extension = project.extensions.getByType(StandardDependencyManagementExtension)
+        !extension.pomCustomizationSettings.enabled
     }
 
     def "The pom configurer is available"() {
@@ -78,9 +79,8 @@ public class DependencyManagementPluginSpec extends Specification {
                 }
             }
         then: 'The configuration change has taken effect'
-            project.extensions.getByType(DependencyManagementExtension).generatedPomCustomization
-                    .importedBomAction == DependencyManagementExtension.PomCustomizationConfiguration
-                    .ImportedBomAction.COPY
+            StandardDependencyManagementExtension extension = project.extensions.getByType(StandardDependencyManagementExtension)
+            extension.pomCustomizationSettings.importedBomAction == ImportedBomAction.COPY
     }
 
     def "An imported bom can be used to apply dependency management"() {
@@ -1084,7 +1084,7 @@ public class DependencyManagementPluginSpec extends Specification {
             }
         then:
             def thrown = thrown(InvalidUserDataException)
-            thrown.message == "Dependency identifier 'a:1.0' is malformed. Required form is 'group:name:version'"
+            thrown.message == "Dependency identifier 'a:1.0' is malformed. The required form is 'group:name:version'"
     }
 
     def "A dependency with a missing component in its map identifier produces a helpful error" () {
@@ -1099,7 +1099,7 @@ public class DependencyManagementPluginSpec extends Specification {
             }
         then:
             def thrown = thrown(InvalidUserDataException)
-            thrown.message == "Dependency identifier '[group:a]' did not specify name, version"
+            thrown.message == "Dependency identifier '{group=a}' did not specify name, version"
     }
 
     def "Build fails with a helpful error when a bom cannot be imported"() {
