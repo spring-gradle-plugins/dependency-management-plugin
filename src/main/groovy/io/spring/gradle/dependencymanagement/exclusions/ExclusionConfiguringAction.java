@@ -26,11 +26,15 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.ResolvableDependencies;
+import org.gradle.api.artifacts.component.ComponentSelector;
+import org.gradle.api.artifacts.component.ModuleComponentSelector;
 import org.gradle.api.artifacts.result.DependencyResult;
 import org.gradle.api.artifacts.result.ResolutionResult;
 import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.artifacts.result.ResolvedDependencyResult;
+import org.gradle.api.artifacts.result.UnresolvedDependencyResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,21 +97,22 @@ public class ExclusionConfiguringAction implements Action<ResolvableDependencies
     }
 
     private void applyMavenExclusions(ResolvableDependencies resolvableDependencies) {
-        Set<ResolvedComponentResult> excludedDependencies = findExcludedDependencies();
+        Set<DependencyCandidate> excludedDependencies = findExcludedDependencies();
         if (log.isInfoEnabled()) {
             log.info("Excluding " + String.valueOf(excludedDependencies));
         }
 
         List<Map<String, String>> exclusions = new ArrayList<Map<String, String>>();
-        for (ResolvedComponentResult excludedDependency : excludedDependencies) {
+        for (DependencyCandidate excludedDependency : excludedDependencies) {
             Map<String, String> exclusion = new HashMap<String, String>();
-            exclusion.put("group", excludedDependency.getModuleVersion().getGroup());
-            exclusion.put("module", excludedDependency.getModuleVersion().getName());
+            exclusion.put("group", excludedDependency.groupId);
+            exclusion.put("module", excludedDependency.artifactId);
             exclusions.add(exclusion);
         }
         for (Dependency dependency : resolvableDependencies.getDependencies()) {
             if (dependency instanceof ModuleDependency) {
                 for (Map<String, String> exclusion : exclusions) {
+                    System.out.println("Excluding " + exclusion + " from " + dependency);
                     ((ModuleDependency) dependency).exclude(exclusion);
                 }
 
@@ -116,49 +121,119 @@ public class ExclusionConfiguringAction implements Action<ResolvableDependencies
         }
     }
 
-    private Set<ResolvedComponentResult> findExcludedDependencies() {
+    private Set<DependencyCandidate> findExcludedDependencies() {
         DependencySet allDependencies = configuration.getAllDependencies();
         Configuration configurationCopy = this.configurationContainer.newConfiguration(
                 this.versionConfigurer, allDependencies.toArray(new Dependency[allDependencies.size()]));
-        if (configurationCopy.getResolvedConfiguration().hasError()) {
+        if (configurationCopy.getResolvedConfiguration().hasError() && failureShouldBeRethrown
+                (configurationCopy.getIncoming().getResolutionResult().getRoot().getDependencies())) {
             configurationCopy.getResolvedConfiguration().rethrowFailure();
         }
         ResolutionResult resolutionResult = configurationCopy.getIncoming().getResolutionResult();
         ResolvedComponentResult root = resolutionResult.getRoot();
-        Set<ResolvedComponentResult> excludedDependencies = resolutionResult.getAllComponents();
-        Set<ResolvedComponentResult> includedDependencies = determineIncludedComponents(root,
-                this.exclusionResolver.resolveExclusions(excludedDependencies));
+        final Set<DependencyCandidate> excludedDependencies = new HashSet<DependencyCandidate>();
+        resolutionResult.allDependencies(new Action<DependencyResult>() {
+            @Override
+            public void execute(DependencyResult dependencyResult) {
+                if (dependencyResult instanceof ResolvedDependencyResult) {
+                    ResolvedDependencyResult resolved = (ResolvedDependencyResult)dependencyResult;
+                    excludedDependencies.add(new DependencyCandidate(resolved.getSelected()
+                            .getModuleVersion().getGroup(), resolved.getSelected()
+                            .getModuleVersion().getName()));
+                }
+                else if (dependencyResult instanceof UnresolvedDependencyResult) {
+                    DependencyCandidate dependencyCandidate = toDependencyCandidate
+                            ((UnresolvedDependencyResult)dependencyResult);
+                    if (dependencyCandidate != null) {
+                        excludedDependencies.add(dependencyCandidate);
+                    }
+                }
+            }
+        });
+        Set<DependencyCandidate> includedDependencies = determineIncludedComponents(root,
+                this.exclusionResolver.resolveExclusions(resolutionResult.getAllComponents()));
         excludedDependencies.removeAll(includedDependencies);
         return excludedDependencies;
     }
 
-    private Set<ResolvedComponentResult> determineIncludedComponents(ResolvedComponentResult root,
+    private boolean failureShouldBeRethrown(Set<? extends DependencyResult> dependencyResults) {
+        for (DependencyResult result: dependencyResults) {
+            if (result instanceof UnresolvedDependencyResult) {
+                if (!isExcluded((UnresolvedDependencyResult)result)) {
+                    return true;
+                }
+            }
+            else if (result instanceof ResolvedDependencyResult) {
+                ResolvedDependencyResult resolvedResult = (ResolvedDependencyResult)result;
+                if (failureShouldBeRethrown(resolvedResult.getSelected().getDependencies())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isExcluded(UnresolvedDependencyResult result) {
+        ComponentSelector attempted = result.getAttempted();
+        if (attempted instanceof ModuleComponentSelector) {
+            ModuleComponentSelector attemptedModule = (ModuleComponentSelector)
+                    attempted;
+            ModuleVersionIdentifier fromId = result.getFrom().getModuleVersion();
+            String from = fromId.getGroup() + ":" + fromId.getName();
+            Set<String> exclusions = this.dependencyManagementContainer.getExclusions(this
+                    .configuration).exclusionsForDependency(from);
+            if (exclusions != null && exclusions.contains(attemptedModule.getGroup() + ":" +
+                    attemptedModule.getModule())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Set<DependencyCandidate> determineIncludedComponents(ResolvedComponentResult root,
             Map<String, Exclusions> pomExclusionsById) {
         LinkedList<Node> queue = new LinkedList<Node>();
         queue.add(new Node(root, getId(root), new HashSet<String>()));
         Set<ResolvedComponentResult> seen = new HashSet<ResolvedComponentResult>();
-        Set<ResolvedComponentResult> includedComponents = new HashSet<ResolvedComponentResult>();
+        Set<DependencyCandidate> includedComponents = new HashSet<DependencyCandidate>();
         while (!queue.isEmpty()) {
             Node node = queue.remove();
-            includedComponents.add(node.component);
+            includedComponents.add(new DependencyCandidate(node.component.getModuleVersion()
+                    .getGroup(), node.component.getModuleVersion().getName()));
             for (DependencyResult dependency : node.component.getDependencies()) {
                 if (dependency instanceof ResolvedDependencyResult) {
                     ResolvedComponentResult child = ((ResolvedDependencyResult) dependency)
                             .getSelected();
                     String childId = getId(child);
-                    if (!node.excluded(childId) && seen
-                            .add(child)) {
+                    if (!node.excluded(childId) && seen.add(child)) {
                         queue.add(new Node(child, childId,
                                 getChildExclusions(node, childId, pomExclusionsById)));
                     }
 
                 }
-
+                else if (dependency instanceof UnresolvedDependencyResult) {
+                    DependencyCandidate dependencyCandidate = toDependencyCandidate(
+                            (UnresolvedDependencyResult)dependency);
+                    if (dependencyCandidate != null && (!node.excluded(dependencyCandidate
+                            .groupId + ":" + dependencyCandidate.artifactId))) {
+                        includedComponents.add(dependencyCandidate);
+                    }
+                }
             }
-
         }
-
         return includedComponents;
+    }
+
+    private DependencyCandidate toDependencyCandidate(
+            UnresolvedDependencyResult unresolved) {
+        ComponentSelector attemptedSelector = unresolved.getAttempted();
+        if (!(attemptedSelector instanceof ModuleComponentSelector)) {
+            return null;
+        }
+        ModuleComponentSelector attemptedModuleSelector =
+                (ModuleComponentSelector) attemptedSelector;
+        return new DependencyCandidate(attemptedModuleSelector
+                .getGroup(), attemptedModuleSelector.getModule());
     }
 
     private Set<String> getChildExclusions(Node parent, String childId,
@@ -171,7 +246,6 @@ public class ExclusionConfiguringAction implements Action<ResolvableDependencies
         if (exclusionsInPom != null) {
             addAllIfPossible(childExclusions, exclusionsInPom.exclusionsForDependency(childId));
         }
-
         return childExclusions;
     }
 
@@ -203,6 +277,44 @@ public class ExclusionConfiguringAction implements Action<ResolvableDependencies
 
         private boolean excluded(String id) {
             return this.exclusions != null && this.exclusions.contains(id);
+        }
+
+    }
+
+    private static class DependencyCandidate {
+
+        private final String groupId;
+
+        private final String artifactId;
+
+        DependencyCandidate(String groupId, String artifactId) {
+            this.groupId = groupId;
+            this.artifactId = artifactId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            DependencyCandidate that = (DependencyCandidate) o;
+
+            if (!groupId.equals(that.groupId)) {
+                return false;
+            }
+            return artifactId.equals(that.artifactId);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = groupId.hashCode();
+            result = 31 * result + artifactId.hashCode();
+            return result;
         }
 
     }

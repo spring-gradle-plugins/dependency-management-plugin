@@ -1217,4 +1217,24 @@ public class DependencyManagementPluginSpec extends Specification {
         then: 'The dependency can be resolved'
             project.configurations.compile.resolve()
     }
+
+    def 'Exclusions in imported boms for unresolvable dependencies are applied'() {
+        given: 'A project that imports a bom that excludes an unresolvable dependency'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.repositories {
+                maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+            }
+            project.dependencyManagement {
+                imports {
+                    mavenBom('test:exclude-unresolvable-dependency:1.0')
+                }
+            }
+        when: 'The project depends on something that depends on the excluded, unresolvable dependency'
+            project.dependencies {
+                compile 'test:unresolvable-transitive-dependency'
+            }
+        then: 'The configuration can be resolved'
+            project.configurations.compile.resolve()
+    }
 }
