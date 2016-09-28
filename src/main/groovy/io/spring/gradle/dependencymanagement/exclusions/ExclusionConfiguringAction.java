@@ -112,7 +112,6 @@ public class ExclusionConfiguringAction implements Action<ResolvableDependencies
         for (Dependency dependency : resolvableDependencies.getDependencies()) {
             if (dependency instanceof ModuleDependency) {
                 for (Map<String, String> exclusion : exclusions) {
-                    System.out.println("Excluding " + exclusion + " from " + dependency);
                     ((ModuleDependency) dependency).exclude(exclusion);
                 }
 
