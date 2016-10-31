@@ -644,6 +644,13 @@ managed versions from the compile configuration:
 def managedVersions = dependencyManagement.compile.managedVersions
 ```
 
+The managed versions are of map of `groupId:artifactId` to `version`. For example,
+the managed version for `org.springframework:spring-core` can be accessed like this:
+
+```groovy
+def springCoreVersion = managedVersions['org.springframework:spring-core']
+```
+
 ## Contributing
 
 Contributors to this project agree to uphold its [code of conduct][9].
