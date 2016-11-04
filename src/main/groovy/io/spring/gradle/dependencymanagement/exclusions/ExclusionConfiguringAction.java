@@ -26,7 +26,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.ModuleDependency;
-import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.ResolvableDependencies;
 import org.gradle.api.artifacts.component.ComponentSelector;
 import org.gradle.api.artifacts.component.ModuleComponentSelector;
@@ -124,10 +123,6 @@ public class ExclusionConfiguringAction implements Action<ResolvableDependencies
         DependencySet allDependencies = configuration.getAllDependencies();
         Configuration configurationCopy = this.configurationContainer.newConfiguration(
                 this.versionConfigurer, allDependencies.toArray(new Dependency[allDependencies.size()]));
-        if (configurationCopy.getResolvedConfiguration().hasError() && failureShouldBeRethrown
-                (configurationCopy.getIncoming().getResolutionResult().getRoot().getDependencies())) {
-            configurationCopy.getResolvedConfiguration().rethrowFailure();
-        }
         ResolutionResult resolutionResult = configurationCopy.getIncoming().getResolutionResult();
         ResolvedComponentResult root = resolutionResult.getRoot();
         final Set<DependencyCandidate> excludedDependencies = new HashSet<DependencyCandidate>();
@@ -153,40 +148,6 @@ public class ExclusionConfiguringAction implements Action<ResolvableDependencies
                 this.exclusionResolver.resolveExclusions(resolutionResult.getAllComponents()));
         excludedDependencies.removeAll(includedDependencies);
         return excludedDependencies;
-    }
-
-    private boolean failureShouldBeRethrown(Set<? extends DependencyResult> dependencyResults) {
-        for (DependencyResult result: dependencyResults) {
-            if (result instanceof UnresolvedDependencyResult) {
-                if (!isExcluded((UnresolvedDependencyResult)result)) {
-                    return true;
-                }
-            }
-            else if (result instanceof ResolvedDependencyResult) {
-                ResolvedDependencyResult resolvedResult = (ResolvedDependencyResult)result;
-                if (failureShouldBeRethrown(resolvedResult.getSelected().getDependencies())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean isExcluded(UnresolvedDependencyResult result) {
-        ComponentSelector attempted = result.getAttempted();
-        if (attempted instanceof ModuleComponentSelector) {
-            ModuleComponentSelector attemptedModule = (ModuleComponentSelector)
-                    attempted;
-            ModuleVersionIdentifier fromId = result.getFrom().getModuleVersion();
-            String from = fromId.getGroup() + ":" + fromId.getName();
-            Set<String> exclusions = this.dependencyManagementContainer.getExclusions(this
-                    .configuration).exclusionsForDependency(from);
-            if (exclusions != null && exclusions.contains(attemptedModule.getGroup() + ":" +
-                    attemptedModule.getModule())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private Set<DependencyCandidate> determineIncludedComponents(ResolvedComponentResult root,

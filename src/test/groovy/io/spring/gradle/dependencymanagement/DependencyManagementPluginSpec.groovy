@@ -1237,4 +1237,34 @@ public class DependencyManagementPluginSpec extends Specification {
         then: 'The configuration can be resolved'
             project.configurations.compile.resolve()
     }
+
+    def 'Unresolvable dependencies are ignored when applying Maven-style exclusions'() {
+        given: 'A project that depends on something with an unresolvable transitive dependency'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.repositories {
+                maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+            }
+            project.dependencyManagement {
+                dependencies {
+                    dependency('org.springframework:spring-core:4.0.3.RELEASE') {
+                        exclude 'commons-logging:commons-logging'
+                    }
+                }
+            }
+            project.dependencies {
+                compile 'org.springframework:spring-core'
+                compile 'test:unresolvable-transitive-dependency:1.0'
+            }
+        when: 'The unresolvable transitive dependency is only excluded from the compile configuration'
+            project.configurations {
+                compile.exclude group: 'test', module: 'unresolvable-dependency'
+            }
+        then: 'Dependency management exclusions are still applied'
+            def files = project.configurations.compile.resolve()
+            files.size() == 2
+            files.collect { it.name }.containsAll([
+                    'spring-core-4.0.3.RELEASE.jar',
+                    'unresolvable-transitive-dependency-1.0.jar'])
+    }
 }
