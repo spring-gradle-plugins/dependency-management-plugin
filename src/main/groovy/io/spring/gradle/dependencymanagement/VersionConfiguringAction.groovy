@@ -62,7 +62,7 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
         String version = dependencyManagementContainer.
                 getManagedVersion(configuration, details.requested.group,
                         details.requested.name)
-        if (version) {
+        if (version && version != details.requested.version) {
             log.info("Using version '{}' for dependency '{}'", version,
                     details.requested)
             details.useVersion(version)
