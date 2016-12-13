@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package io.spring.gradle.dependencymanagement
+package io.spring.gradle.dependencymanagement.plugin
 
 import io.spring.gradle.dependencymanagement.DependencyManagementSettings.PomCustomizationSettings.ImportedBomAction
 import io.spring.gradle.dependencymanagement.internal.dsl.StandardDependencyManagementExtension
-import io.spring.gradle.dependencymanagement.plugin.DependencyManagementPlugin
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException

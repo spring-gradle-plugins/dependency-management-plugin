@@ -30,7 +30,7 @@ import spock.lang.Specification
  *
  * @author Andy Wilkinson
  */
-class PomDependencyManagementConfigurerSpec extends Specification {
+class StandardPomDependencyManagementConfigurerSpec extends Specification {
 
     Project project
 
