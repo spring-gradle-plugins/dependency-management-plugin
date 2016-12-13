@@ -11,4 +11,4 @@ inputs:
   - name: dependency-management-plugin
 
 run:
-  path: dependency-management-plugin/ci/integration-test.sh
+  path: dependency-management-plugin/ci/build.sh

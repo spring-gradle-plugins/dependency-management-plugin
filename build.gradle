@@ -86,6 +86,7 @@ dependencies {
         exclude group: 'org.codehaus.groovy'
     }
     testCompile "cglib:cglib-nodep:$cglibVersion"
+    testCompile gradleTestKit()
 }
 
 jar {

@@ -5,52 +5,19 @@ resources:
       uri: https://github.com/spring-gradle-plugins/dependency-management-plugin
       branch: master
 jobs:
-  - name: unit-test
+  - name: build
     public: true
     plan:
     - get: dependency-management-plugin
       trigger: true
-    - task: unit-test
-      file: dependency-management-plugin/ci/unit-test.yml
-  - name: integration-test
-    public: true
-    plan:
-    - get: dependency-management-plugin
-      passed:
-      - unit-test
-      trigger: true
-    - aggregate:
-      - task: gradle-2.9
-        file: dependency-management-plugin/ci/integration-test.yml
-        params:
-          - GRADLE_VERSION: '2.9'
-      - task: gradle-2.10
-        file: dependency-management-plugin/ci/integration-test.yml
-        params:
-          - GRADLE_VERSION: '2.10'
-      - task: gradle-2.11
-        file: dependency-management-plugin/ci/integration-test.yml
-        params:
-          - GRADLE_VERSION: '2.11'
-      - task: gradle-2.12
-        file: dependency-management-plugin/ci/integration-test.yml
-        params:
-          - GRADLE_VERSION: '2.12'
-      - task: gradle-2.13
-        file: dependency-management-plugin/ci/integration-test.yml
-        params:
-          - GRADLE_VERSION: '2.13'
-      - task: gradle-2.14.1
-        file: dependency-management-plugin/ci/integration-test.yml
-        params:
-          - GRADLE_VERSION: '2.14.1'
-
+    - task: build
+      file: dependency-management-plugin/ci/build.yml
   - name: deploy
     public: true
     plan:
     - get: dependency-management-plugin
       passed:
-      - integration-test
+      - build
       trigger: true
     - task: deploy
       file: dependency-management-plugin/ci/deploy.yml
