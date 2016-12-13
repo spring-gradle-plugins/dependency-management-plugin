@@ -20,26 +20,6 @@ jobs:
       - unit-test
       trigger: true
     - aggregate:
-      - task: gradle-2.4
-        file: dependency-management-plugin/ci/integration-test.yml
-        params:
-          - GRADLE_VERSION: '2.4'
-      - task: gradle-2.5
-        file: dependency-management-plugin/ci/integration-test.yml
-        params:
-          - GRADLE_VERSION: '2.5'
-      - task: gradle-2.6
-        file: dependency-management-plugin/ci/integration-test.yml
-        params:
-          - GRADLE_VERSION: '2.6'
-      - task: gradle-2.7
-        file: dependency-management-plugin/ci/integration-test.yml
-        params:
-          - GRADLE_VERSION: '2.7'
-      - task: gradle-2.8
-        file: dependency-management-plugin/ci/integration-test.yml
-        params:
-          - GRADLE_VERSION: '2.8'
       - task: gradle-2.9
         file: dependency-management-plugin/ci/integration-test.yml
         params:
