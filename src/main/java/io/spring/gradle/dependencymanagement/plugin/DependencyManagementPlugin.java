@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.spring.gradle.dependencymanagement;
+package io.spring.gradle.dependencymanagement.plugin;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -29,7 +29,7 @@ import io.spring.gradle.dependencymanagement.internal.bridge.DependencyManagemen
 public class DependencyManagementPlugin implements Plugin<Project> {
 
     @Override
-    public void apply(Project project) {
+    public void apply(final Project project) {
         new DependencyManagementPluginApplier().apply(project);
     }
 

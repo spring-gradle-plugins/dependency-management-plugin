@@ -36,15 +36,14 @@ import io.spring.gradle.dependencymanagement.internal.maven.MavenPomResolver;
 import io.spring.gradle.dependencymanagement.internal.report.DependencyManagementReportTask;
 
 /**
- * Applies the dependency management plugin to a {@link Project}. Bridges from the plugin's public API into its
- * internal components.
+ * Applies the plugin to a project, providing isolation between the plugin's API and its internal classes.
  *
  * @author Andy Wilkinson
  */
 public class DependencyManagementPluginApplier {
 
     /**
-     * Creates a new {@code DependencyManagementPluginApplier} for the given {@code project}.
+     * Applies the plugin to the given {@code project}.
      *
      * @param project the project
      */
@@ -73,12 +72,12 @@ public class DependencyManagementPluginApplier {
         project.getTasks().create("dependencyManagement", DependencyManagementReportTask.class,
                 new Action<DependencyManagementReportTask>() {
 
-            @Override
-            public void execute(DependencyManagementReportTask dependencyManagementReportTask) {
-                dependencyManagementReportTask.setDependencyManagementContainer(dependencyManagementContainer);
-            }
+                    @Override
+                    public void execute(DependencyManagementReportTask dependencyManagementReportTask) {
+                        dependencyManagementReportTask.setDependencyManagementContainer(dependencyManagementContainer);
+                    }
 
-        });
+                });
 
         project.getConfigurations().all(implicitDependencyManagementCollector);
         project.getConfigurations().all(dependencyManagementApplier);
