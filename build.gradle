@@ -14,6 +14,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'com.jfrog.artifactory'
 apply plugin: 'checkstyle'
+apply plugin: 'jacoco'
 
 apply from: 'publish-maven.gradle'
 
@@ -21,6 +22,8 @@ apply plugin: 'org.sonarqube'
 
 sonarqube {
     properties {
+        property 'sonar.jacoco.reportPath', "${buildDir}/jacoco/test.exec"
+        property 'sonar.java.coveragePlugin', 'jacoco'
         property 'sonar.links.homepage', 'https://github.com/spring-gradle-plugins/dependency-management-plugin'
         property 'sonar.links.issue', 'https://github.com/spring-gradle-plugins/dependency-management-plugin/issues'
         property 'sonar.links.scm', 'https://github.com/spring-gradle-plugins/dependency-management-plugin'
@@ -125,6 +128,10 @@ task javadocJar(type: Jar) {
 artifacts {
     archives sourcesJar
     archives javadocJar
+}
+
+jacoco {
+    toolVersion = '0.7.8'
 }
 
 test {
