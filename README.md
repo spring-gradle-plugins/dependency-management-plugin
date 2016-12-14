@@ -9,33 +9,21 @@ poms of your project's dependencies.
 
 ## Requirements
 
- - Gradle 1.x, 2.x (the plugin is tested against 1.12, 2.4 to 2.14 inclusive). Gradle 3 is
-   not supported.
+ - Gradle 2.x (2.9 or later) or Gradle 3.x. Gradle 2.8 and earlier are not supported.
  - Java 6 or later
 
 ## Using the plugin
 
-The plugin is [available from Gradle's plugin portal][3], JCenter, and Maven Central. The latest
-release is `0.6.1.RELEASE`.
+Snapshots are available from https://repo.spring.io/plugins-snapshot and can be used as follows:
 
-With Gradle 2.1 or later, you can use it as follows:
-
-```groovy
-plugins {
-    id "io.spring.dependency-management" version "0.6.1.RELEASE"
-}
-
-```
-
-Alternatively, on earlier versions of Gradle:
 
 ```groovy
 buildscript {
     repositories {
-        jcenter() // or mavenCentral()
+        maven { url 'https://repo.spring.io/plugins-snapshot' }
     }
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.BUILD-SNAPSHOT'
     }
 }
 
@@ -489,7 +477,7 @@ The plugin's support for applying Maven's exclusion semantics can be disabled:
 
 ```groovy
 dependencyManagement {
-    applyMavenExclusions false
+    applyMavenExclusions = false
 }
 ```
 
