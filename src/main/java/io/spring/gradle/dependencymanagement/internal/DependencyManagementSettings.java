@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package io.spring.gradle.dependencymanagement;
+package io.spring.gradle.dependencymanagement.internal;
+
+import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler.IncludeImportedBomAction;
 
 /**
  * Settings that control dependency management behaviour.
@@ -34,7 +36,7 @@ public class DependencyManagementSettings {
      *
      * @return {@code true} if Maven-style exclusions should be applied, otherwise {@code false}
      */
-    public boolean isApplyMavenExclusions() {
+    boolean isApplyMavenExclusions() {
         return this.applyMavenExclusions;
     }
 
@@ -54,7 +56,7 @@ public class DependencyManagementSettings {
      * @return {@code true} if dependency management should be overridden by dependencies' versions, otherwise {@code
      * false}
      */
-    public boolean isOverriddenByDependencies() {
+    boolean isOverriddenByDependencies() {
         return this.overriddenByDependencies;
     }
 
@@ -85,16 +87,19 @@ public class DependencyManagementSettings {
 
         private boolean enabled = true;
 
-        private ImportedBomAction importedBomAction = ImportedBomAction.IMPORT;
+        private IncludeImportedBomAction includeImportedBomAction = IncludeImportedBomAction.IMPORTING;
 
         /**
-         * Set the action that used to configure how an imported bom is applied to a generated pom. The default is
-         * {@code import}. The alternative is {@code copy}.
+         * Sets the action that is used to include imported boms when customizing a pom.
          *
-         * @param importedBomAction the action to apply
+         * @param action the action
          */
-        public void setImportedBomAction(String importedBomAction) {
-            this.importedBomAction = ImportedBomAction.valueOf(importedBomAction.toUpperCase());
+        public void setIncludeImportedBomAction(IncludeImportedBomAction action) {
+            this.includeImportedBomAction = action;
+        }
+
+        IncludeImportedBomAction getIncludeImportedBomAction() {
+            return this.includeImportedBomAction;
         }
 
         /**
@@ -113,32 +118,6 @@ public class DependencyManagementSettings {
          */
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
-        }
-
-        /**
-         * Returns the action that's used to apply an imported bom to a generated pom.
-         *
-         * @return the action
-         */
-        public ImportedBomAction getImportedBomAction() {
-            return this.importedBomAction;
-        }
-
-        /**
-         * An enumeration of how an imported bom should be applied to a generated pom.
-         */
-        public enum ImportedBomAction {
-
-            /**
-             * Import the bom into the generated pom.
-             */
-            IMPORT,
-
-            /**
-             * Copy the bom's dependency management into the generated pom.
-             */
-            COPY;
-
         }
 
     }

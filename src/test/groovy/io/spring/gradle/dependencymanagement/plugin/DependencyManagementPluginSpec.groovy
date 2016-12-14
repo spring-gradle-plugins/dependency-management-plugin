@@ -16,7 +16,7 @@
 
 package io.spring.gradle.dependencymanagement.plugin
 
-import io.spring.gradle.dependencymanagement.DependencyManagementSettings.PomCustomizationSettings.ImportedBomAction
+import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler
 import io.spring.gradle.dependencymanagement.internal.dsl.StandardDependencyManagementExtension
 import org.gradle.api.Action
 import org.gradle.api.GradleException
@@ -75,12 +75,12 @@ public class DependencyManagementPluginSpec extends Specification {
         when: 'Published pom customization is configured to copy imported boms'
             project.dependencyManagement {
                 generatedPomCustomization {
-                    importedBomAction = 'copy'
+                    includeImportedBomsBy 'copying'
                 }
             }
         then: 'The configuration change has taken effect'
             StandardDependencyManagementExtension extension = project.extensions.getByType(StandardDependencyManagementExtension)
-            extension.pomCustomizationSettings.importedBomAction == ImportedBomAction.COPY
+            extension.pomCustomizationSettings.includeImportedBomAction == GeneratedPomCustomizationHandler.IncludeImportedBomAction.COPYING
     }
 
     def "An imported bom can be used to apply dependency management"() {
@@ -959,7 +959,7 @@ public class DependencyManagementPluginSpec extends Specification {
                 imports {
                     mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
                 }
-                applyMavenExclusions false
+                applyMavenExclusions = false
             }
             project.dependencies {
                 compile 'org.springframework:spring-core'

@@ -24,7 +24,7 @@ import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.api.tasks.Upload;
 
-import io.spring.gradle.dependencymanagement.DependencyManagementSettings;
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings;
 import io.spring.gradle.dependencymanagement.PomDependencyManagementConfigurer;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementApplier;

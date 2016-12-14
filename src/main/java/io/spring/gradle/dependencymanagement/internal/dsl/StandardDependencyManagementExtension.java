@@ -26,8 +26,8 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
-import io.spring.gradle.dependencymanagement.DependencyManagementSettings;
-import io.spring.gradle.dependencymanagement.DependencyManagementSettings.PomCustomizationSettings;
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings;
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementConfigurer;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementHandler;
@@ -106,14 +106,16 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
 
     @Override
     public void generatedPomCustomization(Closure closure) {
-        closure.setDelegate(this.dependencyManagementSettings.getPomCustomizationSettings());
+        closure.setDelegate(new StandardGeneratedPomCustomizationHandler(
+                this.dependencyManagementSettings.getPomCustomizationSettings()));
         closure.setResolveStrategy(Closure.DELEGATE_FIRST);
         closure.call();
     }
 
     @Override
     public StandardPomDependencyManagementConfigurer getPomConfigurer() {
-        return new StandardPomDependencyManagementConfigurer(this.dependencyManagementContainer.getGlobalDependencyManagement(),
+        return new StandardPomDependencyManagementConfigurer(
+                this.dependencyManagementContainer.getGlobalDependencyManagement(),
                 this.dependencyManagementSettings.getPomCustomizationSettings());
     }
 
@@ -168,8 +170,8 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
     }
 
     @Override
-    public boolean isApplyMavenExclusions() {
-        return this.dependencyManagementSettings.isApplyMavenExclusions();
+    public void setApplyMavenExclusions(boolean applyMavenExclusions) {
+        this.dependencyManagementSettings.setApplyMavenExclusions(applyMavenExclusions);
     }
 
     @Override
@@ -178,8 +180,8 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
     }
 
     @Override
-    public boolean isOverriddenByDependencies() {
-        return this.dependencyManagementSettings.isOverriddenByDependencies();
+    public void setOverriddenByDependencies(boolean overriddenByDependencies) {
+        this.dependencyManagementSettings.setOverriddenByDependencies(overriddenByDependencies);
     }
 
     @Override

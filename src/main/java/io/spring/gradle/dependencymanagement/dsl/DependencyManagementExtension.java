@@ -19,7 +19,6 @@ package io.spring.gradle.dependencymanagement.dsl;
 import groovy.lang.Closure;
 import org.gradle.api.artifacts.Configuration;
 
-import io.spring.gradle.dependencymanagement.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.PomDependencyManagementConfigurer;
 
 /**
@@ -39,11 +38,10 @@ public interface DependencyManagementExtension extends DependencyManagementConfi
 
     /**
      * Uses the given {@code closure} to configure the customization of generated poms. The closure is called with
-     * a {@link PomCustomizationSettings} as its
-     * delegate.
+     * a {@link GeneratedPomCustomizationHandler} as its delegate.
      *
      * @param closure the closure
-     * @see PomCustomizationSettings
+     * @see GeneratedPomCustomizationHandler
      */
     void generatedPomCustomization(Closure closure);
 
@@ -56,11 +54,12 @@ public interface DependencyManagementExtension extends DependencyManagementConfi
     PomDependencyManagementConfigurer getPomConfigurer();
 
     /**
-     * Whether or not Maven-style exclusions should be applied during dependency resolutions.
+     * Set whether or not Maven-style exclusions should be applied during dependency resolutions.
+     * The default is {@code true}.
      *
-     * @return {@code true} if Maven-style exclusions should be applied, otherwise {@code false}
+     * @param applyMavenExclusions {@code true} if Maven-style exclusions should be applied, otherwise {@code false}
      */
-    boolean isApplyMavenExclusions();
+    void setApplyMavenExclusions(boolean applyMavenExclusions);
 
     /**
      * Set whether or not Maven-style exclusions should be applied during dependency resolutions.
@@ -71,12 +70,13 @@ public interface DependencyManagementExtension extends DependencyManagementConfi
     void applyMavenExclusions(boolean applyMavenExclusions);
 
     /**
-     * Whether or not dependency management should be overridden by versions declared on a project's dependencies.
+     * Set whether dependency management should be overridden by versions declared on a project's dependencies. The
+     * default is {@code true}.
      *
-     * @return {@code true} if dependency management should be overridden by dependencies' versions, otherwise {@code
-     * false}
+     * @param overriddenByDependencies {@code true} if dependency management should be overridden by dependencies'
+     * versions, otherwise {@code false}
      */
-    boolean isOverriddenByDependencies();
+    void setOverriddenByDependencies(boolean overriddenByDependencies);
 
     /**
      * Set whether dependency management should be overridden by versions declared on a project's dependencies. The

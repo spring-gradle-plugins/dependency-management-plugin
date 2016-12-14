@@ -16,11 +16,11 @@
 
 package io.spring.gradle.dependencymanagement.internal.maven
 
+import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler
 import io.spring.gradle.dependencymanagement.internal.StandardPomDependencyManagementConfigurer
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer
-import io.spring.gradle.dependencymanagement.DependencyManagementSettings.PomCustomizationSettings
-import io.spring.gradle.dependencymanagement.DependencyManagementSettings.PomCustomizationSettings.ImportedBomAction
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -103,7 +103,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             PomCustomizationSettings settings = new PomCustomizationSettings()
-            settings.importedBomAction = ImportedBomAction.COPY
+            settings.includeImportedBomAction = GeneratedPomCustomizationHandler.IncludeImportedBomAction.COPYING
             new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement, settings).configurePom(pom)
         then: 'The imported bom has been copied into the pom'
             pom.dependencyManagement.dependencies.dependency.size() == 1
@@ -129,7 +129,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             PomCustomizationSettings settings = new PomCustomizationSettings()
-            settings.importedBomAction = ImportedBomAction.COPY
+            settings.includeImportedBomAction = GeneratedPomCustomizationHandler.IncludeImportedBomAction.COPYING
             new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement, settings).configurePom(pom)
         then: 'The imported boms have been copied in their imported order'
             pom.dependencyManagement.dependencies.dependency.size() == 2

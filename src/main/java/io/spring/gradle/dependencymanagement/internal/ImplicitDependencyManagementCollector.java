@@ -27,8 +27,6 @@ import org.gradle.api.artifacts.ResolvableDependencies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.spring.gradle.dependencymanagement.DependencyManagementSettings;
-
 /**
  * An {@link Action} that adds an implict managed versions to the dependency management for each
  * of the {@link Configuration Configuration's} dependencies that has a version that is not

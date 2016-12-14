@@ -21,8 +21,8 @@ import java.util.List;
 import groovy.util.Node;
 import org.gradle.api.XmlProvider;
 
-import io.spring.gradle.dependencymanagement.DependencyManagementSettings.PomCustomizationSettings;
-import io.spring.gradle.dependencymanagement.DependencyManagementSettings.PomCustomizationSettings.ImportedBomAction;
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
+import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler.IncludeImportedBomAction;
 import io.spring.gradle.dependencymanagement.PomDependencyManagementConfigurer;
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
@@ -116,8 +116,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
     private void configureBomImports(Node dependencies) {
         List<Pom> resolvedBoms = this.dependencyManagement.getImportedBoms();
         for (Pom resolvedBom: resolvedBoms) {
-            if (this.settings.getImportedBomAction()
-                    .equals(ImportedBomAction.IMPORT)) {
+            if (this.settings.getIncludeImportedBomAction().equals(IncludeImportedBomAction.IMPORTING)) {
                 addImport(dependencies, resolvedBom);
             }
             else {

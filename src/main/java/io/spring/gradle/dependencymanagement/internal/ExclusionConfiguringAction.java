@@ -39,7 +39,6 @@ import org.gradle.api.artifacts.result.UnresolvedDependencyResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.spring.gradle.dependencymanagement.DependencyManagementSettings;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer.ConfigurationConfigurer;
 
 /**
