@@ -21,12 +21,12 @@ import java.util.List;
 import groovy.util.Node;
 import org.gradle.api.XmlProvider;
 
-import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler.IncludeImportedBomAction;
-import io.spring.gradle.dependencymanagement.PomDependencyManagementConfigurer;
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
+import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfigurer;
 
 /**
  * Standard implementation of {@link PomDependencyManagementConfigurer}.

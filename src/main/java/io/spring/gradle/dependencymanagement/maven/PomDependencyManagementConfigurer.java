@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package io.spring.gradle.dependencymanagement;
+package io.spring.gradle.dependencymanagement.maven;
 
 import groovy.util.Node;
 import org.gradle.api.Action;
 import org.gradle.api.XmlProvider;
 
 /**
- * A {@code PomDependencyManagementConfigurer} is used to configure the dependency management of a generated Maven pom.
+ * A {@code PomDependencyManagementConfigurer} is used to configure the dependency management of a Gradle-generated
+ * Maven pom.
  *
  * @author Andy Wilkinson
  */
 public interface PomDependencyManagementConfigurer extends Action<XmlProvider> {
 
     /**
-     * Configures the dependency management of the pom that's avilable from the given {@code xmlProvider}.
+     * Configures the dependency management of the pom that's available from the given {@code xmlProvider}.
      *
      * @param xmlProvider the provider of the pom's XML
      */

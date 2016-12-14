@@ -14,23 +14,7 @@
  * limitations under the License.
  */
 
-package io.spring.gradle.dependencymanagement.plugin;
-
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-
-import io.spring.gradle.dependencymanagement.internal.bridge.DependencyManagementPluginApplier;
-
 /**
- * Main class for the dependency management plugin.
- *
- * @author Andy Wilkinson
+ * Classes that work with Gradle's Maven intergration.
  */
-public class DependencyManagementPlugin implements Plugin<Project> {
-
-    @Override
-    public void apply(final Project project) {
-        new DependencyManagementPluginApplier().apply(project);
-    }
-
-}
+package io.spring.gradle.dependencymanagement.maven;

@@ -15,6 +15,6 @@
  */
 
 /**
- * Central classes.
+ * Central plugin classes.
  */
 package io.spring.gradle.dependencymanagement;

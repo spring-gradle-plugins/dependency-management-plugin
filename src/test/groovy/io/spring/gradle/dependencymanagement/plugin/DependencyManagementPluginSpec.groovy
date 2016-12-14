@@ -16,6 +16,7 @@
 
 package io.spring.gradle.dependencymanagement.plugin
 
+import io.spring.gradle.dependencymanagement.DependencyManagementPlugin
 import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler
 import io.spring.gradle.dependencymanagement.internal.dsl.StandardDependencyManagementExtension
 import org.gradle.api.Action
@@ -46,6 +47,13 @@ public class DependencyManagementPluginSpec extends Specification {
             project.apply plugin: 'io.spring.dependency-management'
         then: 'The extension is available'
             project.dependencyManagement
+    }
+
+    def "Plugin provides the dependency management report task"() {
+        when: 'The plugin is applied'
+        project.apply plugin: 'io.spring.dependency-management'
+        then: 'The report task is available'
+        project.tasks.getByName("dependencyManagement")
     }
 
     def "Customization of generated poms can be disabled"() {

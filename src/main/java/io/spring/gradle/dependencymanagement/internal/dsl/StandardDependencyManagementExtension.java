@@ -26,13 +26,13 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
-import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings;
-import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementConfigurer;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings;
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.internal.StandardPomDependencyManagementConfigurer;
 
 /**

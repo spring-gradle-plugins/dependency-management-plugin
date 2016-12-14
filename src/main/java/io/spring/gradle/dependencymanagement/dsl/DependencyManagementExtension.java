@@ -19,7 +19,7 @@ package io.spring.gradle.dependencymanagement.dsl;
 import groovy.lang.Closure;
 import org.gradle.api.artifacts.Configuration;
 
-import io.spring.gradle.dependencymanagement.PomDependencyManagementConfigurer;
+import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfigurer;
 
 /**
  * Extension that provides the entry point to the dependency management plugin's DSL.
