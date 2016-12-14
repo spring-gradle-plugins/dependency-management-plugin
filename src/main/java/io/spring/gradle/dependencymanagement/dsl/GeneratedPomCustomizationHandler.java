@@ -24,25 +24,6 @@ package io.spring.gradle.dependencymanagement.dsl;
 public interface GeneratedPomCustomizationHandler {
 
     /**
-     * Configures how imported boms are included in generated pom.
-     * <p>
-     * A convenience method for {@link #includeImportedBomsBy(IncludeImportedBomAction)} that allows the action to be
-     * expressed as a {@link String}. The action is resolved by calling the {@link
-     * IncludeImportedBomAction#valueOf(String) valueOf(String)} method of {@code IncludeImportedBomAction} with the
-     * {@link String#toUpperCase() upper-cased} string value.
-     *
-     * @param action the action used to include imported boms
-     */
-    void includeImportedBomsBy(String action);
-
-    /**
-     * Configures how imported boms are included in generated pom.
-     *
-     * @param action the action used to include imported boms
-     */
-    void includeImportedBomsBy(IncludeImportedBomAction action);
-
-    /**
      * Sets whether or not customization of generated poms is enabled. Defaults to {@code true}.
      *
      * @param enabled whether or not customization is enabled
@@ -55,22 +36,5 @@ public interface GeneratedPomCustomizationHandler {
      * @param enabled whether or not customization is enabled
      */
     void enabled(boolean enabled);
-
-    /**
-     * An enumeration of how an imported bom should be included in a generated pom.
-     */
-    enum IncludeImportedBomAction {
-
-        /**
-         * Include the bom by importing it into the generated pom.
-         */
-        IMPORTING,
-
-        /**
-         * Include the bom by copying it into the generated pom.
-         */
-        COPYING;
-
-    }
 
 }

@@ -16,11 +16,10 @@
 
 package io.spring.gradle.dependencymanagement.internal.maven
 
-import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler
-import io.spring.gradle.dependencymanagement.internal.StandardPomDependencyManagementConfigurer
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings
+import io.spring.gradle.dependencymanagement.internal.StandardPomDependencyManagementConfigurer
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -47,7 +46,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
                 configurationContainer))
     }
 
-    def "An imported bom can be imported in the pom"() {
+    def "An imported bom is imported in the pom"() {
         given: 'Dependency management that imports a bom'
             this.dependencyManagement.importBom(null, new Coordinates('io.spring.platform', 'platform-bom',
                     '1.0.3.RELEASE'), [:]);
@@ -92,63 +91,6 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
             dependency2.version[0].value() == '1.0'
             dependency2.scope[0].value() == 'import'
             dependency2.type[0].value() == 'pom'
-    }
-
-    def "An imported bom can be copied into the pom"() {
-        given: 'Dependency management that imports a bom'
-            this.project.repositories {
-                maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
-            }
-        this.dependencyManagement.importBom(null, new Coordinates('test', 'alpha-pom-customization-bom', '1.0'), [:])
-        when: 'The pom is configured'
-            Node pom = new XmlParser().parseText("<project></project>")
-            PomCustomizationSettings settings = new PomCustomizationSettings()
-            settings.includeImportedBomAction = GeneratedPomCustomizationHandler.IncludeImportedBomAction.COPYING
-            new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement, settings).configurePom(pom)
-        then: 'The imported bom has been copied into the pom'
-            pom.dependencyManagement.dependencies.dependency.size() == 1
-            def dependency = pom.dependencyManagement.dependencies.dependency[0]
-            dependency.groupId[0].value() == 'alpha'
-            dependency.artifactId[0].value() == 'alpha'
-            dependency.version[0].value() == '1.0'
-            dependency.scope[0].value() == 'runtime'
-            dependency.type[0].value() == 'foo'
-            dependency.exclusions.exclusion.groupId[0].value() == 'commons-logging'
-            dependency.exclusions.exclusion.artifactId[0].value() == 'commons-logging'
-            dependency.exclusions.exclusion.groupId[1].value() == 'foo'
-            dependency.exclusions.exclusion.artifactId[1].value() == 'bar'
-    }
-
-    def "Multiple imports are copied in the order in which they were imported"() {
-        given: 'Dependency management that imports two boms'
-            this.project.repositories {
-                maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
-            }
-        this.dependencyManagement.importBom(null, new Coordinates('test', 'bravo-pom-customization-bom', '1.0'), [:])
-        this.dependencyManagement.importBom(null, new Coordinates('test', 'alpha-pom-customization-bom', '1.0'), [:])
-        when: 'The pom is configured'
-            Node pom = new XmlParser().parseText("<project></project>")
-            PomCustomizationSettings settings = new PomCustomizationSettings()
-            settings.includeImportedBomAction = GeneratedPomCustomizationHandler.IncludeImportedBomAction.COPYING
-            new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement, settings).configurePom(pom)
-        then: 'The imported boms have been copied in their imported order'
-            pom.dependencyManagement.dependencies.dependency.size() == 2
-
-            def dependency1 = pom.dependencyManagement.dependencies.dependency[0]
-            dependency1.groupId[0].value() == 'bravo'
-            dependency1.artifactId[0].value() == 'bravo'
-            dependency1.version[0].value() == '1.0'
-
-            def dependency2 = pom.dependencyManagement.dependencies.dependency[1]
-            dependency2.groupId[0].value() == 'alpha'
-            dependency2.artifactId[0].value() == 'alpha'
-            dependency2.version[0].value() == '1.0'
-            dependency2.scope[0].value() == 'runtime'
-            dependency2.type[0].value() == 'foo'
-            dependency2.exclusions.exclusion.groupId[0].value() == 'commons-logging'
-            dependency2.exclusions.exclusion.artifactId[0].value() == 'commons-logging'
-            dependency2.exclusions.exclusion.groupId[1].value() == 'foo'
-            dependency2.exclusions.exclusion.artifactId[1].value() == 'bar'
     }
 
     def "Customization of published poms can be disabled"() {

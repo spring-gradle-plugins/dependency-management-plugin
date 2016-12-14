@@ -16,8 +16,6 @@
 
 package io.spring.gradle.dependencymanagement.internal;
 
-import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler.IncludeImportedBomAction;
-
 /**
  * Settings that control dependency management behaviour.
  *
@@ -86,21 +84,6 @@ public class DependencyManagementSettings {
     public static final class PomCustomizationSettings {
 
         private boolean enabled = true;
-
-        private IncludeImportedBomAction includeImportedBomAction = IncludeImportedBomAction.IMPORTING;
-
-        /**
-         * Sets the action that is used to include imported boms when customizing a pom.
-         *
-         * @param action the action
-         */
-        public void setIncludeImportedBomAction(IncludeImportedBomAction action) {
-            this.includeImportedBomAction = action;
-        }
-
-        IncludeImportedBomAction getIncludeImportedBomAction() {
-            return this.includeImportedBomAction;
-        }
 
         /**
          * Whether or not pom customization is enabled.

@@ -21,7 +21,6 @@ import java.util.List;
 import groovy.util.Node;
 import org.gradle.api.XmlProvider;
 
-import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler.IncludeImportedBomAction;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
@@ -116,35 +115,12 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
     private void configureBomImports(Node dependencies) {
         List<Pom> resolvedBoms = this.dependencyManagement.getImportedBoms();
         for (Pom resolvedBom: resolvedBoms) {
-            if (this.settings.getIncludeImportedBomAction().equals(IncludeImportedBomAction.IMPORTING)) {
-                addImport(dependencies, resolvedBom);
-            }
-            else {
-                for (Dependency dependency : resolvedBom.getManagedDependencies()) {
-                    addDependency(dependencies, dependency);
-                }
-            }
+            addImport(dependencies, resolvedBom);
         }
     }
 
     private void addImport(Node dependencies, Pom importedBom) {
         appendDependencyNode(dependencies, importedBom.getCoordinates(), "import", "pom");
-    }
-
-    private void addDependency(Node dependencies, Dependency dependencyToAdd) {
-        Coordinates coordinates = dependencyToAdd.getCoordinates();
-        Node dependencyNode = appendDependencyNode(dependencies, coordinates, dependencyToAdd.getScope(),
-                dependencyToAdd.getType());
-        if (dependencyToAdd.getClassifier() != null) {
-            dependencyNode.appendNode(NODE_NAME_CLASSIFIER, dependencyToAdd.getClassifier());
-        }
-        if (dependencyToAdd.getExclusions() != null) {
-            Node exclusionsNode = dependencyNode.appendNode(NODE_NAME_EXCLUSIONS);
-            for (String exclusion : dependencyToAdd.getExclusions()) {
-                addExclusion(exclusionsNode, exclusion);
-            }
-
-        }
     }
 
     private Node appendDependencyNode(Node parent, Coordinates coordinates, String scope,
@@ -162,13 +138,6 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
         return dependencyNode;
     }
 
-    private void addExclusion(Node exclusions, String exclusionToAdd) {
-        Node exclusionNode = exclusions.appendNode(NODE_NAME_EXCLUSION);
-        String[] components = exclusionToAdd.split(":");
-        exclusionNode.appendNode(NODE_NAME_GROUP_ID, components[0]);
-        exclusionNode.appendNode(NODE_NAME_ARTIFACT_ID, components[1]);
-    }
-
     private void configureDependencies(Node dependencies) {
         for (Dependency dependency : this.dependencyManagement
                 .getManagedDependencies()) {
@@ -183,7 +152,6 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
                 }
 
             }
-
         }
     }
 

@@ -533,21 +533,6 @@ Will result in the following `<dependencyManagement>` in the generated pom file:
 </dependencyManagement>
 ```
 
-### Using a bom that is not in Maven Central
-
-In Gradle 2.3 and earlier, pom generation requires any boms referenced in a pom's
-`<dependencyManagement>` section to be available from Maven Central. Publishing will fail if this
-is not the case. To work around this limitation the plugin can be configured to copy a bom into the
-generated pom rather than importing it:
-
-```groovy
-dependencyManagement {
-    generatedPomCustomization {
-        importedBomAction = 'copy'
-    }
-}
-```
-
 ### Disabling the customization of a generated pom
 
 If you prefer to have complete control over your project's generated pom, you can disable
