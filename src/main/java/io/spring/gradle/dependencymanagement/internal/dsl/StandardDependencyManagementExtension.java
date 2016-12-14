@@ -26,9 +26,11 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
+import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementConfigurer;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementHandler;
+import io.spring.gradle.dependencymanagement.dsl.ImportsHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings;
@@ -73,8 +75,18 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
     }
 
     @Override
+    public void imports(Action<ImportsHandler> action) {
+        new StandardDependencyManagementConfigurer(this.dependencyManagementContainer).imports(action);
+    }
+
+    @Override
     public void dependencies(Closure closure) {
         new StandardDependencyManagementConfigurer(this.dependencyManagementContainer).dependencies(closure);
+    }
+
+    @Override
+    public void dependencies(Action<DependenciesHandler> action) {
+        new StandardDependencyManagementConfigurer(this.dependencyManagementContainer).dependencies(action);
     }
 
     @Override

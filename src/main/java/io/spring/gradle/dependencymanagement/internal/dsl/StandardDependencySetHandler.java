@@ -17,8 +17,10 @@
 package io.spring.gradle.dependencymanagement.internal.dsl;
 
 import groovy.lang.Closure;
+import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 
+import io.spring.gradle.dependencymanagement.dsl.DependencyHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencySetHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 
@@ -47,15 +49,28 @@ final class StandardDependencySetHandler implements DependencySetHandler {
 
     @Override
     public void entry(String name) {
-        entry(name, null);
+        entry(name, (Action<DependencyHandler>) null);
     }
 
     @Override
-    public void entry(String name, Closure closure) {
+    public void entry(String name, final Closure closure) {
+        entry(name, new Action<DependencyHandler>() {
+
+            @Override
+            public void execute(DependencyHandler dependencyHandler) {
+                if (closure != null) {
+                    closure.setDelegate(dependencyHandler);
+                    closure.call();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void entry(String name, Action<DependencyHandler> action) {
         StandardDependencyHandler dependencyHandler = new StandardDependencyHandler();
-        if (closure != null) {
-            closure.setDelegate(dependencyHandler);
-            closure.call();
+        if (action != null) {
+            action.execute(dependencyHandler);
         }
         this.dependencyManagementContainer.addManagedVersion(this.configuration, this.group, name, this.version,
                 dependencyHandler.getExclusions());

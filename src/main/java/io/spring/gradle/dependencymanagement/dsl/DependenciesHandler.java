@@ -19,6 +19,7 @@ package io.spring.gradle.dependencymanagement.dsl;
 import java.util.Map;
 
 import groovy.lang.Closure;
+import org.gradle.api.Action;
 
 /**
  * A handler for configuring managed dependencies.
@@ -40,8 +41,18 @@ public interface DependenciesHandler {
     void dependencySet(Map<String, String> setSpecification, Closure closure);
 
     /**
-     * Configures dependency management for the dependency identified by the given {@code id}. The id is a string of the
-     * form {@code group:name:version}.
+     * Configures dependency management for a set of dependencies with the same {@code group} and {@code version}.
+     * Entries are added to the set using the given {@code action}.
+     *
+     * @param setSpecification a map containing the {@code group} and {@code version} of the set of dependencies
+     * @param action the action that will configure the entries
+     * @see DependencySetHandler
+     */
+    void dependencySet(Map<String, String> setSpecification, Action<DependencySetHandler> action);
+
+    /**
+     * Configures dependency management for the dependency identified by the given {@code id}. The id is a string
+     * of the form {@code group:name:version} or a map with {@code group}, {@code name}, and {@code version} entries.
      *
      * @param id the id of the dependency
      */
@@ -49,12 +60,24 @@ public interface DependenciesHandler {
 
     /**
      * Configures dependency management for the dependency identified by the given {@code id} the dependency
-     * management can be further configured using the given {@code closure} that is called with a
-     * {@link DependencyHandler} as its delegate. The id is a string of the form {@code group:name:version}.
+     * management can be further configured using the given {@code closure} that is called with a {@link
+     * DependencyHandler} as its delegate. The id is a string of the form {@code group:name:version} or a map with
+     * {@code group}, {@code name}, and {@code version} entries.
      *
      * @param id the id of the dependency
      * @param closure used to further configure the dependency management
      * @see DependencyHandler
      */
     void dependency(Object id, Closure closure);
+
+    /**
+     * Configures dependency management for the dependency identified by the given {@code id}. The dependency
+     * management can be further configured using the given {@code action}. The id is a string of the form
+     * {@code group:name:version} or a map with {@code group}, {@code name}, and {@code version} entries.
+     *
+     * @param id the id of the dependency
+     * @param action used to further configure the dependency management
+     */
+    void dependency(Object id, Action<DependencyHandler> action);
+
 }

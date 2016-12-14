@@ -18,10 +18,12 @@ package io.spring.gradle.dependencymanagement.internal.dsl;
 
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
 import io.spring.gradle.dependencymanagement.dsl.ImportsHandler;
+import io.spring.gradle.dependencymanagement.dsl.MavenBomHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 
@@ -43,16 +45,29 @@ class StandardImportsHandler extends GroovyObjectSupport implements ImportsHandl
 
     @Override
     public void mavenBom(String coordinates) {
-        this.mavenBom(coordinates, null);
+        this.mavenBom(coordinates, (Action<MavenBomHandler>) null);
     }
 
     @Override
-    public void mavenBom(String coordinates, Closure closure) {
+    public void mavenBom(String coordinates, final Closure closure) {
+        mavenBom(coordinates, new Action<MavenBomHandler>() {
+
+            @Override
+            public void execute(MavenBomHandler mavenBomHandler) {
+                if (closure != null) {
+                    closure.setDelegate(mavenBomHandler);
+                    closure.setResolveStrategy(Closure.DELEGATE_ONLY);
+                    closure.call();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void mavenBom(String coordinates, Action<MavenBomHandler> action) {
         StandardMavenBomHandler mavenBomHandler = new StandardMavenBomHandler();
-        if (closure != null) {
-            closure.setDelegate(mavenBomHandler);
-            closure.setResolveStrategy(Closure.DELEGATE_ONLY);
-            closure.call();
+        if (action != null) {
+            action.execute(mavenBomHandler);
         }
         String[] components = coordinates.split(":");
         if (components.length != 3) {
@@ -61,6 +76,7 @@ class StandardImportsHandler extends GroovyObjectSupport implements ImportsHandl
         this.container.importBom(this.configuration, new Coordinates(components[0], components[1], components[2]),
                 mavenBomHandler.getBomProperties());
     }
+
 
     /**
      * Handlers missing properties by returning the {@link Project} property with the given {@code name}.

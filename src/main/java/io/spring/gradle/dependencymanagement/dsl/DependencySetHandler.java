@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement.dsl;
 
 import groovy.lang.Closure;
+import org.gradle.api.Action;
 
 /**
  * A handler for the configuration of a set of dependencies with a common group and version.
@@ -43,5 +44,14 @@ public interface DependencySetHandler {
      * @see DependencyHandler
      */
     void entry(String name, Closure closure);
+
+    /**
+     * Adds an entry to the set for the dependency with the given {@code name}. The dependency management for the
+     * entry is further configured using the given {@code action}.
+     *
+     * @param name the name of the dependency
+     * @param action used to further configure the dependency management
+     */
+    void entry(String name, Action<DependencyHandler> action);
 
 }

@@ -23,13 +23,15 @@ import java.util.Map;
 import java.util.Set;
 
 import groovy.lang.Closure;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
+import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
+import io.spring.gradle.dependencymanagement.dsl.DependencyHandler;
+import io.spring.gradle.dependencymanagement.dsl.DependencySetHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 
 /**
@@ -55,14 +57,26 @@ class StandardDependenciesHandler implements DependenciesHandler {
     }
 
     @Override
-    public void dependencySet(Map<String, String> setSpecification, Closure closure) {
+    public void dependencySet(Map<String, String> setSpecification, final Closure closure) {
+        dependencySet(setSpecification, new Action<DependencySetHandler>() {
+
+            @Override
+            public void execute(DependencySetHandler dependencySetHandler) {
+                closure.setResolveStrategy(Closure.DELEGATE_FIRST);
+                closure.setDelegate(dependencySetHandler);
+                closure.call();
+            }
+
+        });
+    }
+
+    @Override
+    public void dependencySet(Map<String, String> setSpecification, Action<DependencySetHandler> action) {
         String group = setSpecification.get(KEY_GROUP);
         String version = setSpecification.get(KEY_VERSION);
 
         if (hasText(group) && hasText(version)) {
-            closure.setResolveStrategy(Closure.DELEGATE_FIRST);
-            closure.setDelegate(new StandardDependencySetHandler(group, version, this.container, this.configuration));
-            closure.call();
+            action.execute(new StandardDependencySetHandler(group, version, this.container, this.configuration));
         }
         else {
             throw new GradleException("A dependency set requires both a group and a version");
@@ -75,15 +89,28 @@ class StandardDependenciesHandler implements DependenciesHandler {
 
     @Override
     public void dependency(Object id) {
-        dependency(id, null);
+        dependency(id, (Action<DependencyHandler>) null);
     }
 
     @Override
-    public void dependency(Object id, Closure closure) {
+    public void dependency(Object id, final Closure closure) {
+        dependency(id, new Action<DependencyHandler>() {
+
+            @Override
+            public void execute(DependencyHandler dependencyHandler) {
+                closure.setDelegate(dependencyHandler);
+                closure.call();
+            }
+
+        });
+    }
+
+    @Override
+    public void dependency(Object id, Action<DependencyHandler> action) {
         if (id instanceof CharSequence) {
             String[] components = id.toString().split(":");
             if (components.length == 3) {
-                configureDependency(components[0], components[1], components[2], closure);
+                configureDependency(components[0], components[1], components[2], action);
             }
             else {
                 throw new InvalidUserDataException("Dependency identifier '" + id + "' is malformed. The required form"
@@ -101,7 +128,7 @@ class StandardDependenciesHandler implements DependenciesHandler {
             }
             else {
                 configureDependency(idMap.get(KEY_GROUP).toString(), idMap.get(KEY_NAME).toString(),
-                        idMap.get(KEY_VERSION).toString(), closure);
+                        idMap.get(KEY_VERSION).toString(), action);
             }
         }
     }
@@ -117,13 +144,12 @@ class StandardDependenciesHandler implements DependenciesHandler {
         return output.toString();
     }
 
-    private void configureDependency(String group, String name, String version, Closure closure) {
-        StandardDependencyHandler excludeHandler = new StandardDependencyHandler();
-        if (DefaultGroovyMethods.asBoolean(closure)) {
-            closure.setDelegate(excludeHandler);
-            closure.call();
+    private void configureDependency(String group, String name, String version, Action<DependencyHandler> action) {
+        StandardDependencyHandler dependencyHandler = new StandardDependencyHandler();
+        if (action != null) {
+            action.execute(dependencyHandler);
         }
-        this.container.addManagedVersion(this.configuration, group, name, version, excludeHandler.getExclusions());
+        this.container.addManagedVersion(this.configuration, group, name, version, dependencyHandler.getExclusions());
     }
 
     /**

@@ -19,9 +19,12 @@ package io.spring.gradle.dependencymanagement.internal.dsl;
 import java.util.Map;
 
 import groovy.lang.Closure;
+import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 
+import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementConfigurer;
+import io.spring.gradle.dependencymanagement.dsl.ImportsHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 
 /**
@@ -52,10 +55,20 @@ class StandardDependencyManagementConfigurer implements DependencyManagementConf
     }
 
     @Override
+    public void imports(Action<ImportsHandler> action) {
+        action.execute(new StandardImportsHandler(this.container, this.configuration));
+    }
+
+    @Override
     public void dependencies(Closure closure) {
         closure.setResolveStrategy(Closure.DELEGATE_FIRST);
         closure.setDelegate(new StandardDependenciesHandler(this.container, this.configuration));
         closure.call();
+    }
+
+    @Override
+    public void dependencies(Action<DependenciesHandler> action) {
+        action.execute(new StandardDependenciesHandler(this.container, this.configuration));
     }
 
     @Override

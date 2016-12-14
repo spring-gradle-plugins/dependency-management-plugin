@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement.dsl;
 
 import groovy.lang.Closure;
+import org.gradle.api.Action;
 
 /**
  * Handler for configuring dependency management imports.
@@ -42,5 +43,14 @@ public interface ImportsHandler {
      * @see MavenBomHandler
      */
     void mavenBom(String coordinates, Closure closure);
+
+    /**
+     * Imports the Maven bom with the given {@code coordinates} in the form {@code group:name:version}. The import
+     * is customized using the given {@code action}.
+     *
+     * @param coordinates the bom's coordinates
+     * @param action the action
+     */
+    void mavenBom(String coordinates, Action<MavenBomHandler> action);
 
 }

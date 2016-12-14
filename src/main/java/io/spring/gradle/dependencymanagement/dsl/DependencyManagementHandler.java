@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement.dsl;
 
 import groovy.lang.Closure;
+import org.gradle.api.Action;
 
 /**
  * A handler for configuring dependency management.
@@ -35,6 +36,13 @@ public interface DependencyManagementHandler {
     void imports(Closure closure);
 
     /**
+     * Configures the dependency management imports using the given {@code action}.
+     *
+     * @param action the action to execute to configure the imports
+     */
+    void imports(Action<ImportsHandler> action);
+
+    /**
      * Configures the managed dependencies using the given {@code closure}. The closure is called with
      * {@link DependenciesHandler} as its delegate.
      *
@@ -42,5 +50,12 @@ public interface DependencyManagementHandler {
      * @see DependenciesHandler
      */
     void dependencies(Closure closure);
+
+    /**
+     * Configures the managed dependencies using the given {@code action}.
+     *
+     * @param action the action to execute to configure the dependencies
+     */
+    void dependencies(Action<DependenciesHandler> action);
 
 }

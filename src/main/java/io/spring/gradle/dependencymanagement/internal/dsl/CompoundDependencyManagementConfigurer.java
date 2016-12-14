@@ -19,8 +19,11 @@ package io.spring.gradle.dependencymanagement.internal.dsl;
 import java.util.List;
 
 import groovy.lang.Closure;
+import org.gradle.api.Action;
 
+import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementHandler;
+import io.spring.gradle.dependencymanagement.dsl.ImportsHandler;
 
 /**
  * A dependency management configurer that delegates to one or more {@link DependencyManagementHandler
@@ -44,9 +47,23 @@ class CompoundDependencyManagementConfigurer implements DependencyManagementHand
     }
 
     @Override
-    public void dependencies(final Closure closure) {
+    public void imports(Action<ImportsHandler> action) {
+        for (DependencyManagementHandler delegate: this.delegates) {
+            delegate.imports(action);
+        }
+    }
+
+    @Override
+    public void dependencies(Closure closure) {
         for (DependencyManagementHandler delegate: this.delegates) {
             delegate.dependencies(closure);
+        }
+    }
+
+    @Override
+    public void dependencies(Action<DependenciesHandler> action) {
+        for (DependencyManagementHandler delegate: this.delegates) {
+            delegate.dependencies(action);
         }
     }
 

@@ -39,6 +39,6 @@ public interface DependencyHandler {
      *
      * @param exclusion the exclusion
      */
-    void exclude(Map<String, Object> exclusion);
+    void exclude(Map<String, String> exclusion);
 
 }

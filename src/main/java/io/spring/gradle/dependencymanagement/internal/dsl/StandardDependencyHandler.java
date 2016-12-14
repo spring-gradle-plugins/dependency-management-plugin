@@ -37,7 +37,7 @@ final class StandardDependencyHandler implements DependencyHandler {
     }
 
     @Override
-    public void exclude(Map<String, Object> exclusion) {
+    public void exclude(Map<String, String> exclusion) {
         this.exclusions.add(exclusion.get("group") + ":" + exclusion.get("name"));
     }
 
