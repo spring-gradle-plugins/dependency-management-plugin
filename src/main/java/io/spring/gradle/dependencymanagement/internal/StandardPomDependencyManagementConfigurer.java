@@ -54,8 +54,6 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 
     private static final String NODE_NAME_TYPE = "type";
 
-    private static final String NODE_NAME_CLASSIFIER = "classifier";
-
     private final DependencyManagement dependencyManagement;
 
     private PomCustomizationSettings settings;
