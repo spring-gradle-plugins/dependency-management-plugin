@@ -1,4 +1,20 @@
-package io.spring.gradle.dependencymanagement.plugin
+/*
+ * Copyright 2014-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.spring.gradle.dependencymanagement
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
@@ -8,7 +24,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 /**
- * Tests that verify the plugin's compatibility with various versions of Gradle
+ * Tests that verify the plugin's compatibility with various versions of Gradle.
  */
 class GradleVersionCompatibilitySpec extends Specification {
 
@@ -72,7 +88,6 @@ class GradleVersionCompatibilitySpec extends Specification {
 
         then:
         result.task(":resolve").outcome == TaskOutcome.SUCCESS
-        println result.output
 
         where:
         gradleVersion << ['2.9', '2.10', '2.11', '2.12', '2.13', '2.14', '2.14.1', '3.0', '3.1', '3.2']

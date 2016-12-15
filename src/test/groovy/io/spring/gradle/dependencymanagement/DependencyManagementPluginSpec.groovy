@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package io.spring.gradle.dependencymanagement.plugin
+package io.spring.gradle.dependencymanagement
 
-import io.spring.gradle.dependencymanagement.DependencyManagementPlugin
 import io.spring.gradle.dependencymanagement.internal.dsl.StandardDependencyManagementExtension
 import org.gradle.api.Action
 import org.gradle.api.GradleException

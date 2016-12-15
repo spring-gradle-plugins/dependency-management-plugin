@@ -16,6 +16,8 @@
 
 package io.spring.gradle.dependencymanagement.internal.maven;
 
+import org.gradle.api.Action;
+
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingRequest;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelProblemCollector;
@@ -30,44 +32,44 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.validation.M
 class RelaxedModelValidator extends DefaultModelValidator {
 
     @Override
-    public void validateRawModel(final Model model, final ModelBuildingRequest request,
+    public void validateRawModel(Model model, final ModelBuildingRequest request,
             final ModelProblemCollector problems) {
-        withNoDistributionManagementStatus(model, new Runnable() {
+        withNoDistributionManagementStatus(model, new Action<Model>() {
 
             @Override
-            public void run() {
-                RelaxedModelValidator.super.validateRawModel(model, request, problems);
+            public void execute(Model modifiedModel) {
+                RelaxedModelValidator.super.validateRawModel(modifiedModel, request, problems);
             }
 
         });
     }
 
     @Override
-    public void validateEffectiveModel(final Model model, final ModelBuildingRequest request,
+    public void validateEffectiveModel(Model model, final ModelBuildingRequest request,
             final ModelProblemCollector problems) {
-        withNoDistributionManagementStatus(model, new Runnable() {
+        withNoDistributionManagementStatus(model, new Action<Model>() {
 
             @Override
-            public void run() {
-                RelaxedModelValidator.super.validateEffectiveModel(model, request, problems);
+            public void execute(Model modifiedModel) {
+                RelaxedModelValidator.super.validateEffectiveModel(modifiedModel, request, problems);
             }
 
         });
     }
 
-    private void withNoDistributionManagementStatus(Model model, Runnable runnable) {
+    private void withNoDistributionManagementStatus(Model model, Action<Model> action) {
         if (model.getDistributionManagement() != null) {
             String distributionManagementStatus = model.getDistributionManagement().getStatus();
             model.getDistributionManagement().setStatus(null);
             try {
-                runnable.run();
+                action.execute(model);
             }
             finally {
                 model.getDistributionManagement().setStatus(distributionManagementStatus);
             }
         }
         else {
-            runnable.run();
+            action.execute(model);
         }
     }
 

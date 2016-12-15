@@ -25,8 +25,6 @@ import org.gradle.api.Action;
  * A handler for configuring managed dependencies.
  *
  * @author Andy Wilkinson
- * @see DependencyManagementHandler#dependencies(Closure)
- * @see DependencyManagementHandler#dependencies(Action)
  */
 public interface DependenciesHandler {
 
@@ -52,10 +50,21 @@ public interface DependenciesHandler {
      * DependencyHandler} as its delegate. The id is a string of the form {@code group:name:version}.
      *
      * @param id the id of the dependency
-     * @param closure used to further configure the dependency management
+     * @param closure the closure used to further configure the dependency management
      * @see DependencyHandler
      */
     void dependency(String id, Closure closure);
+
+    /**
+     * Configures dependency management for the dependency identified by the given {@code id}. The dependency
+     * management can be further configured using the given {@code action}. The id is a string of the form
+     * {@code group:name:version} or a map with {@code group}, {@code name}, and {@code version} entries.
+     *
+     * @param id the id of the dependency
+     * @param action the action used to further configure the dependency management
+     * @see DependencyHandler
+     */
+    void dependency(String id, Action<DependencyHandler> action);
 
     /**
      * Configures dependency management for the dependency identified by the given {@code id}. The dependency
@@ -64,21 +73,10 @@ public interface DependenciesHandler {
      * entries.
      *
      * @param id the id of the dependency
-     * @param closure used to further configure the dependency management
+     * @param closure the closure used to further configure the dependency management
      * @see DependencyHandler
      */
     void dependency(Map<String, String> id, Closure closure);
-
-    /**
-     * Configures dependency management for the dependency identified by the given {@code id}. The dependency
-     * management can be further configured using the given {@code action}. The id is a string of the form
-     * {@code group:name:version} or a map with {@code group}, {@code name}, and {@code version} entries.
-     *
-     * @param id the id of the dependency
-     * @param action used to further configure the dependency management
-     * @see DependencyHandler
-     */
-    void dependency(String id, Action<DependencyHandler> action);
 
     /**
      * Configures dependency management for the dependency identified by the given {@code id}. The dependency
@@ -86,7 +84,7 @@ public interface DependenciesHandler {
      * {@code name}, and {@code version} entries.
      *
      * @param id the id of the dependency
-     * @param action used to further configure the dependency management
+     * @param action the action used to further configure the dependency management
      * @see DependencyHandler
      */
     void dependency(Map<String, String> id, Action<DependencyHandler> action);
@@ -96,8 +94,8 @@ public interface DependenciesHandler {
      * as specified by the given {@code setId}. The id is a string of the form {@code group:version}. Entries are added
      * to the set using the given {@code closure} that is called with a {@link DependencySetHandler} as its delegate.
      *
-     * @param setId the id ({@code group:version}) of the set
-     * @param closure used to configure the entries
+     * @param setId the id of the set
+     * @param closure the closure used to configure the entries
      * @see DependencySetHandler
      */
     void dependencySet(String setId, Closure closure);
@@ -107,8 +105,8 @@ public interface DependenciesHandler {
      * as specified by the given {@code setId}. The id is a string of the form {@code group:version}. Entries are added
      * to the set using the given {@code action}.
      *
-     * @param setId the id ({@code group:version}) of the set
-     * @param action used to configure the entries
+     * @param setId the id of the set
+     * @param action the action used to configure the entries
      * @see DependencySetHandler
      */
     void dependencySet(String setId, Action<DependencySetHandler> action);
@@ -120,7 +118,7 @@ public interface DependenciesHandler {
      * delegate.
      *
      * @param setId a map containing the {@code group} and {@code version} of the set of dependencies
-     * @param closure used to configure the entries
+     * @param closure the closure used to configure the entries
      * @see DependencySetHandler
      */
     void dependencySet(Map<String, String> setId, Closure closure);
@@ -131,7 +129,7 @@ public interface DependenciesHandler {
      * are added to the set using the given {@code action}.
      *
      * @param setId a map containing the {@code group} and {@code version} of the set of dependencies
-     * @param action used to configure the entries
+     * @param action the action used to configure the entries
      * @see DependencySetHandler
      */
     void dependencySet(Map<String, String> setId, Action<DependencySetHandler> action);
