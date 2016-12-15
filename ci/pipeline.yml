@@ -3,7 +3,7 @@ resources:
     type: git
     source:
       uri: https://github.com/spring-gradle-plugins/dependency-management-plugin
-      branch: master
+      branch: 0.6.x
 jobs:
   - name: unit-test
     public: true
