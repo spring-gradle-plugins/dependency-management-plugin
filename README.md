@@ -14,21 +14,16 @@ poms of your project's dependencies.
 
 ## Using the plugin
 
-Snapshots are available from https://repo.spring.io/plugins-snapshot and can be used as follows:
-
+The plugin is available in the Gradle Plugin Portal and can be applied like this:
 
 ```groovy
-buildscript {
-    repositories {
-        maven { url 'https://repo.spring.io/plugins-snapshot' }
-    }
-    dependencies {
-        classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.BUILD-SNAPSHOT'
-    }
+plugins {
+    id "io.spring.dependency-management" version "1.0.0.RC1"
 }
-
-apply plugin: "io.spring.dependency-management"
 ```
+
+If you prefer, the plugin is also available from Maven Central and JCenter and snapshots are
+available from https://repo.spring.io/plugins-snapshot.
 
 With this basic configuration in place, you're ready to configure the project's dependency
 management and declare its dependencies.
