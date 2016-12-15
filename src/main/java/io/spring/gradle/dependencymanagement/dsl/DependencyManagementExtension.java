@@ -16,6 +16,8 @@
 
 package io.spring.gradle.dependencymanagement.dsl;
 
+import java.util.Map;
+
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
@@ -104,5 +106,23 @@ public interface DependencyManagementExtension extends DependencyManagementHandl
      * versions, otherwise {@code false}
      */
     void overriddenByDependencies(boolean overriddenByDependencies);
+
+    /**
+     * Returns a map of the managed versions for a specific {@link Configuration}, ignoring its hierarchy. The key-value
+     * pairs in the map have the form {@code group:name = version}.
+     *
+     * @param configuration the configuration
+     * @return the managed versions for the configuration
+     */
+    Map<String, String> getManagedVersionsForConfiguration(Configuration configuration);
+
+    /**
+     * Returns a map of the managed versions for a specific {@link Configuration}, including its hierarchy. The key-value
+     * pairs in the map have the form {@code group:name = version}.
+     *
+     * @param configuration the configuration
+     * @return the managed versions for the configuration hierarchy
+     */
+    Map<String, String> getManagedVersionsForConfigurationHierarchy(Configuration configuration);
 
 }

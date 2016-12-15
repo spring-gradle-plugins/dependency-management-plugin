@@ -102,8 +102,13 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
     }
 
     @Override
-    public Map<String, String> getOwnManagedVersions() {
-        return this.dependencyManagementContainer.getManagedVersionsForConfiguration(null, false);
+    public Map<String, String> getManagedVersionsForConfiguration(Configuration configuration) {
+        return this.dependencyManagementContainer.getManagedVersionsForConfiguration(configuration, false);
+    }
+
+    @Override
+    public Map<String, String> getManagedVersionsForConfigurationHierarchy(Configuration configuration) {
+        return this.dependencyManagementContainer.getManagedVersionsForConfiguration(configuration, true);
     }
 
     @Override

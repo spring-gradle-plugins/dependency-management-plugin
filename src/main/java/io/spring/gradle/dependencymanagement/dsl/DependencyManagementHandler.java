@@ -33,19 +33,12 @@ public interface DependencyManagementHandler extends DependencyManagementConfigu
     Map<String, String> getImportedProperties();
 
     /**
-     * Returns a map of the managed versions for the configuration hierarchy. The key-value pairs in the map have the
-     * form {@code group:name = version}.
+     * Returns a map of the managed versions for the configuration associated with this handler. The entire {@link
+     * org.gradle.api.artifacts.Configuration#getHierarchy()} configuration hierarchy} is considered. The key-value
+     * pairs in the map have the form {@code group:name = version}.
      *
      * @return the managed versions
      */
     Map<String, String> getManagedVersions();
-
-    /**
-     * Returns the managed versions for the individual configuration. The key-value pairs in the map have the form
-     * {@code group:name = version}.
-     *
-     * @return the managed versions
-     */
-    Map<String, String> getOwnManagedVersions();
 
 }

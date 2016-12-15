@@ -1061,7 +1061,9 @@ public class DependencyManagementPluginSpec extends Specification {
             }
         then: "The configuration's own managed versions do not include inherited versions"
             '4.1.8.RELEASE' == project.dependencyManagement.runtime.managedVersions['org.springframework:spring-core']
-            null == project.dependencyManagement.runtime.ownManagedVersions['org.springframework:spring-core']
+            def managedVersions = project.dependencyManagement
+                    .getManagedVersionsForConfiguration(project.configurations.runtime)
+            null == managedVersions['org.springframework:spring-core']
     }
 
     def "A dependency with a missing component in its string identifier produces a helpful error" () {

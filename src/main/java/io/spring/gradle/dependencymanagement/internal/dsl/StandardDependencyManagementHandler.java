@@ -78,16 +78,7 @@ class StandardDependencyManagementHandler implements DependencyManagementHandler
 
     @Override
     public Map<String, String> getManagedVersions() {
-        return managedVersions(true);
-    }
-
-    @Override
-    public Map<String, String> getOwnManagedVersions() {
-        return managedVersions(false);
-    }
-
-    private Map<String, String> managedVersions(boolean inherited) {
-        return this.container.getManagedVersionsForConfiguration(this.configuration, inherited);
+        return this.container.getManagedVersionsForConfiguration(this.configuration);
     }
 
 }
