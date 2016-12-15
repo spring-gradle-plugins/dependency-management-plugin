@@ -4,6 +4,7 @@
 
     <allow pkg=".*" regex="true"/>
     <disallow pkg="io.spring.gradle.dependencymanagement.internal.*" regex="true"/>
+    <disallow pkg="org.gradle.api.internal.*" regex="true"/>
     <allow pkg="io.spring.gradle.dependencymanagement.internal.bridge.*" regex="true"/>
 
     <subpackage name="internal">

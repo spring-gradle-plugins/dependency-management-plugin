@@ -28,7 +28,6 @@ import org.gradle.api.GradleException;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.internal.ClosureBackedAction;
 
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencyHandler;
@@ -69,7 +68,7 @@ class StandardDependenciesHandler implements DependenciesHandler {
 
     @Override
     public void dependency(String id, Closure closure) {
-        dependency(id, new ClosureBackedAction<DependencyHandler>(closure, Closure.OWNER_FIRST));
+        dependency(id, new ClosureBackedAction<DependencyHandler>(closure));
     }
 
     @Override
@@ -84,7 +83,7 @@ class StandardDependenciesHandler implements DependenciesHandler {
 
     @Override
     public void dependency(Map<String, String> id, Closure closure) {
-        dependency(id, new ClosureBackedAction<DependencyHandler>(closure, Closure.OWNER_FIRST));
+        dependency(id, new ClosureBackedAction<DependencyHandler>(closure));
     }
 
     @Override
@@ -100,7 +99,7 @@ class StandardDependenciesHandler implements DependenciesHandler {
 
     @Override
     public void dependencySet(String setId, Closure closure) {
-        dependencySet(setId, new ClosureBackedAction<DependencySetHandler>(closure, Closure.DELEGATE_FIRST));
+        dependencySet(setId, new ClosureBackedAction<DependencySetHandler>(closure));
     }
 
     @Override
@@ -115,7 +114,7 @@ class StandardDependenciesHandler implements DependenciesHandler {
 
     @Override
     public void dependencySet(Map<String, String> setSpecification, Closure closure) {
-        dependencySet(setSpecification, new ClosureBackedAction<DependencySetHandler>(closure, Closure.DELEGATE_FIRST));
+        dependencySet(setSpecification, new ClosureBackedAction<DependencySetHandler>(closure));
     }
 
     @Override

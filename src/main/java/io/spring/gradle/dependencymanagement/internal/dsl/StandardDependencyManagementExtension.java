@@ -26,7 +26,6 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolutionStrategy;
-import org.gradle.api.internal.ClosureBackedAction;
 
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementConfigurer;
@@ -112,6 +111,7 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
         resolutionStrategy(new ClosureBackedAction<ResolutionStrategy>(closure));
     }
 
+    @Override
     public void resolutionStrategy(final Action<ResolutionStrategy> action) {
         this.configurationContainer.apply(new Action<Configuration>() {
 
@@ -125,8 +125,7 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
 
     @Override
     public void generatedPomCustomization(Closure closure) {
-        generatedPomCustomization(new ClosureBackedAction<GeneratedPomCustomizationHandler>(closure,
-                Closure.DELEGATE_FIRST));
+        generatedPomCustomization(new ClosureBackedAction<GeneratedPomCustomizationHandler>(closure));
     }
 
     @Override
