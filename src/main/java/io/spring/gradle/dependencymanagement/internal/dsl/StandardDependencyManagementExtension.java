@@ -25,11 +25,14 @@ import groovy.lang.GroovyObjectSupport;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ResolutionStrategy;
+import org.gradle.api.internal.ClosureBackedAction;
 
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementConfigurer;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementHandler;
+import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler;
 import io.spring.gradle.dependencymanagement.dsl.ImportsHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
@@ -105,12 +108,16 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
     }
 
     @Override
-    public void resolutionStrategy(final Closure closure) {
+    public void resolutionStrategy(Closure closure) {
+        resolutionStrategy(new ClosureBackedAction<ResolutionStrategy>(closure));
+    }
+
+    public void resolutionStrategy(final Action<ResolutionStrategy> action) {
         this.configurationContainer.apply(new Action<Configuration>() {
 
             @Override
             public void execute(Configuration configuration) {
-                configuration.resolutionStrategy(closure);
+                action.execute(configuration.getResolutionStrategy());
             }
 
         });
@@ -118,10 +125,14 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
 
     @Override
     public void generatedPomCustomization(Closure closure) {
-        closure.setDelegate(new StandardGeneratedPomCustomizationHandler(
+        generatedPomCustomization(new ClosureBackedAction<GeneratedPomCustomizationHandler>(closure,
+                Closure.DELEGATE_FIRST));
+    }
+
+    @Override
+    public void generatedPomCustomization(Action<GeneratedPomCustomizationHandler> action) {
+        action.execute(new StandardGeneratedPomCustomizationHandler(
                 this.dependencyManagementSettings.getPomCustomizationSettings()));
-        closure.setResolveStrategy(Closure.DELEGATE_FIRST);
-        closure.call();
     }
 
     @Override

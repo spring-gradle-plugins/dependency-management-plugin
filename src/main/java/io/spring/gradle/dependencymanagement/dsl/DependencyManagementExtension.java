@@ -17,7 +17,9 @@
 package io.spring.gradle.dependencymanagement.dsl;
 
 import groovy.lang.Closure;
+import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ResolutionStrategy;
 
 import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfigurer;
 
@@ -37,6 +39,14 @@ public interface DependencyManagementExtension extends DependencyManagementConfi
     void resolutionStrategy(Closure closure);
 
     /**
+     * Configures the resolution strategy of all dependency management-related {@link Configuration Configurations}
+     * using the given {@code action}.
+     *
+     * @param action the action that will configure the resolution strategies
+     */
+    void resolutionStrategy(Action<ResolutionStrategy> action);
+
+    /**
      * Uses the given {@code closure} to configure the customization of generated poms. The closure is called with
      * a {@link GeneratedPomCustomizationHandler} as its delegate.
      *
@@ -44,6 +54,14 @@ public interface DependencyManagementExtension extends DependencyManagementConfi
      * @see GeneratedPomCustomizationHandler
      */
     void generatedPomCustomization(Closure closure);
+
+    /**
+     * Uses the given {@code action} to configure the customization of generated poms.
+     *
+     * @param action the action
+     * @see GeneratedPomCustomizationHandler
+     */
+    void generatedPomCustomization(Action<GeneratedPomCustomizationHandler> action);
 
     /**
      * Provides access to the {@link PomDependencyManagementConfigurer} that can be used to configure dependency
