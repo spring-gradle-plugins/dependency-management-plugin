@@ -1267,4 +1267,28 @@ public class DependencyManagementPluginSpec extends Specification {
                     'spring-core-4.0.3.RELEASE.jar',
                     'unresolvable-transitive-dependency-1.0.jar'])
     }
+
+    def 'Dependency management being overridden by dependencies can be disabled'() {
+        given: 'A project with dependency management and a dependency that overrides it'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+            project.dependencyManagement {
+                dependencies {
+                    dependency('org.springframework:spring-core:4.0.3.RELEASE') {
+                        exclude 'commons-logging:commons-logging'
+                    }
+                }
+            }
+            project.dependencies {
+                compile 'org.springframework:spring-core:4.0.4.RELEASE'
+            }
+        when: 'Dependency management is not overridden by dependencies'
+            project.dependencyManagement {
+                overriddenByDependencies = false
+            }
+        then: 'The managed version takes priority'
+            def files = project.configurations.compile.resolve()
+            files.collect { it.name }.containsAll(['spring-core-4.0.3.RELEASE.jar'])
+    }
+
 }
