@@ -22,8 +22,6 @@ import java.util.Map;
  * A handler for configuring a managed dependency.
  *
  * @author Andy Wilkinson
- * @see DependencySetHandler#entry(String, groovy.lang.Closure)
- * @see DependenciesHandler#dependency(Object, groovy.lang.Closure)
  */
 public interface DependencyHandler {
 

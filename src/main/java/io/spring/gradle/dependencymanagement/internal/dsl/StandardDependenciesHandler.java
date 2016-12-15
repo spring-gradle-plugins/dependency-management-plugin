@@ -28,6 +28,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.internal.ClosureBackedAction;
 
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencyHandler;
@@ -57,17 +58,64 @@ class StandardDependenciesHandler implements DependenciesHandler {
     }
 
     @Override
-    public void dependencySet(Map<String, String> setSpecification, final Closure closure) {
-        dependencySet(setSpecification, new Action<DependencySetHandler>() {
+    public void dependency(String id) {
+        dependency(id, (Action<DependencyHandler>) null);
+    }
 
-            @Override
-            public void execute(DependencySetHandler dependencySetHandler) {
-                closure.setResolveStrategy(Closure.DELEGATE_FIRST);
-                closure.setDelegate(dependencySetHandler);
-                closure.call();
-            }
+    @Override
+    public void dependency(Map<String, String> id) {
+        dependency(id, (Action<DependencyHandler>) null);
+    }
 
-        });
+    @Override
+    public void dependency(String id, Closure closure) {
+        dependency(id, new ClosureBackedAction<DependencyHandler>(closure, Closure.OWNER_FIRST));
+    }
+
+    @Override
+    public void dependency(String id, Action<DependencyHandler> action) {
+        String[] components = id.toString().split(":");
+        if (components.length != 3) {
+            throw new InvalidUserDataException("Dependency identifier '" + id + "' is malformed. The required form is"
+                    + " 'group:name:version'");
+        }
+        configureDependency(components[0], components[1], components[2], action);
+    }
+
+    @Override
+    public void dependency(Map<String, String> id, Closure closure) {
+        dependency(id, new ClosureBackedAction<DependencyHandler>(closure, Closure.OWNER_FIRST));
+    }
+
+    @Override
+    public void dependency(Map<String, String> id, Action<DependencyHandler> action) {
+        Set<String> missingAttributes = new LinkedHashSet<String>(Arrays.asList(KEY_GROUP, KEY_NAME, KEY_VERSION));
+        missingAttributes.removeAll(id.keySet());
+        if (!missingAttributes.isEmpty()) {
+            throw new InvalidUserDataException("Dependency identifier '" + id + "' did not specify " +
+                    toCommaSeparatedString(missingAttributes));
+        }
+        configureDependency(id.get(KEY_GROUP), id.get(KEY_NAME), id.get(KEY_VERSION), action);
+    }
+
+    @Override
+    public void dependencySet(String setId, Closure closure) {
+        dependencySet(setId, new ClosureBackedAction<DependencySetHandler>(closure, Closure.DELEGATE_FIRST));
+    }
+
+    @Override
+    public void dependencySet(String setId, Action<DependencySetHandler> action) {
+        String[] components = setId.toString().split(":");
+        if (components.length != 2) {
+            throw new InvalidUserDataException("Dependency set identifier '" + setId + "' is malformed. The required "
+                    + " form is 'group:name:version'");
+        }
+        configureDependencySet(components[0], components[1], action);
+    }
+
+    @Override
+    public void dependencySet(Map<String, String> setSpecification, Closure closure) {
+        dependencySet(setSpecification, new ClosureBackedAction<DependencySetHandler>(closure, Closure.DELEGATE_FIRST));
     }
 
     @Override
@@ -75,62 +123,18 @@ class StandardDependenciesHandler implements DependenciesHandler {
         String group = setSpecification.get(KEY_GROUP);
         String version = setSpecification.get(KEY_VERSION);
 
-        if (hasText(group) && hasText(version)) {
-            action.execute(new StandardDependencySetHandler(group, version, this.container, this.configuration));
-        }
-        else {
+        if (!hasText(group) || !hasText(version)) {
             throw new GradleException("A dependency set requires both a group and a version");
         }
+        configureDependencySet(group, version, action);
+    }
+
+    private void configureDependencySet(String group, String version, Action<DependencySetHandler> action) {
+        action.execute(new StandardDependencySetHandler(group, version, this.container, this.configuration));
     }
 
     private boolean hasText(String string) {
         return string != null && string.trim().length() > 0;
-    }
-
-    @Override
-    public void dependency(Object id) {
-        dependency(id, (Action<DependencyHandler>) null);
-    }
-
-    @Override
-    public void dependency(Object id, final Closure closure) {
-        dependency(id, new Action<DependencyHandler>() {
-
-            @Override
-            public void execute(DependencyHandler dependencyHandler) {
-                closure.setDelegate(dependencyHandler);
-                closure.call();
-            }
-
-        });
-    }
-
-    @Override
-    public void dependency(Object id, Action<DependencyHandler> action) {
-        if (id instanceof CharSequence) {
-            String[] components = id.toString().split(":");
-            if (components.length == 3) {
-                configureDependency(components[0], components[1], components[2], action);
-            }
-            else {
-                throw new InvalidUserDataException("Dependency identifier '" + id + "' is malformed. The required form"
-                        +  " is 'group:name:version'");
-            }
-        }
-        else {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> idMap = (Map<String, Object>) id;
-            Set<String> missingAttributes = new LinkedHashSet<String>(Arrays.asList(KEY_GROUP, KEY_NAME, KEY_VERSION));
-            missingAttributes.removeAll(idMap.keySet());
-            if (!missingAttributes.isEmpty()) {
-                throw new InvalidUserDataException("Dependency identifier '" + id + "' did not specify " +
-                        toCommaSeparatedString(missingAttributes));
-            }
-            else {
-                configureDependency(idMap.get(KEY_GROUP).toString(), idMap.get(KEY_NAME).toString(),
-                        idMap.get(KEY_VERSION).toString(), action);
-            }
-        }
     }
 
     private String toCommaSeparatedString(Collection<String> items) {
