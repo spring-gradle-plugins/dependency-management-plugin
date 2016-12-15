@@ -22,47 +22,47 @@ import groovy.lang.Closure;
 import org.gradle.api.Action;
 
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
-import io.spring.gradle.dependencymanagement.dsl.DependencyManagementHandler;
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementConfigurer;
 import io.spring.gradle.dependencymanagement.dsl.ImportsHandler;
 
 /**
- * A dependency management configurer that delegates to one or more {@link DependencyManagementHandler
- * DependencyManagementConfigurers}.
+ * A {@link DependencyManagementConfigurer} that delegates to one or more {@code DependencyManagementConfigurers}
+ * allowing the dependency management for multiple configurations to be configured simultaneously.
  *
  * @author Andy Wilkinson
  */
-class CompoundDependencyManagementConfigurer implements DependencyManagementHandler {
+class CompoundDependencyManagementConfigurer implements DependencyManagementConfigurer {
 
-    private final List<DependencyManagementHandler> delegates;
+    private final List<DependencyManagementConfigurer> delegates;
 
-    CompoundDependencyManagementConfigurer(List<DependencyManagementHandler> delegates) {
+    CompoundDependencyManagementConfigurer(List<DependencyManagementConfigurer> delegates) {
         this.delegates = delegates;
     }
 
     @Override
     public void imports(Closure closure) {
-        for (DependencyManagementHandler delegate: this.delegates) {
+        for (DependencyManagementConfigurer delegate: this.delegates) {
             delegate.imports(closure);
         }
     }
 
     @Override
     public void imports(Action<ImportsHandler> action) {
-        for (DependencyManagementHandler delegate: this.delegates) {
+        for (DependencyManagementConfigurer delegate: this.delegates) {
             delegate.imports(action);
         }
     }
 
     @Override
     public void dependencies(Closure closure) {
-        for (DependencyManagementHandler delegate: this.delegates) {
+        for (DependencyManagementConfigurer delegate: this.delegates) {
             delegate.dependencies(closure);
         }
     }
 
     @Override
     public void dependencies(Action<DependenciesHandler> action) {
-        for (DependencyManagementHandler delegate: this.delegates) {
+        for (DependencyManagementConfigurer delegate: this.delegates) {
             delegate.dependencies(action);
         }
     }

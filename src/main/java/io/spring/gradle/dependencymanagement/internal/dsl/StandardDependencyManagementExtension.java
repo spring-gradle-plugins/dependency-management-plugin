@@ -73,22 +73,22 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
 
     @Override
     public void imports(Closure closure) {
-        new StandardDependencyManagementConfigurer(this.dependencyManagementContainer).imports(closure);
+        new StandardDependencyManagementHandler(this.dependencyManagementContainer).imports(closure);
     }
 
     @Override
     public void imports(Action<ImportsHandler> action) {
-        new StandardDependencyManagementConfigurer(this.dependencyManagementContainer).imports(action);
+        new StandardDependencyManagementHandler(this.dependencyManagementContainer).imports(action);
     }
 
     @Override
     public void dependencies(Closure closure) {
-        new StandardDependencyManagementConfigurer(this.dependencyManagementContainer).dependencies(closure);
+        new StandardDependencyManagementHandler(this.dependencyManagementContainer).dependencies(closure);
     }
 
     @Override
     public void dependencies(Action<DependenciesHandler> action) {
-        new StandardDependencyManagementConfigurer(this.dependencyManagementContainer).dependencies(action);
+        new StandardDependencyManagementHandler(this.dependencyManagementContainer).dependencies(action);
     }
 
     @Override
@@ -159,35 +159,35 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
         else {
             Configuration configuration = this.project.getConfigurations().getAt(name);
             closure = (Closure) argsArray[0];
-            closure.setDelegate(new StandardDependencyManagementConfigurer(this.dependencyManagementContainer, configuration));
+            closure.setDelegate(new StandardDependencyManagementHandler(this.dependencyManagementContainer, configuration));
         }
         closure.setResolveStrategy(Closure.DELEGATE_ONLY);
         return closure.call();
     }
 
-    private List<DependencyManagementHandler> extractConfigurers(Object[] objects) {
-        List<DependencyManagementHandler> configurers = new ArrayList<DependencyManagementHandler>();
+    private List<DependencyManagementConfigurer> extractConfigurers(Object[] objects) {
+        List<DependencyManagementConfigurer> configurers = new ArrayList<DependencyManagementConfigurer>();
         for (Object object: objects) {
-            if (object instanceof DependencyManagementHandler) {
-                configurers.add((DependencyManagementHandler) object);
+            if (object instanceof DependencyManagementConfigurer) {
+                configurers.add((DependencyManagementConfigurer) object);
             }
         }
         return configurers;
     }
 
     /**
-     * Handles missing properties by returning a {@link DependencyManagementConfigurer} for the configuration identified
+     * Handles missing properties by returning a {@link DependencyManagementHandler} for the configuration identified
      * by {@code name}.
      *
      * @param name the name of the configuration
-     * @return the {@code DependencyManagementConfigurer} for the configuration
+     * @return the {@code DependencyManagementHandler} for the configuration
      */
     public Object propertyMissing(String name) {
         return forConfiguration(name);
     }
 
-    private DependencyManagementConfigurer forConfiguration(String name) {
-        return new StandardDependencyManagementConfigurer(this.dependencyManagementContainer,
+    private DependencyManagementHandler forConfiguration(String name) {
+        return new StandardDependencyManagementHandler(this.dependencyManagementContainer,
                 this.project.getConfigurations().getAt(name));
     }
 

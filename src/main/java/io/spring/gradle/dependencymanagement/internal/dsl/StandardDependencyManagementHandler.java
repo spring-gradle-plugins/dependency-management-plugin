@@ -23,26 +23,26 @@ import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
-import io.spring.gradle.dependencymanagement.dsl.DependencyManagementConfigurer;
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementHandler;
 import io.spring.gradle.dependencymanagement.dsl.ImportsHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 
 /**
- * Standard implementation of {@link DependencyManagementConfigurer}.
+ * Standard implementation of {@link DependencyManagementHandler}.
  *
  * @author Andy Wilkinson
  */
-class StandardDependencyManagementConfigurer implements DependencyManagementConfigurer {
+class StandardDependencyManagementHandler implements DependencyManagementHandler {
 
     private final DependencyManagementContainer container;
 
     private final Configuration configuration;
 
-    StandardDependencyManagementConfigurer(DependencyManagementContainer container) {
+    StandardDependencyManagementHandler(DependencyManagementContainer container) {
         this(container, null);
     }
 
-    StandardDependencyManagementConfigurer(DependencyManagementContainer container, Configuration configuration) {
+    StandardDependencyManagementHandler(DependencyManagementContainer container, Configuration configuration) {
         this.container = container;
         this.configuration = configuration;
     }

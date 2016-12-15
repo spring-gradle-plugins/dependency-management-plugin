@@ -16,37 +16,46 @@
 
 package io.spring.gradle.dependencymanagement.dsl;
 
-import java.util.Map;
+import groovy.lang.Closure;
+import org.gradle.api.Action;
 
 /**
- * A {@code DependencyManagementConfigurer} handles dependency management that is either specific to a configuration or
- * global.
+ * A {@code DependencyManagementConfigurer} provides methods for configuring dependency management.
  *
  * @author Andy Wilkinson
  */
-public interface DependencyManagementConfigurer extends DependencyManagementHandler {
+public interface DependencyManagementConfigurer {
 
     /**
-     * Returns the properties from any imported boms.
+     * Configures the dependency management imports using the given {@code closure}. The closure is called with an
+     * {@link ImportsHandler} as its delegate.
      *
-     * @return the imported properties
+     * @param closure the closure to execute to configure the imports
+     * @see ImportsHandler
      */
-    Map<String, String> getImportedProperties();
+    void imports(Closure closure);
 
     /**
-     * Returns a map of the managed versions for the configuration hierarchy. The key-value pairs in the map have the
-     * form {@code group:name = version}.
+     * Configures the dependency management imports using the given {@code action}.
      *
-     * @return the managed versions
+     * @param action the action to execute to configure the imports
      */
-    Map<String, String> getManagedVersions();
+    void imports(Action<ImportsHandler> action);
 
     /**
-     * Returns the managed versions for the individual configuration. The key-value pairs in the map have the form
-     * {@code group:name = version}.
+     * Configures the managed dependencies using the given {@code closure}. The closure is called with
+     * {@link DependenciesHandler} as its delegate.
      *
-     * @return the managed versions
+     * @param closure the closure to execute to configure the dependencies
+     * @see DependenciesHandler
      */
-    Map<String, String> getOwnManagedVersions();
+    void dependencies(Closure closure);
+
+    /**
+     * Configures the managed dependencies using the given {@code action}.
+     *
+     * @param action the action to execute to configure the dependencies
+     */
+    void dependencies(Action<DependenciesHandler> action);
 
 }

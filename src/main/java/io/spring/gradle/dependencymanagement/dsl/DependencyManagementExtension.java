@@ -28,7 +28,7 @@ import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfig
  *
  * @author Andy Wilkinson
  */
-public interface DependencyManagementExtension extends DependencyManagementConfigurer {
+public interface DependencyManagementExtension extends DependencyManagementHandler {
 
     /**
      * Configures the resolution strategy of all dependency management-related {@link Configuration Configurations}
