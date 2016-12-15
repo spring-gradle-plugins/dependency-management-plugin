@@ -1284,4 +1284,22 @@ public class DependencyManagementPluginSpec extends Specification {
             files.collect { it.name }.containsAll(['spring-core-4.0.3.RELEASE.jar'])
     }
 
+    def 'Artifacts without a pom are tolerated'() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'It depends on an artifact without a pom'
+            File libDir = new File(project.projectDir, 'lib')
+            libDir.mkdirs()
+            new File(libDir, "foo-1.0.0.jar").createNewFile()
+            project.repositories {
+                flatDir( dirs: 'lib')
+            }
+            project.dependencies {
+                compile ':foo:1.0.0'
+            }
+        then: 'Dependency resolution is successful'
+            project.configurations.compile.resolve()
+    }
+
 }

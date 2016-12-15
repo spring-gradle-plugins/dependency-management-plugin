@@ -75,7 +75,7 @@ class ExclusionResolver {
                 }
             }
         }
-        List<Pom> poms = this.pomResolver.resolvePoms(pomReferences);
+        List<Pom> poms = this.pomResolver.resolvePomsLeniently(pomReferences);
         for (Pom pom: poms) {
             String id = pom.getCoordinates().getGroupId() + ":" + pom.getCoordinates().getArtifactId();
             Exclusions exclusions = collectExclusions(pom);

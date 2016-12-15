@@ -31,8 +31,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.gradle.api.specs.Specs;
 
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
@@ -49,8 +48,6 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model;
  * @author Andy Wilkinson
  */
 public class MavenPomResolver implements PomResolver {
-
-    private static final Logger logger = LoggerFactory.getLogger(MavenPomResolver.class);
 
     private final DependencyManagementConfigurationContainer configurationContainer;
 
@@ -72,28 +69,38 @@ public class MavenPomResolver implements PomResolver {
     }
 
     @Override
+    public List<Pom> resolvePomsLeniently(List<PomReference> pomReferences) {
+        return createPoms(createConfiguration(pomReferences).getResolvedConfiguration().getLenientConfiguration()
+                .getArtifacts(Specs.SATISFIES_ALL), pomReferences);
+    }
+
+    @Override
     public List<Pom> resolvePoms(List<PomReference> pomReferences) {
+        return createPoms(createConfiguration(pomReferences).getResolvedConfiguration().getResolvedArtifacts(),
+                pomReferences);
+    }
+
+    private Configuration createConfiguration(List<PomReference> pomReferences) {
         Configuration configuration = this.configurationContainer.newConfiguration();
         for (PomReference pomReference: pomReferences) {
             Coordinates coordinates = pomReference.getCoordinates();
             configuration.getDependencies().add(this.dependencyHandler.create(coordinates.getGroupId() + ":"
                     + coordinates.getArtifactId() + ":" + coordinates.getVersion() + "@pom"));
         }
+        return configuration;
+    }
 
-        Map<String, File> artifacts = new HashMap<String, File>();
-        for (ResolvedArtifact resolvedArtifact: configuration.getResolvedConfiguration()
-                .getResolvedArtifacts()) {
-            ModuleVersionIdentifier id = resolvedArtifact.getModuleVersion().getId();
-            artifacts.put(createKey(id.getGroup(), id.getName()), resolvedArtifact.getFile());
-        }
-
-        List<Pom> resolvedPoms = new ArrayList<Pom>();
-
+    private List<Pom> createPoms(Set<ResolvedArtifact> resolvedArtifacts, List<PomReference> pomReferences) {
+        Map<String, PomReference> referencesById = new HashMap<String, PomReference>();
         for (PomReference pomReference: pomReferences) {
-            File file = artifacts.get(createKey(pomReference.getCoordinates().getGroupId(),
-                    pomReference.getCoordinates().getArtifactId()));
-            logger.debug("Processing '{}'", file);
-            resolvedPoms.add(createPom(file, pomReference.getProperties()));
+            referencesById.put(createKey(pomReference.getCoordinates().getGroupId(),
+                    pomReference.getCoordinates().getArtifactId()), pomReference);
+        }
+        List<Pom> resolvedPoms = new ArrayList<Pom>();
+        for (ResolvedArtifact resolvedArtifact: resolvedArtifacts) {
+            ModuleVersionIdentifier id = resolvedArtifact.getModuleVersion().getId();
+            PomReference reference = referencesById.get(createKey(id.getGroup(), id.getName()));
+            resolvedPoms.add(createPom(resolvedArtifact.getFile(), reference.getProperties()));
         }
         return resolvedPoms;
     }

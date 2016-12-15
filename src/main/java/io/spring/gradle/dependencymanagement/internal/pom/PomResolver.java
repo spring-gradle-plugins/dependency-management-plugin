@@ -26,11 +26,19 @@ import java.util.List;
 public interface PomResolver {
 
     /**
-     * Resolves the given {@code pomReferences}.
+     * Resolves the given {@code pomReferences}, failing if any references cannot be resolved.
      *
      * @param pomReferences the pom references to resolve
      * @return the poms resolved from the references
      */
     List<Pom> resolvePoms(List<PomReference> pomReferences);
+
+    /**
+     * Resolves the given {@code pomReferences}, ignoring any references that cannot be resolved.
+     *
+     * @param pomReferences the pom references to resolve
+     * @return the poms resolved from the references
+     */
+    List<Pom> resolvePomsLeniently(List<PomReference> pomReferences);
 
 }
