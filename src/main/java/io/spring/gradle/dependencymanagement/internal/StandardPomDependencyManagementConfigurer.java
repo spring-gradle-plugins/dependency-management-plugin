@@ -19,7 +19,6 @@ package io.spring.gradle.dependencymanagement.internal;
 import java.util.List;
 
 import groovy.util.Node;
-import org.codehaus.groovy.util.StringUtil;
 import org.gradle.api.XmlProvider;
 
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
