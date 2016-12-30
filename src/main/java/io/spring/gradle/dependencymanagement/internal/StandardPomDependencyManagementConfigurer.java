@@ -19,6 +19,7 @@ package io.spring.gradle.dependencymanagement.internal;
 import java.util.List;
 
 import groovy.util.Node;
+import org.codehaus.groovy.util.StringUtil;
 import org.gradle.api.XmlProvider;
 
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
@@ -130,7 +131,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
         if (scope != null) {
             dependencyNode.appendNode(NODE_NAME_SCOPE, scope);
         }
-        if (!"jar".equals(type)) {
+        if (!"jar".equals(type) && type != null) {
             dependencyNode.appendNode(NODE_NAME_TYPE, type);
         }
         return dependencyNode;
