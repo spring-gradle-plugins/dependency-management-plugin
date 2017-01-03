@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,6 +119,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
             dependency.groupId[0].value() == 'org.springframework'
             dependency.artifactId[0].value() == 'spring-core'
             dependency.version[0].value() == '4.1.3.RELEASE'
+            dependency.type.size() == 0
     }
 
     def "Dependency management can be added to a pom with existing dependency management"() {

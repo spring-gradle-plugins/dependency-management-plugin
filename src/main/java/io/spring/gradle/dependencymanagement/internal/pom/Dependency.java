@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public final class Dependency {
             String classifier, String scope, Set<String> exclusions) {
         this.coordinates = coordinates;
         this.optional = optional;
-        this.type = type;
+        this.type = type == null ? "jar" : type;
         this.classifier = classifier;
         this.scope = scope;
         this.exclusions = exclusions == null ? Collections.<String>emptySet() : exclusions;
@@ -87,7 +87,7 @@ public final class Dependency {
     }
 
     /**
-     * Returns the type of the dependency.
+     * Returns the type of the dependency, never {@code null}.
      *
      * @return the type
      */
@@ -105,7 +105,7 @@ public final class Dependency {
     }
 
     /**
-     * Returns the scope of the dependency.
+     * Returns the scope of the dependency or {@code null}.
      *
      * @return the scope
      */

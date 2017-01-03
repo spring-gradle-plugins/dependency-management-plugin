@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,7 +139,8 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
     private void configureDependencies(Node dependencies) {
         for (Dependency dependency : this.dependencyManagement
                 .getManagedDependencies()) {
-            Node dependencyNode = appendDependencyNode(dependencies, dependency.getCoordinates(), null, null);
+            Node dependencyNode = appendDependencyNode(dependencies, dependency.getCoordinates(), dependency.getScope(),
+                    dependency.getType());
             if (!dependency.getExclusions().isEmpty()) {
                 Node exclusionsNode = dependencyNode.appendNode(NODE_NAME_EXCLUSIONS);
                 for (String exclusion : dependency.getExclusions()) {
