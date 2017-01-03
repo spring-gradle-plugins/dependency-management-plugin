@@ -32,6 +32,7 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.Def
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.DefaultModelBuildingRequest;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.FileModelSource;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingException;
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingRequest;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingResult;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelProblem;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.ModelResolver;
@@ -60,6 +61,7 @@ final class EffectiveModelBuilder {
         request.setSystemProperties(System.getProperties());
         request.setModelSource(new FileModelSource(pom));
         request.setModelResolver(this.modelResolver);
+        request.setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_2_0);
 
         try {
             ModelBuildingResult result = createModelBuilder(this.project, properties).build(request);
