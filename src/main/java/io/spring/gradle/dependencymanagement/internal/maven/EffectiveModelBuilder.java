@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ final class EffectiveModelBuilder {
         this.modelResolver = new ConfigurationModelResolver(project, configurationContainer);
     }
 
-    Model buildModel(File pom, Map<String, String> properties) {
+    Model buildModel(File pom, Map<String, ?> properties) {
         DefaultModelBuildingRequest request = new DefaultModelBuildingRequest();
         request.setSystemProperties(System.getProperties());
         request.setModelSource(new FileModelSource(pom));
@@ -64,7 +64,7 @@ final class EffectiveModelBuilder {
         request.setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_2_0);
 
         try {
-            ModelBuildingResult result = createModelBuilder(this.project, properties).build(request);
+            ModelBuildingResult result = createModelBuilder(properties).build(request);
             List<ModelProblem> errors = extractErrors(result.getProblems());
             if (errors.isEmpty()) {
                 return result.getEffectiveModel();
@@ -98,11 +98,10 @@ final class EffectiveModelBuilder {
         logger.error(message.toString());
     }
 
-    private DefaultModelBuilder createModelBuilder(Project project,
-            Map<String, String> properties) {
+    private DefaultModelBuilder createModelBuilder(Map<String, ?> properties) {
         DefaultModelBuilder modelBuilder = new DefaultModelBuilderFactory().newInstance();
         modelBuilder
-                .setModelInterpolator(new ProjectPropertiesModelInterpolator(project, properties));
+                .setModelInterpolator(new PropertiesModelInterpolator(properties));
         modelBuilder.setModelValidator(new RelaxedModelValidator());
         return modelBuilder;
     }

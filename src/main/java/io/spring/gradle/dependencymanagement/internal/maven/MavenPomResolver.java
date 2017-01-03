@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,13 +71,13 @@ public class MavenPomResolver implements PomResolver {
     @Override
     public List<Pom> resolvePomsLeniently(List<PomReference> pomReferences) {
         return createPoms(createConfiguration(pomReferences).getResolvedConfiguration().getLenientConfiguration()
-                .getArtifacts(Specs.SATISFIES_ALL), pomReferences);
+                .getArtifacts(Specs.SATISFIES_ALL), pomReferences, Collections.<String, String>emptyMap());
     }
 
     @Override
-    public List<Pom> resolvePoms(List<PomReference> pomReferences) {
+    public List<Pom> resolvePoms(List<PomReference> pomReferences, Map<String, ?> properties) {
         return createPoms(createConfiguration(pomReferences).getResolvedConfiguration().getResolvedArtifacts(),
-                pomReferences);
+                pomReferences, properties);
     }
 
     private Configuration createConfiguration(List<PomReference> pomReferences) {
@@ -90,7 +90,8 @@ public class MavenPomResolver implements PomResolver {
         return configuration;
     }
 
-    private List<Pom> createPoms(Set<ResolvedArtifact> resolvedArtifacts, List<PomReference> pomReferences) {
+    private List<Pom> createPoms(Set<ResolvedArtifact> resolvedArtifacts, List<PomReference> pomReferences,
+            Map<String, ?> properties) {
         Map<String, PomReference> referencesById = new HashMap<String, PomReference>();
         for (PomReference pomReference: pomReferences) {
             referencesById.put(createKey(pomReference.getCoordinates().getGroupId(),
@@ -100,12 +101,14 @@ public class MavenPomResolver implements PomResolver {
         for (ResolvedArtifact resolvedArtifact: resolvedArtifacts) {
             ModuleVersionIdentifier id = resolvedArtifact.getModuleVersion().getId();
             PomReference reference = referencesById.get(createKey(id.getGroup(), id.getName()));
-            resolvedPoms.add(createPom(resolvedArtifact.getFile(), reference.getProperties()));
+            Map<String, Object> allProperties = new HashMap<String, Object>(properties);
+            allProperties.putAll(reference.getProperties());
+            resolvedPoms.add(createPom(resolvedArtifact.getFile(), allProperties));
         }
         return resolvedPoms;
     }
 
-    private Pom createPom(File file, Map<String, String> properties) {
+    private Pom createPom(File file, Map<String, ?> properties) {
         Model effectiveModel = this.effectiveModelBuilder.buildModel(file, properties);
         Coordinates coordinates = new Coordinates(effectiveModel.getGroupId(), effectiveModel.getArtifactId(),
                 effectiveModel.getVersion());

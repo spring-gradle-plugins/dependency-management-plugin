@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.gradle.api.Project;
-
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingRequest;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelProblemCollector;
@@ -36,19 +34,16 @@ import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.P
 import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.ValueSource;
 
 /**
- * A {@link ModelInterpolator} that uses a Gradle project's properties as a {@link ValueSource}.
+ * A {@link ModelInterpolator} that uses a various properties as {@link ValueSource ValueSources}.
  *
  * @author Andy Wilkinson
  */
-class ProjectPropertiesModelInterpolator extends StringSearchModelInterpolator {
+class PropertiesModelInterpolator extends StringSearchModelInterpolator {
 
-    private final Project project;
+    private final Map<String, ?> properties;
 
-    private final Map<String, String> additionalProperties;
-
-    ProjectPropertiesModelInterpolator(Project project, Map<String, String> additionalProperties) {
-        this.project = project;
-        this.additionalProperties = additionalProperties;
+    PropertiesModelInterpolator(Map<String, ?> properties) {
+        this.properties = properties;
         setUrlNormalizer(new DefaultUrlNormalizer());
         setPathTranslator(new DefaultPathTranslator());
     }
@@ -57,8 +52,7 @@ class ProjectPropertiesModelInterpolator extends StringSearchModelInterpolator {
     public List<ValueSource> createValueSources(Model model, File projectDir,
             ModelBuildingRequest request, ModelProblemCollector collector) {
         List<ValueSource> valueSources = new ArrayList<ValueSource>(
-                Arrays.asList(new MapBasedValueSource(this.additionalProperties),
-                        new MapBasedValueSource(this.project.getProperties()),
+                Arrays.asList(new MapBasedValueSource(this.properties),
                         new PropertiesBasedValueSource(System.getProperties())));
         valueSources.addAll(super.createValueSources(model, projectDir, request, collector));
         return valueSources;

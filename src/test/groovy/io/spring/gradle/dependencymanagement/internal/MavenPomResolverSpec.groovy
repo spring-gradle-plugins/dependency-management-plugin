@@ -60,7 +60,7 @@ class MavenPomResolverSpec extends Specification {
         given: 'A reference to a pom that is not Maven 3.0 compatible'
         PomReference reference = new PomReference(new Coordinates("log4j", "log4j", "1.2.16"))
         when: 'The reference is resolved'
-        def result = this.resolver.resolvePoms([reference])
+        def result = this.resolver.resolvePoms([reference], Collections.emptyMap())
         then: 'It was successful'
         result.size() == 1
     }
