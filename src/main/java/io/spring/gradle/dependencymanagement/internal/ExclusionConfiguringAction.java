@@ -101,6 +101,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
                     ((ModuleDependency) dependency).exclude(exclusion);
                 }
 
+
             }
 
         }
@@ -272,6 +273,11 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
             int result = this.groupId.hashCode();
             result = 31 * result + this.artifactId.hashCode();
             return result;
+        }
+
+        @Override
+        public String toString() {
+            return this.groupId + ":" + this.artifactId;
         }
 
     }
