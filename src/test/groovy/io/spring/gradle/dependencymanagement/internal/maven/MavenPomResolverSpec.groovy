@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package io.spring.gradle.dependencymanagement.internal
+package io.spring.gradle.dependencymanagement.internal.maven
 
-import io.spring.gradle.dependencymanagement.internal.maven.MavenPomResolver
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates
 import io.spring.gradle.dependencymanagement.internal.pom.PomReference
 import org.gradle.api.Project
