@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package io.spring.gradle.dependencymanagement;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.maven.MavenDeployer;
+import org.gradle.api.artifacts.maven.MavenResolver;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
@@ -57,11 +57,11 @@ public class DependencyManagementPlugin implements Plugin<Project> {
         project.getTasks().withType(Upload.class, new Action<Upload>() {
             @Override
             public void execute(Upload upload) {
-                upload.getRepositories().withType(MavenDeployer.class, new Action<MavenDeployer>() {
+                upload.getRepositories().withType(MavenResolver.class, new Action<MavenResolver>() {
 
                     @Override
-                    public void execute(MavenDeployer mavenDeployer) {
-                        mavenDeployer.getPom().withXml(pomConfigurer);
+                    public void execute(MavenResolver mavenResolver) {
+                        mavenResolver.getPom().withXml(pomConfigurer);
                     }
 
                 });
