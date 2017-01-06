@@ -104,6 +104,9 @@ class DependencyManagementPluginIntegrationSpec extends Specification {
             }
 
             dependencyManagement {
+                properties {
+                    property("spring.verison:4.0.3.RELEASE")
+                }
                 imports {
                     mavenBom 'org.springframework.boot:spring-boot-dependencies:1.4.2.RELEASE'
                 }
@@ -116,6 +119,8 @@ class DependencyManagementPluginIntegrationSpec extends Specification {
 
         then: 'The generated pom contains dependency management'
 
-        new File(projectFolder.root, "build/publications/mavenJava/pom-default.xml").text.contains("<dependencyManagement>")
+        def pomFileText = new File(projectFolder.root, "build/publications/mavenJava/pom-default.xml").text
+        pomFileText.contains("<dependencyManagement>")
+        pomFileText.contains("<properties>")
     }
 }

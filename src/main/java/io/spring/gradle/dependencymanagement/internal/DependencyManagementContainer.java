@@ -242,4 +242,18 @@ public class DependencyManagementContainer {
         return this.globalDependencyManagement;
     }
 
+
+    /**
+     * Adds a property to the dependency management for the given {@code configuration}. The property
+     * has the given {@code name}  and {@code value}
+     *
+     * @param configuration the configuration
+     * @param name the property name
+     * @param value the property value
+     */
+    public void addProperty(Configuration configuration, String name, String value) {
+        dependencyManagementForConfiguration(configuration)
+                .addProperty(name, value);
+    }
+
 }

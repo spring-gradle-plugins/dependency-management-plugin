@@ -24,6 +24,7 @@ import org.gradle.api.Action;
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementConfigurer;
 import io.spring.gradle.dependencymanagement.dsl.ImportsHandler;
+import io.spring.gradle.dependencymanagement.dsl.PropertiesHandler;
 
 /**
  * A {@link DependencyManagementConfigurer} that delegates to one or more {@code DependencyManagementConfigurers}
@@ -64,6 +65,20 @@ class CompoundDependencyManagementConfigurer implements DependencyManagementConf
     public void dependencies(Action<DependenciesHandler> action) {
         for (DependencyManagementConfigurer delegate: this.delegates) {
             delegate.dependencies(action);
+        }
+    }
+
+    @Override
+    public void properties(Closure closure) {
+        for (DependencyManagementConfigurer delegate: this.delegates) {
+            delegate.properties(closure);
+        }
+    }
+
+    @Override
+    public void properties(Action<PropertiesHandler> action) {
+        for (DependencyManagementConfigurer delegate: this.delegates) {
+            delegate.properties(action);
         }
     }
 
