@@ -32,7 +32,6 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.Def
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.DefaultModelBuildingRequest;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.FileModelSource;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingException;
-import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingRequest;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingResult;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelProblem;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.ModelResolver;
@@ -61,23 +60,20 @@ final class EffectiveModelBuilder {
         request.setSystemProperties(System.getProperties());
         request.setModelSource(new FileModelSource(pom));
         request.setModelResolver(this.modelResolver);
-        request.setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_2_0);
 
         try {
             ModelBuildingResult result = createModelBuilder(properties).build(request);
             List<ModelProblem> errors = extractErrors(result.getProblems());
-            if (errors.isEmpty()) {
-                return result.getEffectiveModel();
+            if (!errors.isEmpty()) {
+                reportErrors(errors, pom);
             }
-            reportErrors(errors, pom);
-
+            return result.getEffectiveModel();
         }
         catch (ModelBuildingException ex) {
             logger.debug("Model building failed", ex);
             reportErrors(extractErrors(ex.getProblems()), pom);
+            return ex.getResult().getEffectiveModel();
         }
-
-        return null;
     }
 
     private List<ModelProblem> extractErrors(List<ModelProblem> problems) {
@@ -91,7 +87,7 @@ final class EffectiveModelBuilder {
     }
 
     private void reportErrors(List<ModelProblem> errors, File file) {
-        StringBuilder message = new StringBuilder("Processing of " + file + " failed:");
+        StringBuilder message = new StringBuilder("Errors occurred while build effective model from " + file + ":");
         for (ModelProblem error: errors) {
             message.append("\n    " + error.getMessage() + " in " + error.getModelId());
         }
