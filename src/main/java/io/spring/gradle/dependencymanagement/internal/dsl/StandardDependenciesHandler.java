@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ class StandardDependenciesHandler implements DependenciesHandler {
 
     @Override
     public void dependency(String id, Action<DependencyHandler> action) {
-        String[] components = id.toString().split(":");
+        String[] components = id.split(":");
         if (components.length != 3) {
             throw new InvalidUserDataException("Dependency identifier '" + id + "' is malformed. The required form is"
                     + " 'group:name:version'");
@@ -94,7 +94,7 @@ class StandardDependenciesHandler implements DependenciesHandler {
             throw new InvalidUserDataException("Dependency identifier '" + id + "' did not specify " +
                     toCommaSeparatedString(missingAttributes));
         }
-        configureDependency(id.get(KEY_GROUP), id.get(KEY_NAME), id.get(KEY_VERSION), action);
+        configureDependency(getAsString(id, KEY_GROUP), getAsString(id, KEY_NAME), getAsString(id, KEY_VERSION), action);
     }
 
     @Override
@@ -104,10 +104,10 @@ class StandardDependenciesHandler implements DependenciesHandler {
 
     @Override
     public void dependencySet(String setId, Action<DependencySetHandler> action) {
-        String[] components = setId.toString().split(":");
+        String[] components = setId.split(":");
         if (components.length != 2) {
             throw new InvalidUserDataException("Dependency set identifier '" + setId + "' is malformed. The required "
-                    + " form is 'group:name:version'");
+                    + " form is 'group:version'");
         }
         configureDependencySet(components[0], components[1], action);
     }
@@ -119,8 +119,8 @@ class StandardDependenciesHandler implements DependenciesHandler {
 
     @Override
     public void dependencySet(Map<String, String> setSpecification, Action<DependencySetHandler> action) {
-        String group = setSpecification.get(KEY_GROUP);
-        String version = setSpecification.get(KEY_VERSION);
+        String group = getAsString(setSpecification, KEY_GROUP);
+        String version = getAsString(setSpecification, KEY_VERSION);
 
         if (!hasText(group) || !hasText(version)) {
             throw new GradleException("A dependency set requires both a group and a version");
@@ -128,8 +128,13 @@ class StandardDependenciesHandler implements DependenciesHandler {
         configureDependencySet(group, version, action);
     }
 
+    private String getAsString(Map<? extends CharSequence, ? extends CharSequence> map, String key) {
+        return map.get(key).toString();
+    }
+
     private void configureDependencySet(String group, String version, Action<DependencySetHandler> action) {
-        action.execute(new StandardDependencySetHandler(group, version, this.container, this.configuration));
+        action.execute(new StandardDependencySetHandler(group.toString(), version.toString(), this.container,
+                this.configuration));
     }
 
     private boolean hasText(String string) {
@@ -147,12 +152,13 @@ class StandardDependenciesHandler implements DependenciesHandler {
         return output.toString();
     }
 
-    private void configureDependency(String group, String name, String version, Action<DependencyHandler> action) {
+    private void configureDependency(CharSequence group, CharSequence name, CharSequence version, Action<DependencyHandler> action) {
         StandardDependencyHandler dependencyHandler = new StandardDependencyHandler();
         if (action != null) {
             action.execute(dependencyHandler);
         }
-        this.container.addManagedVersion(this.configuration, group, name, version, dependencyHandler.getExclusions());
+        this.container.addManagedVersion(this.configuration, group.toString(), name.toString(), version.toString(),
+                dependencyHandler.getExclusions());
     }
 
     /**

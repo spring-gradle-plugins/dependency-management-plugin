@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,14 @@ class StandardMavenBomHandler implements MavenBomHandler {
 
     @Override
     public void bomProperties(Map<String, String> properties) {
-            this.bomProperties.putAll(properties);
+        putAll(properties, this.bomProperties);
+    }
+
+    private void putAll(Map<? extends CharSequence, ? extends CharSequence> source, Map<String, String> target) {
+        for (Map.Entry<? extends CharSequence, ? extends CharSequence> entry: source.entrySet()) {
+            target.put(entry.getKey().toString(), entry.getValue().toString());
         }
+    }
 
     Map<String, String> getBomProperties() {
         return this.bomProperties;
