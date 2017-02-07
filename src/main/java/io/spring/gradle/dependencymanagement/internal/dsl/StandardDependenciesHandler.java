@@ -129,7 +129,8 @@ class StandardDependenciesHandler implements DependenciesHandler {
     }
 
     private String getAsString(Map<? extends CharSequence, ? extends CharSequence> map, String key) {
-        return map.get(key).toString();
+        CharSequence charSequence = map.get(key);
+        return charSequence == null ? null : charSequence.toString();
     }
 
     private void configureDependencySet(String group, String version, Action<DependencySetHandler> action) {
@@ -152,12 +153,12 @@ class StandardDependenciesHandler implements DependenciesHandler {
         return output.toString();
     }
 
-    private void configureDependency(CharSequence group, CharSequence name, CharSequence version, Action<DependencyHandler> action) {
+    private void configureDependency(String group, String name, String version, Action<DependencyHandler> action) {
         StandardDependencyHandler dependencyHandler = new StandardDependencyHandler();
         if (action != null) {
             action.execute(dependencyHandler);
         }
-        this.container.addManagedVersion(this.configuration, group.toString(), name.toString(), version.toString(),
+        this.container.addManagedVersion(this.configuration, group, name, version,
                 dependencyHandler.getExclusions());
     }
 

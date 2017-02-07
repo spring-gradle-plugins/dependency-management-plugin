@@ -536,36 +536,6 @@ public class DependencyManagementPluginSpec extends Specification {
             files.collect { it.name }.containsAll(['spring-core-4.1.4.RELEASE.jar'])
     }
 
-    def 'The build fails if a dependency set is configured without a group'() {
-        given: 'A project'
-            project.apply plugin: 'io.spring.dependency-management'
-            project.apply plugin: 'java'
-        when: 'A dependency set is declared with a version but not group'
-            project.dependencyManagement {
-                dependencies {
-                    dependencySet(version: '1.7.7') {}
-                }
-            }
-        then: 'An exception with an appropriate message is thrown'
-            def e = thrown(GradleException)
-            e.message == 'A dependency set requires both a group and a version'
-    }
-
-    def 'The build fails if a dependency set is configured without a version'() {
-        given: 'A project'
-            project.apply plugin: 'io.spring.dependency-management'
-            project.apply plugin: 'java'
-        when: 'A dependency set is declared with a group but not version'
-            project.dependencyManagement {
-                dependencies {
-                    dependencySet(group: 'org.slf4j') {}
-                }
-            }
-        then: 'An exception with an appropriate message is thrown'
-            def e = thrown(GradleException)
-            e.message == 'A dependency set requires both a group and a version'
-    }
-
     def 'Managed versions can be accessed programatically'() {
         given: 'A project with the plugin applied'
             project.apply plugin: 'io.spring.dependency-management'

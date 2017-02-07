@@ -18,6 +18,7 @@ package io.spring.gradle.dependencymanagement.internal.dsl
 
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer
+import org.gradle.api.GradleException
 import org.gradle.api.artifacts.Configuration
 import spock.lang.Specification
 
@@ -55,6 +56,24 @@ class StandardDependenciesHandlerSpec extends Specification {
 
         then:
         1 * container.addManagedVersion(configuration, "group", "name", "1.0", _)
+    }
+
+    def 'A dependency set configured using a map without a group is rejected'() {
+        when: 'A dependency set is declared with a version but not a group'
+        this.handler.dependencySet(version: '1.7.7') {}
+
+        then: 'An exception with an appropriate message is thrown'
+        def ex = thrown(GradleException)
+        ex.message == 'A dependency set requires both a group and a version'
+    }
+
+    def 'A dependency set configured using a map without a version is rejected'() {
+        when: 'A dependency set is declared with a group but not a version'
+        this.handler.dependencySet(group: 'com.example') {}
+
+        then: 'An exception with an appropriate message is thrown'
+        def ex = thrown(GradleException)
+        ex.message == 'A dependency set requires both a group and a version'
     }
 
 }
