@@ -118,4 +118,44 @@ class DependencyManagementPluginIntegrationSpec extends Specification {
 
         new File(projectFolder.root, "build/publications/mavenJava/pom-default.xml").text.contains("<dependencyManagement>")
     }
+
+    def "Pom customization doesn't stop custom conf-to-scope mappings from working"() {
+        given: 'A project with a custom configuration and scope mapping'
+
+        buildFile << """
+            buildscript {
+                dependencies {
+                    classpath files('${new File("build/classes/main").getAbsolutePath()}',
+                            '${new File("build/resources/main").getAbsolutePath()}',
+                            '${new File("build/libs/maven-repack-3.0.4.jar").getAbsolutePath()}')
+                }
+            }
+
+            apply plugin: 'io.spring.dependency-management'
+            apply plugin: 'java'
+            apply plugin: 'maven'
+
+            repositories {
+                mavenCentral()
+            }
+
+            configurations {
+                another
+            }
+
+            conf2ScopeMappings.addMapping(1000, project.configurations.another, "compile")
+
+            dependencies {
+                another "commons-logging:commons-logging:1.2"
+            }
+        """
+
+        when: 'The install task is run'
+
+        GradleRunner.create().withProjectDir(projectFolder.root).withArguments("install").build()
+
+        then: 'The generated pom contains the dependency in the custom configuration mapped to the right scope'
+
+        new File(projectFolder.root, "build/poms/pom-default.xml").text.contains("commons-logging")
+    }
 }

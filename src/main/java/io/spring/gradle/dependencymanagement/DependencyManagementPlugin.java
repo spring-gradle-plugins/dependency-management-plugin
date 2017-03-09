@@ -40,7 +40,7 @@ public class DependencyManagementPlugin implements Plugin<Project> {
     public void apply(final Project project) {
         InternalComponents internalComponents = new InternalComponents(project);
 
-        DependencyManagementExtension dependencyManagementExtension =
+        final DependencyManagementExtension dependencyManagementExtension =
                 internalComponents.getDependencyManagementExtension();
 
         project.getExtensions().add("dependencyManagement", dependencyManagementExtension);
@@ -49,7 +49,14 @@ public class DependencyManagementPlugin implements Plugin<Project> {
         project.getConfigurations().all(internalComponents.getImplicitDependencyManagementCollector());
         project.getConfigurations().all(internalComponents.getDependencyManagementApplier());
 
-        configurePomCustomization(project, dependencyManagementExtension);
+        project.afterEvaluate(new Action<Project>() {
+
+            @Override
+            public void execute(Project project) {
+                configurePomCustomization(project, dependencyManagementExtension);
+            }
+
+        });
     }
 
     private void configurePomCustomization(final Project project, DependencyManagementExtension dependencyManagementExtension) {
