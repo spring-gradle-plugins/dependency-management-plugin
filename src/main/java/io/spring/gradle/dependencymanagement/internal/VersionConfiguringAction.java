@@ -22,7 +22,9 @@ import java.util.Set;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencyResolveDetails;
+import org.gradle.api.artifacts.ResolvableDependencies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +44,24 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 
     private final Configuration configuration;
 
+    private final Set<String> directDependencies = new HashSet<String>();
+
     VersionConfiguringAction(Project project,
             DependencyManagementContainer dependencyManagementContainer,
             Configuration configuration) {
         this.project = project;
         this.dependencyManagementContainer = dependencyManagementContainer;
         this.configuration = configuration;
+        configuration.getIncoming().beforeResolve(new Action<ResolvableDependencies>() {
+
+            @Override
+            public void execute(ResolvableDependencies resolvableDependencies) {
+                for (Dependency dependency: resolvableDependencies.getDependencies()) {
+                    directDependencies.add(dependency.getGroup() + ":" + dependency.getName());
+                }
+            }
+
+        });
     }
 
     @Override
@@ -59,11 +73,10 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
             return;
         }
 
-        if (Versions.isDynamic(details.getRequested().getVersion())) {
-            logger.debug("'{}' has a dynamic version. Dependency management has not been applied",
-                    details.getRequested());
+        if (isDirectDependency(details) && Versions.isDynamic(details.getRequested().getVersion())) {
+            logger.debug("'{}' is a direct dependency and has a dynamic version. Dependency management has not been "
+                    + "applied", details.getRequested());
             return;
-
         }
 
         String version = this.dependencyManagementContainer
@@ -79,6 +92,11 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
             logger.debug("No dependency management for dependency '{}'", details.getRequested());
         }
 
+    }
+
+    private boolean isDirectDependency(DependencyResolveDetails details) {
+        return this.directDependencies.contains(details.getRequested().getGroup() + ":"
+                + details.getRequested().getName());
     }
 
     private boolean isDependencyOnLocalProject(Project project,

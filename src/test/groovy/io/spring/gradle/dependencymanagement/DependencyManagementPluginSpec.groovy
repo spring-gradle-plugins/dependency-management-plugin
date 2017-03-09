@@ -1116,6 +1116,24 @@ public class DependencyManagementPluginSpec extends Specification {
             !files.collect { it.name }.contains('commons-logging-1.1.3.jar')
     }
 
+    def "Dependency management is applied to a transitive dependency declared with a range"() {
+        given: 'A project that pulls in a dependency with a version range'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
+        project.dependencies {
+            compile 'org.assertj:assertj-guava:3.0.0'
+        }
+        when: 'Dependency management is provided for the transitive dependency'
+        project.dependencyManagement {
+            dependencies {
+                dependency 'com.google.guava:guava:18.0'
+            }
+        }
+        then: "The dependency management is applied"
+        def files = project.configurations.compile.resolve()
+        files.collect { it.name }.contains('guava-18.0.jar')
+    }
+
     def "A property in a bom can be overridden when it is imported"() {
         given: 'A project with the plugin applied'
             project.apply plugin: 'io.spring.dependency-management'
