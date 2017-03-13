@@ -131,7 +131,7 @@ public class DependencyManagementContainer {
             if (managedVersion != null) {
                 logger.debug(
                         "Found managed version '{}' for dependency '{}:{}' in dependency "
-                                + "management for configuration '{}'", managedVersion, group, name);
+                                + "management for configuration '{}'", managedVersion, group, name, configuration.getName());
                 return managedVersion;
             }
         }
