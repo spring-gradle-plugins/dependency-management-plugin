@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencyResolveDetails;
-import org.gradle.api.artifacts.ResolvableDependencies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,24 +43,14 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 
     private final Configuration configuration;
 
-    private final Set<String> directDependencies = new HashSet<String>();
+    private Set<String> directDependencies;
 
     VersionConfiguringAction(Project project,
-            DependencyManagementContainer dependencyManagementContainer,
-            Configuration configuration) {
+                             DependencyManagementContainer dependencyManagementContainer,
+                             Configuration configuration) {
         this.project = project;
         this.dependencyManagementContainer = dependencyManagementContainer;
         this.configuration = configuration;
-        configuration.getIncoming().beforeResolve(new Action<ResolvableDependencies>() {
-
-            @Override
-            public void execute(ResolvableDependencies resolvableDependencies) {
-                for (Dependency dependency: resolvableDependencies.getDependencies()) {
-                    directDependencies.add(dependency.getGroup() + ":" + dependency.getName());
-                }
-            }
-
-        });
     }
 
     @Override
@@ -95,12 +84,19 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
     }
 
     private boolean isDirectDependency(DependencyResolveDetails details) {
+        if (this.directDependencies == null) {
+            Set<String> directDependencies = new HashSet<String>();
+            for (Dependency dependency : this.configuration.getDependencies()) {
+                directDependencies.add(dependency.getGroup() + ":" + dependency.getName());
+            }
+            this.directDependencies = directDependencies;
+        }
         return this.directDependencies.contains(details.getRequested().getGroup() + ":"
                 + details.getRequested().getName());
     }
 
     private boolean isDependencyOnLocalProject(Project project,
-            DependencyResolveDetails details) {
+                                               DependencyResolveDetails details) {
         return getAllLocalProjectNames(project.getRootProject()).contains(details.getRequested()
                 .getGroup() + ":" + details.getRequested().getName());
     }
