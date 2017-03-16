@@ -158,4 +158,45 @@ class DependencyManagementPluginIntegrationSpec extends Specification {
 
         new File(projectFolder.root, "build/poms/pom-default.xml").text.contains("commons-logging")
     }
+
+    def "Using importedProperties does not prevent further configuration of the publishing extension"() {
+        when: 'A project the uses importedProperties and configures the publishing extension'
+
+        buildFile << """
+            buildscript {
+                dependencies {
+                    classpath files('${new File("build/classes/main").getAbsolutePath()}',
+                            '${new File("build/resources/main").getAbsolutePath()}',
+                            '${new File("build/libs/maven-repack-3.0.4.jar").getAbsolutePath()}')
+                }
+            }
+
+            apply plugin: 'io.spring.dependency-management'
+            apply plugin: 'java'
+            apply plugin: 'maven-publish'
+
+            repositories {
+                mavenCentral()
+            }
+
+            dependencyManagement {
+                dependencies {
+                    dependency "com.foo:bar:\${importedProperties['bar.version']}"
+                }
+            }
+
+            publishing {
+               publications {
+                    mavenJava(MavenPublication) {
+                        from components.java
+                    }
+                }
+            }
+        """
+
+        then: 'The project builds successfully'
+
+        GradleRunner.create().withProjectDir(projectFolder.root).build()
+    }
+
 }

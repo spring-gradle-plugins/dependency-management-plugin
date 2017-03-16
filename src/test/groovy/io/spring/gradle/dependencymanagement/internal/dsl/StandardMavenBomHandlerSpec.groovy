@@ -36,9 +36,9 @@ class StandardMavenBomHandlerSpec extends Specification {
 
         then:
         with(this.handler.bomProperties) {
-            it.size() == 1
-            it['foo.version'] instanceof String
-            it['foo.version'] == '1.0'
+            it.getProperty('foo.version') instanceof String
+            it.getProperty('foo.version') == '1.0'
         }
     }
+
 }

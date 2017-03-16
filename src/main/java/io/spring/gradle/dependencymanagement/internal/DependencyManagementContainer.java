@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
+import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
 
 /**
  * Container object for a Gradle build project's dependency management, handling the project's
@@ -104,7 +105,7 @@ public class DependencyManagementContainer {
      * @param properties the properties to use when resolving the bom's contents
      */
     public void importBom(Configuration configuration, Coordinates coordinates,
-            Map<String, String> properties) {
+            PropertySource properties) {
         dependencyManagementForConfiguration(configuration).importBom(coordinates, properties);
     }
 

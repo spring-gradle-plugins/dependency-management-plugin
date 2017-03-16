@@ -39,6 +39,9 @@ import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
 import io.spring.gradle.dependencymanagement.internal.pom.PomReference;
 import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
+import io.spring.gradle.dependencymanagement.internal.properties.CompositePropertySource;
+import io.spring.gradle.dependencymanagement.internal.properties.MapPropertySource;
+import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Exclusion;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model;
 
@@ -71,11 +74,12 @@ public class MavenPomResolver implements PomResolver {
     @Override
     public List<Pom> resolvePomsLeniently(List<PomReference> pomReferences) {
         return createPoms(createConfiguration(pomReferences).getResolvedConfiguration().getLenientConfiguration()
-                .getArtifacts(Specs.SATISFIES_ALL), pomReferences, Collections.<String, String>emptyMap());
+                .getArtifacts(Specs.SATISFIES_ALL), pomReferences,
+                        new MapPropertySource(Collections.<String, Object>emptyMap()));
     }
 
     @Override
-    public List<Pom> resolvePoms(List<PomReference> pomReferences, Map<String, ?> properties) {
+    public List<Pom> resolvePoms(List<PomReference> pomReferences, PropertySource properties) {
         return createPoms(createConfiguration(pomReferences).getResolvedConfiguration().getResolvedArtifacts(),
                 pomReferences, properties);
     }
@@ -91,7 +95,7 @@ public class MavenPomResolver implements PomResolver {
     }
 
     private List<Pom> createPoms(Set<ResolvedArtifact> resolvedArtifacts, List<PomReference> pomReferences,
-            Map<String, ?> properties) {
+            PropertySource properties) {
         Map<String, PomReference> referencesById = new HashMap<String, PomReference>();
         for (PomReference pomReference: pomReferences) {
             referencesById.put(createKey(pomReference.getCoordinates().getGroupId(),
@@ -101,14 +105,13 @@ public class MavenPomResolver implements PomResolver {
         for (ResolvedArtifact resolvedArtifact: resolvedArtifacts) {
             ModuleVersionIdentifier id = resolvedArtifact.getModuleVersion().getId();
             PomReference reference = referencesById.get(createKey(id.getGroup(), id.getName()));
-            Map<String, Object> allProperties = new HashMap<String, Object>(properties);
-            allProperties.putAll(reference.getProperties());
+            CompositePropertySource allProperties = new CompositePropertySource(reference.getProperties(), properties);
             resolvedPoms.add(createPom(resolvedArtifact.getFile(), allProperties));
         }
         return resolvedPoms;
     }
 
-    private Pom createPom(File file, Map<String, ?> properties) {
+    private Pom createPom(File file, PropertySource properties) {
         Model effectiveModel = this.effectiveModelBuilder.buildModel(file, properties);
         Coordinates coordinates = new Coordinates(effectiveModel.getGroupId(), effectiveModel.getArtifactId(),
                 effectiveModel.getVersion());

@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.spring.gradle.dependencymanagement.dsl.MavenBomHandler;
+import io.spring.gradle.dependencymanagement.internal.properties.MapPropertySource;
+import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
 
 /**
  * Standard implementation of {@link MavenBomHandler}.
@@ -46,8 +48,8 @@ class StandardMavenBomHandler implements MavenBomHandler {
         }
     }
 
-    Map<String, String> getBomProperties() {
-        return this.bomProperties;
+    PropertySource getBomProperties() {
+        return new MapPropertySource(this.bomProperties);
     }
 
 }

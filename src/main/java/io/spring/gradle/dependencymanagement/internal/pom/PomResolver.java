@@ -17,7 +17,8 @@
 package io.spring.gradle.dependencymanagement.internal.pom;
 
 import java.util.List;
-import java.util.Map;
+
+import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
 
 /**
  * A {@code PomResolver} creates {@link Pom Poms} from {@link PomReference PomReferences}.
@@ -33,7 +34,7 @@ public interface PomResolver {
      * @param properties properties to apply to the resolution of each pom reference
      * @return the poms resolved from the references
      */
-    List<Pom> resolvePoms(List<PomReference> pomReferences, Map<String, ?> properties);
+    List<Pom> resolvePoms(List<PomReference> pomReferences, PropertySource properties);
 
     /**
      * Resolves the given {@code pomReferences}, ignoring any references that cannot be resolved.

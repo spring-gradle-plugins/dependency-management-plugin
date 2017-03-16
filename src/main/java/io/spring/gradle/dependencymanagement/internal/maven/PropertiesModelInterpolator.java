@@ -20,8 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
+import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingRequest;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelProblemCollector;
@@ -29,20 +29,19 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.interpolatio
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.interpolation.StringSearchModelInterpolator;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.path.DefaultPathTranslator;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.path.DefaultUrlNormalizer;
-import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.MapBasedValueSource;
 import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.PropertiesBasedValueSource;
 import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.ValueSource;
 
 /**
- * A {@link ModelInterpolator} that uses a various properties as {@link ValueSource ValueSources}.
+ * A {@link ModelInterpolator} that uses properties from various sources as a {@link ValueSource ValueSource}.
  *
  * @author Andy Wilkinson
  */
 class PropertiesModelInterpolator extends StringSearchModelInterpolator {
 
-    private final Map<String, ?> properties;
+    private final PropertySource properties;
 
-    PropertiesModelInterpolator(Map<String, ?> properties) {
+    PropertiesModelInterpolator(PropertySource properties) {
         this.properties = properties;
         setUrlNormalizer(new DefaultUrlNormalizer());
         setPathTranslator(new DefaultPathTranslator());
@@ -52,7 +51,7 @@ class PropertiesModelInterpolator extends StringSearchModelInterpolator {
     public List<ValueSource> createValueSources(Model model, File projectDir,
             ModelBuildingRequest request, ModelProblemCollector collector) {
         List<ValueSource> valueSources = new ArrayList<ValueSource>(
-                Arrays.asList(new MapBasedValueSource(this.properties),
+                Arrays.asList(new PropertySourceValueSource(this.properties),
                         new PropertiesBasedValueSource(System.getProperties())));
         valueSources.addAll(super.createValueSources(model, projectDir, request, collector));
         return valueSources;

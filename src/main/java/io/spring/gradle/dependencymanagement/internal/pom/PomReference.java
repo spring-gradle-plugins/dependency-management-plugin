@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 package io.spring.gradle.dependencymanagement.internal.pom;
 
 import java.util.Collections;
-import java.util.Map;
+
+import io.spring.gradle.dependencymanagement.internal.properties.MapPropertySource;
+import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
 
 /**
  * A reference to a Maven pom.
@@ -28,7 +30,7 @@ public final class PomReference {
 
     private final Coordinates coordinates;
 
-    private final Map<String, String> properties;
+    private final PropertySource properties;
 
     /**
      * Creates a new {@code PomReference}.
@@ -36,7 +38,7 @@ public final class PomReference {
      * @param coordinates the coordinate of the referenced pom
      */
     public PomReference(Coordinates coordinates) {
-        this(coordinates, Collections.<String, String>emptyMap());
+        this(coordinates, new MapPropertySource(Collections.<String, Object>emptyMap()));
     }
 
     /**
@@ -45,7 +47,7 @@ public final class PomReference {
      * @param coordinates the coordinates of the referenced pom
      * @param properties the properties that should be used when resolving the pom's contents
      */
-    public PomReference(Coordinates coordinates, Map<String, String> properties) {
+    public PomReference(Coordinates coordinates, PropertySource properties) {
         this.coordinates = coordinates;
         this.properties = properties;
     }
@@ -64,7 +66,7 @@ public final class PomReference {
      *
      * @return the properties
      */
-    public Map<String, String> getProperties() {
+    public PropertySource getProperties() {
         return this.properties;
     }
 

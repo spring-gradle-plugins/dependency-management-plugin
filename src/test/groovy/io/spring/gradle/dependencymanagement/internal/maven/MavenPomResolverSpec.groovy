@@ -19,6 +19,7 @@ package io.spring.gradle.dependencymanagement.internal.maven
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates
 import io.spring.gradle.dependencymanagement.internal.pom.PomReference
+import io.spring.gradle.dependencymanagement.internal.properties.MapPropertySource
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
@@ -61,7 +62,7 @@ class MavenPomResolverSpec extends Specification {
         given: 'A reference to a pom that is not Maven 3.0 compatible'
         PomReference reference = new PomReference(new Coordinates("log4j", "log4j", "1.2.16"))
         when: 'The reference is resolved'
-        def result = this.resolver.resolvePoms([reference], Collections.emptyMap())
+        def result = this.resolver.resolvePoms([reference], new MapPropertySource([:]))
         then: 'It was successful'
         result.size() == 1
     }
@@ -70,7 +71,7 @@ class MavenPomResolverSpec extends Specification {
         given: 'A reference to a pom that contains a dependency with an illegal system path'
         PomReference reference = new PomReference(new Coordinates("test", "illegal-system-path", "1.0"))
         when: 'The reference is resolved'
-        def result = this.resolver.resolvePoms([reference], Collections.emptyMap())
+        def result = this.resolver.resolvePoms([reference], new MapPropertySource([:]))
         then: 'It was successful'
         result.size() == 1
     }

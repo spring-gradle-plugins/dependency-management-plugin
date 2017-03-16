@@ -32,6 +32,8 @@ import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
 import io.spring.gradle.dependencymanagement.internal.pom.PomReference;
 import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
+import io.spring.gradle.dependencymanagement.internal.properties.ProjectPropertySource;
+import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
 
 /**
  * Encapsulates dependency management information for a particular configuration in a Gradle project.
@@ -74,7 +76,7 @@ public class DependencyManagement {
         this.targetConfiguration = targetConfiguration;
     }
 
-    void importBom(Coordinates coordinates, Map<String, String> properties) {
+    void importBom(Coordinates coordinates, PropertySource properties) {
         this.importedBoms.add(new PomReference(coordinates, properties));
     }
 
@@ -174,7 +176,7 @@ public class DependencyManagement {
 
         logger.debug("Preserving existing versions: {}", existingVersions);
 
-        this.resolvedBoms = this.pomResolver.resolvePoms(this.importedBoms, this.project.getProperties());
+        this.resolvedBoms = this.pomResolver.resolvePoms(this.importedBoms, new ProjectPropertySource(this.project));
 
         for (Pom resolvedBom: this.resolvedBoms) {
             for (Dependency dependency : resolvedBom.getManagedDependencies()) {

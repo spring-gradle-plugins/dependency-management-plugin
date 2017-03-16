@@ -19,13 +19,13 @@ package io.spring.gradle.dependencymanagement.internal.maven;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.gradle.api.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
+import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.DefaultModelBuilder;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.DefaultModelBuilderFactory;
@@ -55,7 +55,7 @@ final class EffectiveModelBuilder {
         this.modelResolver = new ConfigurationModelResolver(project, configurationContainer);
     }
 
-    Model buildModel(File pom, Map<String, ?> properties) {
+    Model buildModel(File pom, PropertySource properties) {
         DefaultModelBuildingRequest request = new DefaultModelBuildingRequest();
         request.setSystemProperties(System.getProperties());
         request.setModelSource(new FileModelSource(pom));
@@ -94,7 +94,7 @@ final class EffectiveModelBuilder {
         logger.error(message.toString());
     }
 
-    private DefaultModelBuilder createModelBuilder(Map<String, ?> properties) {
+    private DefaultModelBuilder createModelBuilder(PropertySource properties) {
         DefaultModelBuilder modelBuilder = new DefaultModelBuilderFactory().newInstance();
         modelBuilder
                 .setModelInterpolator(new PropertiesModelInterpolator(properties));

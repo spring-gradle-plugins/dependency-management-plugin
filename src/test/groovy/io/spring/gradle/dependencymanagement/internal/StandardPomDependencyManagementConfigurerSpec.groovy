@@ -19,6 +19,7 @@ package io.spring.gradle.dependencymanagement.internal
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings
 import io.spring.gradle.dependencymanagement.internal.maven.MavenPomResolver
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates
+import io.spring.gradle.dependencymanagement.internal.properties.MapPropertySource
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
@@ -47,7 +48,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
     def "An imported bom is imported in the pom"() {
         given: 'Dependency management that imports a bom'
             this.dependencyManagement.importBom(null, new Coordinates('io.spring.platform', 'platform-bom',
-                    '1.0.3.RELEASE'), [:]);
+                    '1.0.3.RELEASE'), new MapPropertySource([:]));
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement,
@@ -67,8 +68,10 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
             this.project.repositories {
                 maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
             }
-            this.dependencyManagement.importBom(null, new Coordinates('test', 'bravo-pom-customization-bom', '1.0'), [:])
-            this.dependencyManagement.importBom(null, new Coordinates('test', 'alpha-pom-customization-bom', '1.0'), [:])
+            this.dependencyManagement.importBom(null, new Coordinates('test', 'bravo-pom-customization-bom', '1.0'),
+                    new MapPropertySource([:]))
+            this.dependencyManagement.importBom(null, new Coordinates('test', 'alpha-pom-customization-bom', '1.0'),
+                    new MapPropertySource([:]))
 
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
@@ -94,7 +97,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
     def "Customization of published poms can be disabled"() {
         given: 'Dependency management that imports a bom'
             this.dependencyManagement.importBom(null, new Coordinates('io.spring.platform', 'platform-bom',
-                    '1.0.3.RELEASE'), [:]);
+                    '1.0.3.RELEASE'), new MapPropertySource([:]));
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             PomCustomizationSettings settings = new PomCustomizationSettings()
@@ -123,7 +126,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
     def "Dependency management can be added to a pom with existing dependency management"() {
         given: 'Dependency management that imports a bom'
             this.dependencyManagement.importBom(null, new Coordinates('io.spring.platform', 'platform-bom',
-                    '1.0.3.RELEASE'), [:]);
+                    '1.0.3.RELEASE'), new MapPropertySource([:]));
         when: 'The pom with existing dependency management is configured'
             Node pom = new XmlParser().parseText("<project><dependencyManagement><dependencies></dependencies></dependencyManagement></project>")
             new StandardPomDependencyManagementConfigurer(this.dependencyManagement.globalDependencyManagement,
