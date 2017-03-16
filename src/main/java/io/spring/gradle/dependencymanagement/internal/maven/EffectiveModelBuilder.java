@@ -45,13 +45,10 @@ final class EffectiveModelBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(EffectiveModelBuilder.class);
 
-    private final Project project;
-
     private final ModelResolver modelResolver;
 
     EffectiveModelBuilder(Project project,
             DependencyManagementConfigurationContainer configurationContainer) {
-        this.project = project;
         this.modelResolver = new ConfigurationModelResolver(project, configurationContainer);
     }
 
