@@ -73,7 +73,7 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
                         details.getRequested().getName());
 
         if (version != null) {
-            logger.info("Using version '{}' for dependency '{}'", version,
+            logger.debug("Using version '{}' for dependency '{}'", version,
                     details.getRequested());
             details.useVersion(version);
         }
