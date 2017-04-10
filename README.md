@@ -18,7 +18,7 @@ The plugin is available in the Gradle Plugin Portal and can be applied like this
 
 ```groovy
 plugins {
-    id "io.spring.dependency-management" version "1.0.1.RELEASE"
+    id "io.spring.dependency-management" version "1.0.2.RELEASE"
 }
 ```
 
