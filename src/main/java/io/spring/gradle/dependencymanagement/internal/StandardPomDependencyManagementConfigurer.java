@@ -130,7 +130,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
         if (scope != null) {
             dependencyNode.appendNode(NODE_NAME_SCOPE, scope);
         }
-        if (!"jar".equals(type)) {
+        if (!"jar".equals(type) && type != null) {
             dependencyNode.appendNode(NODE_NAME_TYPE, type);
         }
         return dependencyNode;
