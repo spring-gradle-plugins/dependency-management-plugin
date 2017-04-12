@@ -58,4 +58,20 @@ public interface DependencyManagementConfigurer {
      */
     void dependencies(Action<DependenciesHandler> action);
 
+    /**
+     * Configures the properties using the given {@code closure}. The closure is called with
+     * {@link PropertiesHandler} as its delegate.
+     *
+     * @param closure the closure to execute to configure the properties
+     * @see PropertiesHandler
+     */
+    void properties(Closure closure);
+
+    /**
+     * Configures the properties using the given {@code action}.
+     *
+     * @param action the action to execute to configure the properties
+     */
+    void properties(Action<PropertiesHandler> action);
+
 }

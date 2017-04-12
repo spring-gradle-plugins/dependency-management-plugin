@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement.internal;
 
 import java.util.List;
+import java.util.Map;
 
 import groovy.util.Node;
 import org.gradle.api.XmlProvider;
@@ -53,6 +54,8 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
     private static final String NODE_NAME_SCOPE = "scope";
 
     private static final String NODE_NAME_TYPE = "type";
+
+    private static final String NODE_NAME_DEPENDENCY_PROPERTIES = "properties";
 
     private final DependencyManagement dependencyManagement;
 
@@ -95,6 +98,13 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
             dependenciesNode = dependencyManagementNode.appendNode(NODE_NAME_DEPENDENCIES);
         }
 
+        Node propertiesNode = findChild(pom, NODE_NAME_DEPENDENCY_PROPERTIES);
+        if (propertiesNode == null && !this.dependencyManagement
+                .getProperties().isEmpty()) {
+            propertiesNode = pom.appendNode(NODE_NAME_DEPENDENCY_PROPERTIES);
+        }
+
+        configureProperties(propertiesNode);
         configureBomImports(dependenciesNode);
         configureDependencies(dependenciesNode);
     }
@@ -151,6 +161,13 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
                 }
 
             }
+        }
+    }
+
+    private void configureProperties(Node properties) {
+        for (Map.Entry<String, String> property : this.dependencyManagement
+                .getProperties().entrySet()) {
+            properties.appendNode(property.getKey(), property.getValue());
         }
     }
 

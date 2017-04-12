@@ -25,6 +25,7 @@ import org.gradle.api.artifacts.Configuration;
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementHandler;
 import io.spring.gradle.dependencymanagement.dsl.ImportsHandler;
+import io.spring.gradle.dependencymanagement.dsl.PropertiesHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 
 /**
@@ -69,6 +70,18 @@ class StandardDependencyManagementHandler implements DependencyManagementHandler
     @Override
     public void dependencies(Action<DependenciesHandler> action) {
         action.execute(new StandardDependenciesHandler(this.container, this.configuration));
+    }
+
+    @Override
+    public void properties(Closure closure) {
+        closure.setResolveStrategy(Closure.DELEGATE_FIRST);
+        closure.setDelegate(new StandardPropertiesHandler(this.container, this.configuration));
+        closure.call();
+    }
+
+    @Override
+    public void properties(Action<PropertiesHandler> action) {
+        action.execute(new StandardPropertiesHandler(this.container, this.configuration));
     }
 
     @Override

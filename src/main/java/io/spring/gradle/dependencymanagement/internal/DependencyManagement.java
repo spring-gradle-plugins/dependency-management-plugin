@@ -66,6 +66,8 @@ public class DependencyManagement {
 
     private List<Pom> resolvedBoms = new ArrayList<Pom>();
 
+    private Map<String, String> properties = new HashMap<String, String>();
+
     DependencyManagement(Project project, PomResolver pomResolver) {
         this(project, null, pomResolver);
     }
@@ -140,6 +142,15 @@ public class DependencyManagement {
     Exclusions getExclusions() {
         resolveIfNecessary();
         return this.allExclusions;
+    }
+
+    Map<String, String> getProperties() {
+        resolveIfNecessary();
+        return this.properties;
+    }
+
+    void addProperty(String name, String value) {
+        this.properties.put(name, value);
     }
 
     private void resolveIfNecessary() {
