@@ -19,6 +19,7 @@ package io.spring.gradle.dependencymanagement;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.maven.MavenResolver;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
@@ -49,26 +50,27 @@ public class DependencyManagementPlugin implements Plugin<Project> {
         project.getConfigurations().all(internalComponents.getImplicitDependencyManagementCollector());
         project.getConfigurations().all(internalComponents.getDependencyManagementApplier());
 
-        project.afterEvaluate(new Action<Project>() {
-
-            @Override
-            public void execute(Project project) {
-                configurePomCustomization(project, dependencyManagementExtension);
-            }
-
-        });
+        configurePomCustomization(project, dependencyManagementExtension);
     }
 
     private void configurePomCustomization(final Project project, DependencyManagementExtension dependencyManagementExtension) {
         final PomDependencyManagementConfigurer pomConfigurer = dependencyManagementExtension.getPomConfigurer();
         project.getTasks().withType(Upload.class, new Action<Upload>() {
+
             @Override
-            public void execute(Upload upload) {
-                upload.getRepositories().withType(MavenResolver.class, new Action<MavenResolver>() {
+            public void execute(final Upload upload) {
+                upload.doFirst(new Action<Task>() {
 
                     @Override
-                    public void execute(MavenResolver mavenResolver) {
-                        mavenResolver.getPom().withXml(pomConfigurer);
+                    public void execute(Task task) {
+                        upload.getRepositories().withType(MavenResolver.class, new Action<MavenResolver>() {
+
+                            @Override
+                            public void execute(MavenResolver mavenResolver) {
+                                mavenResolver.getPom().withXml(pomConfigurer);
+                            }
+
+                        });
                     }
 
                 });
