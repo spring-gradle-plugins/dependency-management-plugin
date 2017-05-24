@@ -1291,4 +1291,36 @@ public class DependencyManagementPluginSpec extends Specification {
             project.configurations.compile.resolve()
     }
 
+    def 'A configuration can be used directly when configuring configuration-specific dependency management'() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+        when: 'A configuration is used directly to configure configuration-specific dependency management'
+            project.dependencyManagement {
+                configurations(project.configurations.getByName("compile")) {
+                    dependencies {
+                        dependency 'org.springframework:spring-core:4.0.0.RELEASE'
+                    }
+                }
+            }
+        then: 'The dependency management is configured for the configuration'
+            project.dependencyManagement.compile.managedVersions['org.springframework:spring-core'] == '4.0.0.RELEASE'
+    }
+
+    def 'A configuration can be referred to by name when configuring configuration-specific dependency management'() {
+        given: 'A project with the plugin applied'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
+        when: 'A configuration is used directly to configure configuration-specific dependency management'
+        project.dependencyManagement {
+            configurations("compile") {
+                dependencies {
+                    dependency 'org.springframework:spring-core:4.0.0.RELEASE'
+                }
+            }
+        }
+        then: 'The dependency management is configured for the configuration'
+        project.dependencyManagement.compile.managedVersions['org.springframework:spring-core'] == '4.0.0.RELEASE'
+    }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,6 +176,12 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
             if (object instanceof DependencyManagementConfigurer) {
                 configurers.add((DependencyManagementConfigurer) object);
             }
+            else if (object instanceof Configuration) {
+                configurers.add(handlerForConfiguration((Configuration) object));
+            }
+            else if (object instanceof CharSequence) {
+                configurers.add(handlerForConfiguration(object.toString()));
+            }
         }
         return configurers;
     }
@@ -188,12 +194,15 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
      * @return the {@code DependencyManagementHandler} for the configuration
      */
     public Object propertyMissing(String name) {
-        return forConfiguration(name);
+        return handlerForConfiguration(name);
     }
 
-    private DependencyManagementHandler forConfiguration(String name) {
-        return new StandardDependencyManagementHandler(this.dependencyManagementContainer,
-                this.project.getConfigurations().getAt(name));
+    private DependencyManagementHandler handlerForConfiguration(String name) {
+        return handlerForConfiguration(this.project.getConfigurations().getByName(name));
+    }
+
+    private DependencyManagementHandler handlerForConfiguration(Configuration configuration) {
+        return new StandardDependencyManagementHandler(this.dependencyManagementContainer, configuration);
     }
 
     @Override
