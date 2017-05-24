@@ -1136,18 +1136,35 @@ public class DependencyManagementPluginSpec extends Specification {
 
     def "A property in a bom can be overridden when it is imported"() {
         given: 'A project with the plugin applied'
-            project.apply plugin: 'io.spring.dependency-management'
-            project.apply plugin: 'java'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
         when: 'A bom is imported and a property is overridden'
-            project.dependencyManagement {
-                imports {
-                    mavenBom('org.springframework.boot:spring-boot-dependencies:1.3.5.RELEASE') {
-                        bomProperties(['spring.version':'4.3.0.RELEASE'])
-                    }
+        project.dependencyManagement {
+            imports {
+                mavenBom('org.springframework.boot:spring-boot-dependencies:1.3.5.RELEASE') {
+                    bomProperties(['spring.version':'4.3.0.RELEASE'])
                 }
             }
+        }
         then: 'The value of the property has been overridden'
-            project.dependencyManagement.managedVersions['org.springframework:spring-core'] == '4.3.0.RELEASE'
+        project.dependencyManagement.managedVersions['org.springframework:spring-core'] == '4.3.0.RELEASE'
+    }
+
+    def "A bom property can be configured using a reference to a project property"() {
+        given: 'A project with the plugin applied'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
+        when: 'A bom is imported and a property is overridden'
+        project.ext['springVersion'] = '4.3.0.RELEASE'
+        project.dependencyManagement {
+            imports {
+                mavenBom('org.springframework.boot:spring-boot-dependencies:1.3.5.RELEASE') {
+                    bomProperties(['spring.version':springVersion])
+                }
+            }
+        }
+        then: 'The value of the property has been overridden'
+        project.dependencyManagement.managedVersions['org.springframework:spring-core'] == '4.3.0.RELEASE'
     }
 
     def "When overriding a bom property, a property on an import takes precedence over a project property"() {
