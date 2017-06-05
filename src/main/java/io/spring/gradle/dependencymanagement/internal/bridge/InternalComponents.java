@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package io.spring.gradle.dependencymanagement.internal.bridge;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.plugins.HelpTasksPlugin;
 
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementApplier;
@@ -109,6 +110,9 @@ public class InternalComponents {
             public void execute(DependencyManagementReportTask dependencyManagementReportTask) {
                 dependencyManagementReportTask
                         .setDependencyManagementContainer(InternalComponents.this.dependencyManagementContainer);
+                dependencyManagementReportTask.setGroup(HelpTasksPlugin.HELP_GROUP);
+                dependencyManagementReportTask.setDescription("Displays the dependency management declared in "
+                        + dependencyManagementReportTask.getProject() + ".");
             }
 
         });
