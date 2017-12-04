@@ -143,7 +143,7 @@ public class DependencyManagement {
     }
 
     private void resolveIfNecessary() {
-        if (!this.resolved) {
+        if (!this.importedBoms.isEmpty() && !this.resolved) {
             try {
                 this.resolved = true;
                 resolve();
