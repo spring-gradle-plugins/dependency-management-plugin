@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1066,7 +1066,7 @@ public class DependencyManagementPluginSpec extends Specification {
             thrown.message == "Dependency identifier '{group=a}' did not specify name, version"
     }
 
-    def "Build fails with a helpful error when a bom cannot be imported"() {
+    def "Resolving dependency management fails with a helpful error when a bom cannot be imported"() {
         given: 'A project that imports a bom that does not exist'
             project.apply plugin: 'io.spring.dependency-management'
             project.apply plugin: 'java'
@@ -1083,6 +1083,25 @@ public class DependencyManagementPluginSpec extends Specification {
         then: 'It fails with a helpful error message'
             def thrown = thrown(GradleException)
             thrown.message.startsWith("Failed to resolve imported Maven boms: Could not find com.example:does-not-exist:1.0.")
+    }
+
+    def "Resolving a configuration fails with a helpful error when a bom that manages its versions cannot be imported"() {
+        given: 'A project that imports a bom that does not exist'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
+        project.dependencyManagement {
+            imports {
+                mavenBom 'com.example:does-not-exist:1.0'
+            }
+        }
+        project.dependencies {
+            compile 'commons-logging:commons-logging'
+        }
+        when: 'A configuration with dependency management is resolved'
+        project.configurations.compile.resolve()
+        then: 'It fails with a helpful error message'
+        def thrown = thrown(GradleException)
+        thrown.message.startsWith("Failed to resolve imported Maven boms: Could not find com.example:does-not-exist:1.0.")
     }
 
     def "A dynamic version is not added to dependency management"() {

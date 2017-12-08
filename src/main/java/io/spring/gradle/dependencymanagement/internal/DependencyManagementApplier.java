@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package io.spring.gradle.dependencymanagement.internal;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ResolvableDependencies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,9 +65,18 @@ public class DependencyManagementApplier implements Action<Configuration> {
     }
 
     @Override
-    public void execute(Configuration configuration) {
+    public void execute(final Configuration configuration) {
         logger.info("Applying dependency management to configuration '{}' in project '{}'",
                 configuration.getName(), this.project.getName());
+
+        configuration.getIncoming().beforeResolve(new Action<ResolvableDependencies>() {
+
+            @Override
+            public void execute(ResolvableDependencies resolvableDependencies) {
+                dependencyManagementContainer.getManagedVersionsForConfiguration(configuration);
+            }
+
+        });
 
         final VersionConfiguringAction versionConfiguringAction = new VersionConfiguringAction(
                 this.project, this.dependencyManagementContainer, configuration);
@@ -79,6 +89,7 @@ public class DependencyManagementApplier implements Action<Configuration> {
             public void configure(Configuration configuration) {
                 configuration.getResolutionStrategy().eachDependency(versionConfiguringAction);
             }
+
         }));
 
         configuration.getResolutionStrategy().eachDependency(versionConfiguringAction);
