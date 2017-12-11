@@ -19,6 +19,7 @@ package io.spring.gradle.dependencymanagement.internal
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings
 import io.spring.gradle.dependencymanagement.internal.maven.MavenPomResolver
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates
+import io.spring.gradle.dependencymanagement.internal.pom.PomResolver
 import io.spring.gradle.dependencymanagement.internal.properties.MapPropertySource
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -34,6 +35,8 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
 
     DependencyManagementContainer dependencyManagement
 
+    PomResolver pomResolver
+
     def setup() {
         project = new ProjectBuilder().build()
         project.repositories {
@@ -41,8 +44,8 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
         }
         DependencyManagementConfigurationContainer configurationContainer = new
                 DependencyManagementConfigurationContainer(project)
-        this.dependencyManagement = new DependencyManagementContainer(project, new MavenPomResolver(project,
-                configurationContainer))
+        pomResolver = new MavenPomResolver(project, configurationContainer)
+        this.dependencyManagement = new DependencyManagementContainer(project, pomResolver)
     }
 
     def "An imported bom is imported in the pom"() {
@@ -52,7 +55,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement,
-                    new PomCustomizationSettings()).configurePom(pom)
+                    new PomCustomizationSettings(), pomResolver, project).configurePom(pom)
         then: 'The imported bom has been added'
             pom.dependencyManagement.dependencies.dependency.size() == 1
             def dependency = pom.dependencyManagement.dependencies.dependency[0]
@@ -76,7 +79,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             PomCustomizationSettings settings = new PomCustomizationSettings()
-            new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement, settings).configurePom(pom)
+            new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement, settings, pomResolver, project).configurePom(pom)
         then: 'The imported boms have been imported in their imported order'
             pom.dependencyManagement.dependencies.dependency.size() == 2
             def dependency1 = pom.dependencyManagement.dependencies.dependency[0]
@@ -102,7 +105,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
             Node pom = new XmlParser().parseText("<project></project>")
             PomCustomizationSettings settings = new PomCustomizationSettings()
             settings.enabled = false
-            new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement, settings).configurePom(pom)
+            new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement, settings, pomResolver, project).configurePom(pom)
         then: 'The imported bom has not been added'
             pom.dependencyManagement.dependencies.dependency.size() == 0
     }
@@ -113,7 +116,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement,
-                    new PomCustomizationSettings()).configurePom(pom)
+                    new PomCustomizationSettings(), pomResolver, project).configurePom(pom)
         then: 'The managed dependency has been added'
             pom.dependencyManagement.dependencies.dependency.size() == 1
             def dependency = pom.dependencyManagement.dependencies.dependency[0]
@@ -130,7 +133,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
         when: 'The pom with existing dependency management is configured'
             Node pom = new XmlParser().parseText("<project><dependencyManagement><dependencies></dependencies></dependencyManagement></project>")
             new StandardPomDependencyManagementConfigurer(this.dependencyManagement.globalDependencyManagement,
-                    new PomCustomizationSettings()).configurePom(pom)
+                    new PomCustomizationSettings(), pomResolver, project).configurePom(pom)
         then: 'The imported bom has been added'
             pom.dependencyManagement.dependencies.dependency.size() == 1
             def dependency = pom.dependencyManagement.dependencies.dependency[0]
@@ -148,7 +151,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement,
-                    new PomCustomizationSettings()).configurePom(pom)
+                    new PomCustomizationSettings(), pomResolver, project).configurePom(pom)
         then: 'The managed dependency has been added with its exclusions'
             pom.dependencyManagement.dependencies.dependency.size() == 1
             def dependency = pom.dependencyManagement.dependencies.dependency[0]
@@ -162,4 +165,31 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
             exclusions.contains("commons-logging:commons-logging")
             exclusions.contains("foo:bar")
     }
+
+    def "Overriding a version property results in dependency overrides in pom"() {
+        given: 'Dependency management that imports a bom and overrides a version'
+        this.dependencyManagement.importBom(null, new Coordinates('org.springframework.boot', 'spring-boot-dependencies',
+                '1.5.9.RELEASE'), new MapPropertySource([:]));
+        this.project.extensions.extraProperties.set("spring.version", "4.3.5.RELEASE")
+        when: 'The pom is configured'
+        Node pom = new XmlParser().parseText("<project></project>")
+        new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement,
+                new PomCustomizationSettings(), pomResolver, project).configurePom(pom)
+        then: 'The imported bom has been added with overrides'
+        def dependencies = pom.dependencyManagement.dependencies.dependency
+        pom.dependencyManagement.dependencies.dependency.size() == 21
+        dependencies.take(dependencies.size() - 1).every { override ->
+            override.groupId[0].value() == 'org.springframework'
+        }
+        dependencies.take(dependencies.size() - 1).every { override ->
+            override.version[0].value() == '4.3.5.RELEASE'
+        }
+        def bootDependenciesBom = pom.dependencyManagement.dependencies.dependency[20]
+        bootDependenciesBom.groupId[0].value() == 'org.springframework.boot'
+        bootDependenciesBom.artifactId[0].value() == 'spring-boot-dependencies'
+        bootDependenciesBom.version[0].value() == '1.5.9.RELEASE'
+        bootDependenciesBom.scope[0].value() == 'import'
+        bootDependenciesBom.type[0].value() == 'pom'
+    }
+
 }

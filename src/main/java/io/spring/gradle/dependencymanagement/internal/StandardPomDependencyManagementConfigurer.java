@@ -16,15 +16,23 @@
 
 package io.spring.gradle.dependencymanagement.internal;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import groovy.util.Node;
+import org.gradle.api.Project;
 import org.gradle.api.XmlProvider;
 
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
+import io.spring.gradle.dependencymanagement.internal.pom.PomReference;
+import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
+import io.spring.gradle.dependencymanagement.internal.properties.ProjectPropertySource;
+import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
 import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfigurer;
 
 /**
@@ -56,7 +64,11 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 
     private final DependencyManagement dependencyManagement;
 
-    private PomCustomizationSettings settings;
+    private final PomCustomizationSettings settings;
+
+    private final PomResolver pomResolver;
+
+    private final Project project;
 
     /**
      * Creates a new {@code StandardPomDependencyManagementConfigurer} that will configure the pom's dependency management
@@ -65,11 +77,15 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
      *
      * @param dependencyManagement the dependency management
      * @param settings the customization settings
+     * @param pomResolver resolves imported boms during dependency management configuration
+     * @param project owner of the pom that is being configured
      */
     public StandardPomDependencyManagementConfigurer(DependencyManagement dependencyManagement,
-            PomCustomizationSettings settings) {
+            PomCustomizationSettings settings, PomResolver pomResolver, Project project) {
         this.dependencyManagement = dependencyManagement;
         this.settings = settings;
+        this.pomResolver = pomResolver;
+        this.project = project;
     }
 
     @Override
@@ -89,12 +105,10 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
         if (dependencyManagementNode == null) {
             dependencyManagementNode = pom.appendNode(NODE_NAME_DEPENDENCY_MANAGEMENT);
         }
-
         Node dependenciesNode = findChild(dependencyManagementNode, NODE_NAME_DEPENDENCIES);
         if (dependenciesNode == null) {
             dependenciesNode = dependencyManagementNode.appendNode(NODE_NAME_DEPENDENCIES);
         }
-
         configureBomImports(dependenciesNode);
         configureDependencies(dependenciesNode);
     }
@@ -106,15 +120,49 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
             }
 
         }
-
         return null;
     }
 
     private void configureBomImports(Node dependencies) {
-        List<Pom> resolvedBoms = this.dependencyManagement.getImportedBoms();
-        for (Pom resolvedBom: resolvedBoms) {
+        List<PomReference> bomReferences = this.dependencyManagement.getImportedBomReferences();
+        List<Pom> resolvedWithoutPropertiesBoms = this.pomResolver.resolvePoms(bomReferences, new PropertySource() {
+
+            @Override
+            public Object getProperty(String name) {
+                return null;
+            }
+
+        });
+        Map<String, Dependency> managedDependencies = new HashMap<String, Dependency>();
+        for (Pom pomWithoutProperty: resolvedWithoutPropertiesBoms) {
+            for (Dependency dependency: pomWithoutProperty.getManagedDependencies()) {
+                managedDependencies.put(createId(dependency), dependency);
+            }
+        }
+        List<Dependency> overrides = new ArrayList<Dependency>();
+        for (Pom pom: this.pomResolver.resolvePoms(bomReferences, new ProjectPropertySource(this.project))) {
+            for (Dependency dependency: pom.getManagedDependencies()) {
+                Dependency other = managedDependencies.get(createId(dependency));
+                if (!dependency.getCoordinates().getVersion().equals(other.getCoordinates().getVersion())) {
+                    overrides.add(dependency);
+                }
+            }
+        }
+        for (Dependency override: overrides) {
+            appendDependencyNode(dependencies, override.getCoordinates(), override.getScope(), override.getType());
+        }
+        for (Pom resolvedBom: this.dependencyManagement.getImportedBoms()) {
             addImport(dependencies, resolvedBom);
         }
+    }
+
+    private String createId(Dependency dependency) {
+        return String.format("%s:%s:%s:%s:%s",
+                dependency.getCoordinates().getGroupId(),
+                dependency.getCoordinates().getArtifactId(),
+                dependency.getScope(),
+                dependency.getType(),
+                dependency.getClassifier());
     }
 
     private void addImport(Node dependencies, Pom importedBom) {

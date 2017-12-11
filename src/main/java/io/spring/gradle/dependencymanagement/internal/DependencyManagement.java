@@ -85,9 +85,13 @@ public class DependencyManagement {
      *
      * @return the imported poms
      */
-    public List<Pom> getImportedBoms() {
+    List<Pom> getImportedBoms() {
         resolveIfNecessary();
         return this.resolvedBoms;
+    }
+
+    List<PomReference> getImportedBomReferences() {
+        return this.importedBoms;
     }
 
     Map<String, String> getImportedProperties() {

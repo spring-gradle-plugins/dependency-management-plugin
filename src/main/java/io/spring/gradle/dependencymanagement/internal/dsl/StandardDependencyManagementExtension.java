@@ -38,6 +38,7 @@ import io.spring.gradle.dependencymanagement.internal.DependencyManagementContai
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.internal.StandardPomDependencyManagementConfigurer;
+import io.spring.gradle.dependencymanagement.internal.maven.MavenPomResolver;
 
 /**
  * Standard implementation of {@link DependencyManagementExtension}.
@@ -143,7 +144,8 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
     public StandardPomDependencyManagementConfigurer getPomConfigurer() {
         return new StandardPomDependencyManagementConfigurer(
                 this.dependencyManagementContainer.getGlobalDependencyManagement(),
-                this.dependencyManagementSettings.getPomCustomizationSettings());
+                this.dependencyManagementSettings.getPomCustomizationSettings(),
+                new MavenPomResolver(this.project, configurationContainer), this.project);
     }
 
     /**
