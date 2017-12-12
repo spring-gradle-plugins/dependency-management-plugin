@@ -22,8 +22,20 @@ plugins {
 }
 ```
 
-If you prefer, the plugin is also available from Maven Central and JCenter and snapshots are
-available from https://repo.spring.io/plugins-snapshot.
+If you prefer, the plugin is also available from Maven Central and JCenter.  Snapshots are
+available from https://repo.spring.io/plugins-snapshot and can be used as shown in the
+following example:
+
+```groovy
+buildscript {
+    repositories {
+        maven { url 'https://repo.spring.io/plugins-snapshot' }
+    }
+    dependencies {
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.BUILD-SNAPSHOT'
+    }
+}
+```
 
 With this basic configuration in place, you're ready to configure the project's dependency
 management and declare its dependencies.
