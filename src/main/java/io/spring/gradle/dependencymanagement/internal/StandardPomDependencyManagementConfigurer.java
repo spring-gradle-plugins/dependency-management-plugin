@@ -143,7 +143,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
         for (Pom pom: this.pomResolver.resolvePoms(bomReferences, new ProjectPropertySource(this.project))) {
             for (Dependency dependency: pom.getManagedDependencies()) {
                 Dependency other = managedDependencies.get(createId(dependency));
-                if (!dependency.getCoordinates().getVersion().equals(other.getCoordinates().getVersion())) {
+                if (other ==  null || !dependency.getCoordinates().getVersion().equals(other.getCoordinates().getVersion())) {
                     overrides.add(dependency);
                 }
             }

@@ -192,4 +192,31 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
         bootDependenciesBom.type[0].value() == 'pom'
     }
 
+    def "When a version override results in a bom with management of a new dependency its management appears in the pom"() {
+        given: 'Dependency management that imports a bom and overrides to a version with a new managed dependency'
+        this.dependencyManagement.importBom(null, new Coordinates('org.springframework.boot', 'spring-boot-dependencies',
+                '1.5.9.RELEASE'), new MapPropertySource([:]));
+        this.project.extensions.extraProperties.set("spring.version", "5.0.2.RELEASE")
+        when: 'The pom is configured'
+        Node pom = new XmlParser().parseText("<project></project>")
+        new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement,
+                new PomCustomizationSettings(), pomResolver, project).configurePom(pom)
+        then: 'The imported bom has been added with overrides including the new managed dependency'
+        def dependencies = pom.dependencyManagement.dependencies.dependency
+        pom.dependencyManagement.dependencies.dependency.size() == 22
+        dependencies.take(dependencies.size() - 1).every { override ->
+            override.groupId[0].value() == 'org.springframework'
+        }
+        dependencies.take(dependencies.size() - 1).every { override ->
+            override.version[0].value() == '5.0.2.RELEASE'
+        }
+        dependencies.artifactId.collect { it.value() }.contains('spring-context-indexer')
+        def bootDependenciesBom = pom.dependencyManagement.dependencies.dependency[21]
+        bootDependenciesBom.groupId[0].value() == 'org.springframework.boot'
+        bootDependenciesBom.artifactId[0].value() == 'spring-boot-dependencies'
+        bootDependenciesBom.version[0].value() == '1.5.9.RELEASE'
+        bootDependenciesBom.scope[0].value() == 'import'
+        bootDependenciesBom.type[0].value() == 'pom'
+    }
+
 }
