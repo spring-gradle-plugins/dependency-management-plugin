@@ -198,8 +198,10 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
         for (Dependency managedDependency : this.dependencyManagement
                 .getManagedDependencies()) {
             addManagedDependency(managedDependencies, managedDependency, null);
-            for (String classifier: findClassifiers(dependencies, managedDependency)) {
-                addManagedDependency(managedDependencies, managedDependency, classifier);
+            if (dependencies != null) {
+                for (String classifier : findClassifiers(dependencies, managedDependency)) {
+                    addManagedDependency(managedDependencies, managedDependency, classifier);
+                }
             }
         }
     }
@@ -225,8 +227,8 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
     private List<String> findClassifiers(Node dependencies, Dependency managedDependency) {
         List<String> classifiers = new ArrayList<String>();
         for (Object child: dependencies.children()) {
-            if (child instanceof Node && ((Node)child).name().equals(NODE_NAME_DEPENDENCY)) {
-                Node dependency = (Node)child;
+            if (child instanceof Node && ((Node) child).name().equals(NODE_NAME_DEPENDENCY)) {
+                Node dependency = (Node) child;
                 String groupId = findTextOfChild(dependency, NODE_NAME_GROUP_ID);
                 String artifactId = findTextOfChild(dependency, NODE_NAME_ARTIFACT_ID);
                 if (managedDependency.getCoordinates().getGroupId().equals(groupId) &&
@@ -243,7 +245,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 
     private String findTextOfChild(Node node, String name) {
         Node child = findChild(node, name);
-        return child == null ? null: child.text();
+        return child == null ? null : child.text();
     }
 
     private static final class EmptyPropertySource implements PropertySource {
