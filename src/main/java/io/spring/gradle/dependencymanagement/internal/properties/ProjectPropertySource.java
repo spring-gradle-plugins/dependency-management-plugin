@@ -39,10 +39,10 @@ public class ProjectPropertySource implements PropertySource {
 
     @Override
     public String getProperty(String name) {
-        if (!this.project.hasProperty(name)) {
-            return null;
+        if (this.project.hasProperty(name) && this.project.property(name) != null) {
+            return this.project.property(name).toString();
         }
-        return this.project.property(name).toString();
+        return null;
     }
 
 }
