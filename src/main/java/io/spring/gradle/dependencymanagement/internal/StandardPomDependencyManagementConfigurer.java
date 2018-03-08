@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +102,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
     }
 
     private void doConfigurePom(Node pom) {
+        System.out.println("Configuring " + pom);
         Node dependencyManagementNode = findChild(pom, NODE_NAME_DEPENDENCY_MANAGEMENT);
         if (dependencyManagementNode == null) {
             dependencyManagementNode = pom.appendNode(NODE_NAME_DEPENDENCY_MANAGEMENT);
@@ -125,35 +127,33 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 
     private void configureBomImports(Node dependencies) {
         List<PomReference> bomReferences = this.dependencyManagement.getImportedBomReferences();
-        List<Pom> resolvedWithoutPropertiesBoms = this.pomResolver.resolvePoms(bomReferences, new PropertySource() {
-
-            @Override
-            public Object getProperty(String name) {
-                return null;
-            }
-
-        });
-        Map<String, Dependency> managedDependencies = new HashMap<String, Dependency>();
-        for (Pom pomWithoutProperty: resolvedWithoutPropertiesBoms) {
-            for (Dependency dependency: pomWithoutProperty.getManagedDependencies()) {
-                managedDependencies.put(createId(dependency), dependency);
-            }
-        }
+        Map<String, Dependency> withoutPropertiesManagedDependencies = getManagedDependenciesById(bomReferences, new EmptyPropertySource());
+        Map<String, Dependency> withPropertiesManagedDependencies = getManagedDependenciesById(bomReferences, new ProjectPropertySource(this.project));
         List<Dependency> overrides = new ArrayList<Dependency>();
-        for (Pom pom: this.pomResolver.resolvePoms(bomReferences, new ProjectPropertySource(this.project))) {
-            for (Dependency dependency: pom.getManagedDependencies()) {
-                Dependency other = managedDependencies.get(createId(dependency));
-                if (other ==  null || !dependency.getCoordinates().getVersion().equals(other.getCoordinates().getVersion())) {
-                    overrides.add(dependency);
-                }
+        for (Map.Entry<String, Dependency> withPropertyEntry: withPropertiesManagedDependencies.entrySet()) {
+            Dependency withoutPropertyDependency = withoutPropertiesManagedDependencies.get(withPropertyEntry.getKey());
+            if (differentVersions(withoutPropertyDependency, withPropertyEntry.getValue())) {
+                overrides.add(withPropertyEntry.getValue());
             }
         }
         for (Dependency override: overrides) {
             appendDependencyNode(dependencies, override.getCoordinates(), override.getScope(), override.getType());
         }
-        for (Pom resolvedBom: this.dependencyManagement.getImportedBoms()) {
+        List<Pom> importedBoms = this.dependencyManagement.getImportedBoms();
+        Collections.reverse(importedBoms);
+        for (Pom resolvedBom: importedBoms) {
             addImport(dependencies, resolvedBom);
         }
+    }
+
+    private Map<String, Dependency> getManagedDependenciesById(List<PomReference> bomReferences, PropertySource propertySource) {
+        Map<String, Dependency> managedDependencies = new HashMap<String, Dependency>();
+        for (Pom pom: this.pomResolver.resolvePoms(bomReferences, propertySource)) {
+            for (Dependency dependency: pom.getManagedDependencies()) {
+                managedDependencies.put(createId(dependency), dependency);
+            }
+        }
+        return managedDependencies;
     }
 
     private String createId(Dependency dependency) {
@@ -163,6 +163,15 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
                 dependency.getScope(),
                 dependency.getType(),
                 dependency.getClassifier());
+    }
+
+    private boolean differentVersions(Dependency dependency1, Dependency dependency2) {
+        if (dependency1 == null) {
+            return true;
+        }
+        String version1 = dependency1.getCoordinates().getVersion();
+        String version2 = dependency2.getCoordinates().getVersion();
+        return !version1.equals(version2);
     }
 
     private void addImport(Node dependencies, Pom importedBom) {
@@ -187,6 +196,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
     private void configureDependencies(Node dependencies) {
         for (Dependency dependency : this.dependencyManagement
                 .getManagedDependencies()) {
+            System.out.println(dependency.getCoordinates().getGroupId() + ":" + dependency.getCoordinates().getArtifactId());
             Node dependencyNode = appendDependencyNode(dependencies, dependency.getCoordinates(), dependency.getScope(),
                     dependency.getType());
             if (!dependency.getExclusions().isEmpty()) {
@@ -200,6 +210,15 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 
             }
         }
+    }
+
+    private static final class EmptyPropertySource implements PropertySource {
+
+        @Override
+        public Object getProperty(String name) {
+            return null;
+        }
+
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
             dependency.type[0].value() == 'pom'
     }
 
-    def "Multiple imports are imported in the order in which they were imported"() {
+    def "Multiple imports are imported in the opposite order to which they were imported"() {
         given: 'Dependency management that imports two boms'
             this.project.repositories {
                 maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
@@ -80,18 +80,18 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
             Node pom = new XmlParser().parseText("<project></project>")
             PomCustomizationSettings settings = new PomCustomizationSettings()
             new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement, settings, pomResolver, project).configurePom(pom)
-        then: 'The imported boms have been imported in their imported order'
+        then: 'The imported boms have been imported in the reverse of their imported order'
             pom.dependencyManagement.dependencies.dependency.size() == 2
             def dependency1 = pom.dependencyManagement.dependencies.dependency[0]
             dependency1.groupId[0].value() == 'test'
-            dependency1.artifactId[0].value() == 'bravo-pom-customization-bom'
+            dependency1.artifactId[0].value() == 'alpha-pom-customization-bom'
             dependency1.version[0].value() == '1.0'
             dependency1.scope[0].value() == 'import'
             dependency1.type[0].value() == 'pom'
 
             def dependency2 = pom.dependencyManagement.dependencies.dependency[1]
             dependency2.groupId[0].value() == 'test'
-            dependency2.artifactId[0].value() == 'alpha-pom-customization-bom'
+            dependency2.artifactId[0].value() == 'bravo-pom-customization-bom'
             dependency2.version[0].value() == '1.0'
             dependency2.scope[0].value() == 'import'
             dependency2.type[0].value() == 'pom'
@@ -217,6 +217,23 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
         bootDependenciesBom.version[0].value() == '1.5.9.RELEASE'
         bootDependenciesBom.scope[0].value() == 'import'
         bootDependenciesBom.type[0].value() == 'pom'
+    }
+
+    def "When an imported bom overrides dependency management from another imported bom an explicit override is not added"() {
+        given: 'Dependency management that imports two boms that manage the same dependency with different versions'
+        this.project.repositories {
+            maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+        }
+        this.dependencyManagement.importBom(null, new Coordinates('test', 'first-alpha-dependency-management', '1.0'),
+                new MapPropertySource([:]))
+        this.dependencyManagement.importBom(null, new Coordinates('test', 'second-alpha-dependency-management', '1.0'),
+                new MapPropertySource([:]))
+        when: 'The pom is configured'
+        Node pom = new XmlParser().parseText("<project></project>")
+        PomCustomizationSettings settings = new PomCustomizationSettings()
+        new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement, settings, pomResolver, project).configurePom(pom)
+        then: 'The imported boms have been imported with no explicit override'
+        pom.dependencyManagement.dependencies.dependency.size() == 2
     }
 
 }
