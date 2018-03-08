@@ -63,6 +63,8 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 
     private static final String NODE_NAME_TYPE = "type";
 
+    private static final String NODE_NAME_CLASSIFIER = "classifier";
+
     private final DependencyManagement dependencyManagement;
 
     private final PomCustomizationSettings settings;
@@ -102,17 +104,16 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
     }
 
     private void doConfigurePom(Node pom) {
-        System.out.println("Configuring " + pom);
         Node dependencyManagementNode = findChild(pom, NODE_NAME_DEPENDENCY_MANAGEMENT);
         if (dependencyManagementNode == null) {
             dependencyManagementNode = pom.appendNode(NODE_NAME_DEPENDENCY_MANAGEMENT);
         }
-        Node dependenciesNode = findChild(dependencyManagementNode, NODE_NAME_DEPENDENCIES);
-        if (dependenciesNode == null) {
-            dependenciesNode = dependencyManagementNode.appendNode(NODE_NAME_DEPENDENCIES);
+        Node managedDependenciesNode = findChild(dependencyManagementNode, NODE_NAME_DEPENDENCIES);
+        if (managedDependenciesNode == null) {
+            managedDependenciesNode = dependencyManagementNode.appendNode(NODE_NAME_DEPENDENCIES);
         }
-        configureBomImports(dependenciesNode);
-        configureDependencies(dependenciesNode);
+        configureBomImports(managedDependenciesNode);
+        configureManagedDependencies(managedDependenciesNode, findChild(pom, NODE_NAME_DEPENDENCIES));
     }
 
     private Node findChild(Node node, String name) {
@@ -193,23 +194,56 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
         return dependencyNode;
     }
 
-    private void configureDependencies(Node dependencies) {
-        for (Dependency dependency : this.dependencyManagement
+    private void configureManagedDependencies(Node managedDependencies, Node dependencies) {
+        for (Dependency managedDependency : this.dependencyManagement
                 .getManagedDependencies()) {
-            System.out.println(dependency.getCoordinates().getGroupId() + ":" + dependency.getCoordinates().getArtifactId());
-            Node dependencyNode = appendDependencyNode(dependencies, dependency.getCoordinates(), dependency.getScope(),
-                    dependency.getType());
-            if (!dependency.getExclusions().isEmpty()) {
-                Node exclusionsNode = dependencyNode.appendNode(NODE_NAME_EXCLUSIONS);
-                for (String exclusion : dependency.getExclusions()) {
-                    String[] exclusionComponents = exclusion.split(":");
-                    Node exclusionNode = exclusionsNode.appendNode(NODE_NAME_EXCLUSION);
-                    exclusionNode.appendNode(NODE_NAME_GROUP_ID, exclusionComponents[0]);
-                    exclusionNode.appendNode(NODE_NAME_ARTIFACT_ID, exclusionComponents[1]);
-                }
-
+            addManagedDependency(managedDependencies, managedDependency, null);
+            for (String classifier: findClassifiers(dependencies, managedDependency)) {
+                addManagedDependency(managedDependencies, managedDependency, classifier);
             }
         }
+    }
+
+    private void addManagedDependency(Node managedDependencies, Dependency managedDependency, String classifier) {
+        Node dependencyNode = appendDependencyNode(managedDependencies, managedDependency.getCoordinates(), managedDependency.getScope(),
+                managedDependency.getType());
+        if (!managedDependency.getExclusions().isEmpty()) {
+            Node exclusionsNode = dependencyNode.appendNode(NODE_NAME_EXCLUSIONS);
+            for (String exclusion : managedDependency.getExclusions()) {
+                String[] exclusionComponents = exclusion.split(":");
+                Node exclusionNode = exclusionsNode.appendNode(NODE_NAME_EXCLUSION);
+                exclusionNode.appendNode(NODE_NAME_GROUP_ID, exclusionComponents[0]);
+                exclusionNode.appendNode(NODE_NAME_ARTIFACT_ID, exclusionComponents[1]);
+            }
+        }
+        if (classifier != null) {
+            Node classifierNode = dependencyNode.appendNode(NODE_NAME_CLASSIFIER);
+            classifierNode.setValue(classifier);
+        }
+    }
+
+    private List<String> findClassifiers(Node dependencies, Dependency managedDependency) {
+        List<String> classifiers = new ArrayList<String>();
+        for (Object child: dependencies.children()) {
+            if (child instanceof Node && ((Node)child).name().equals(NODE_NAME_DEPENDENCY)) {
+                Node dependency = (Node)child;
+                String groupId = findTextOfChild(dependency, NODE_NAME_GROUP_ID);
+                String artifactId = findTextOfChild(dependency, NODE_NAME_ARTIFACT_ID);
+                if (managedDependency.getCoordinates().getGroupId().equals(groupId) &&
+                        managedDependency.getCoordinates().getArtifactId().equals(artifactId)) {
+                    String classifier = findTextOfChild(dependency, NODE_NAME_CLASSIFIER);
+                    if (classifier != null && classifier.length() > 0) {
+                        classifiers.add(classifier);
+                    }
+                }
+            }
+        }
+        return classifiers;
+    }
+
+    private String findTextOfChild(Node node, String name) {
+        Node child = findChild(node, name);
+        return child == null ? null: child.text();
     }
 
     private static final class EmptyPropertySource implements PropertySource {

@@ -236,4 +236,25 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
         pom.dependencyManagement.dependencies.dependency.size() == 2
     }
 
+    def "Dependency management is expanded to cover dependencies with a classifier"() {
+        given: "Dependency management for a module"
+        this.dependencyManagement.addManagedVersion(null, "org.apache.logging.log4j", "log4j-core", "2.6", Collections.emptyList())
+        when: "A pom with a dependency on the module with a classifier is configured"
+        Node pom = new XmlParser().parseText("<project><dependencies><dependency><groupId>org.apache.logging.log4j</groupId><artifactId>log4j-core</artifactId><classifier>test</classifier></dependency></dependencies></project>")
+        PomCustomizationSettings settings = new PomCustomizationSettings()
+        new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement, settings, pomResolver, project).configurePom(pom)
+        then: "Dependency management covers the module with the classifier"
+        pom.dependencyManagement.dependencies.dependency.size() == 2
+        def dependency = pom.dependencyManagement.dependencies.dependency[0]
+        dependency.groupId[0].value() == 'org.apache.logging.log4j'
+        dependency.artifactId[0].value() == 'log4j-core'
+        dependency.version[0].value() == '2.6'
+        dependency.classifier.size() == 0
+        def classifiedDependency = pom.dependencyManagement.dependencies.dependency[1]
+        classifiedDependency.groupId[0].value() == 'org.apache.logging.log4j'
+        classifiedDependency.artifactId[0].value() == 'log4j-core'
+        classifiedDependency.version[0].value() == '2.6'
+        classifiedDependency.classifier[0].value() == 'test'
+    }
+
 }
