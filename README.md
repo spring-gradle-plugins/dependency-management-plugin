@@ -18,7 +18,7 @@ The plugin is available in the Gradle Plugin Portal and can be applied like this
 
 ```groovy
 plugins {
-    id "io.spring.dependency-management" version "1.0.4.RELEASE"
+    id "io.spring.dependency-management" version "1.0.5.RELEASE"
 }
 ```
 
@@ -32,7 +32,7 @@ buildscript {
         maven { url 'https://repo.spring.io/plugins-snapshot' }
     }
     dependencies {
-        classpath 'io.spring.gradle:dependency-management-plugin:1.0.5.BUILD-SNAPSHOT'
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.6.BUILD-SNAPSHOT'
     }
 }
 ```
