@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1116,7 +1116,6 @@ public class DependencyManagementPluginSpec extends Specification {
             null == project.dependencyManagement.compile.managedVersions['commons-logging:commons-logging']
     }
 
-
     def "Dependency management is not applied to a dependency using a latest version"() {
         given: 'A project that has the plugin applied'
             project.apply plugin: 'io.spring.dependency-management'
@@ -1133,6 +1132,24 @@ public class DependencyManagementPluginSpec extends Specification {
         then: "The dependency's version is not managed"
             def files = project.configurations.compile.resolve()
             !files.collect { it.name }.contains('commons-logging-1.1.3.jar')
+    }
+
+    def "Dependency management is not applied to an inherited dependency using a latest version"() {
+        given: 'A project that has the plugin applied'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
+        when: 'Dependency management is provided for a dependency with a dynamic version'
+        project.dependencyManagement {
+            dependencies {
+                dependency "commons-logging:commons-logging:1.1.3"
+            }
+        }
+        project.dependencies {
+            compile "commons-logging:commons-logging:latest.integration"
+        }
+        then: "The dependency's version is not managed"
+        def files = project.configurations.runtime.resolve()
+        !files.collect { it.name }.contains('commons-logging-1.1.3.jar')
     }
 
     def "Dependency management is applied to a transitive dependency declared with a range"() {

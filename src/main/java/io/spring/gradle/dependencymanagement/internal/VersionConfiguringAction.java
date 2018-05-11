@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
     private boolean isDirectDependency(DependencyResolveDetails details) {
         if (this.directDependencies == null) {
             Set<String> directDependencies = new HashSet<String>();
-            for (Dependency dependency : this.configuration.getDependencies()) {
+            for (Dependency dependency : this.configuration.getAllDependencies()) {
                 directDependencies.add(dependency.getGroup() + ":" + dependency.getName());
             }
             this.directDependencies = directDependencies;
