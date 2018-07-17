@@ -184,18 +184,28 @@ public class DependencyManagement {
 
         for (Pom resolvedBom: this.resolvedBoms) {
             for (Dependency dependency : resolvedBom.getManagedDependencies()) {
-                if (dependency.getClassifier() == null || dependency.getClassifier().length() == 0) {
+                if (isEmpty(dependency.getClassifier())) {
                     Coordinates coordinates = dependency.getCoordinates();
-                    this.versions.put(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
-                            coordinates.getVersion());
-                    this.allExclusions.add(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
-                            dependency.getExclusions());
+                    if (isEmpty(coordinates.getVersion())) {
+                        String bomId = resolvedBom.getCoordinates().getGroupId() + ":" + resolvedBom.getCoordinates().getArtifactId() + ":" + resolvedBom.getCoordinates().getVersion();
+                        logger.warn("Dependency management for " + coordinates.getGroupId() + ":" + coordinates.getArtifactId() + " in bom " + bomId + " has no version and will be ignored.");
+                    }
+                    else {
+                        this.versions.put(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
+                                coordinates.getVersion());
+                        this.allExclusions.add(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
+                                dependency.getExclusions());
+                    }
                 }
             }
             this.bomProperties.putAll(resolvedBom.getProperties());
         }
 
         this.versions.putAll(existingVersions);
+    }
+
+    private boolean isEmpty(String string) {
+        return string == null || string.trim().length() == 0;
     }
 
 }

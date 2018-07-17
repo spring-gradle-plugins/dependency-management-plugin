@@ -1395,4 +1395,23 @@ public class DependencyManagementPluginSpec extends Specification {
         project.dependencyManagement.managedVersions.isEmpty()
     }
 
+    def 'When importing a bom dependency management with no version is ignored'() {
+        given: 'A project with the plugin applied'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
+        project.repositories {
+            maven {
+                url new File("src/test/resources/maven-repo").toURI().toURL().toString()
+            }
+        }
+        when: 'A bom that contains dependency management with a missing version is imported'
+        project.dependencyManagement {
+            imports {
+                mavenBom 'test:missing-managed-version-bom:1.0'
+            }
+        }
+        then: 'The dependency management without a version is ignored'
+        project.dependencyManagement.managedVersions.isEmpty()
+    }
+
 }
