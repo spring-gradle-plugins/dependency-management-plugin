@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.gradle.api.InvalidUserDataException;
+
 import io.spring.gradle.dependencymanagement.dsl.DependencyHandler;
 
 /**
@@ -33,16 +35,30 @@ final class StandardDependencyHandler implements DependencyHandler {
 
     @Override
     public void exclude(String exclusion) {
+        String[] components = exclusion.split(":");
+        if (components.length != 2) {
+            throw new InvalidUserDataException("Exclusion '" + exclusion + "' is malformed. The required"
+                    + " form is 'group:name'");
+        }
         this.exclusions.add(exclusion);
     }
 
     @Override
     public void exclude(Map<String, String> exclusion) {
+        String group = exclusion.get("group");
+        String name = exclusion.get("name");
+        if (!hasText(group) || !hasText(name)) {
+            throw new InvalidUserDataException("An exclusion requires both a group and a name");
+        }
         this.exclusions.add(exclusion.get("group") + ":" + exclusion.get("name"));
     }
 
     List<String> getExclusions() {
         return this.exclusions;
+    }
+
+    private boolean hasText(String string) {
+        return string != null && string.trim().length() > 0;
     }
 
 }

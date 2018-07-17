@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,36 @@ class StandardDependenciesHandlerSpec extends Specification {
         then: 'An exception with an appropriate message is thrown'
         def ex = thrown(GradleException)
         ex.message == 'A dependency set requires both a group and a version'
+    }
+
+    def 'An exclusion using a string in the wrong format is rejected'() {
+        when: 'A dependency exclusion is configured as a string that is not in the required groupId:artifactId format'
+        this.handler.dependency('com.example:example:1.0') {
+            it.exclude('malformed')
+        }
+        then: 'An exception with an appropriate message is thrown'
+        def ex = thrown(GradleException)
+        ex.message == "Exclusion 'malformed' is malformed. The required form is 'group:name'"
+    }
+
+    def 'An exclusion configured using a map without a name is rejected'() {
+        when: 'A dependency exclusion is configured with a group and no name'
+        this.handler.dependency('com.example:example:1.0') {
+            it.exclude(group:'com.example')
+        }
+        then: 'An exception with an appropriate message is thrown'
+        def ex = thrown(GradleException)
+        ex.message == 'An exclusion requires both a group and a name'
+    }
+
+    def 'An exclusion configured using a map without a group is rejected'() {
+        when: 'A dependency exclusion is configured with a name and no group'
+        this.handler.dependency('com.example:example:1.0') {
+            it.exclude(name:'com.example')
+        }
+        then: 'An exception with an appropriate message is thrown'
+        def ex = thrown(GradleException)
+        ex.message == 'An exclusion requires both a group and a name'
     }
 
 }
