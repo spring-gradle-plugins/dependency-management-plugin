@@ -1376,4 +1376,23 @@ public class DependencyManagementPluginSpec extends Specification {
         project.dependencyManagement.compile.managedVersions['org.springframework:spring-core'] == '4.0.0.RELEASE'
     }
 
+    def 'When importing a bom dependency management with a classifier is ignored'() {
+        given: 'A project with the plugin applied'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
+        project.repositories {
+            maven {
+                url new File("src/test/resources/maven-repo").toURI().toURL().toString()
+            }
+        }
+        when: 'A bom that contains dependency management with a classifier is imported'
+        project.dependencyManagement {
+            imports {
+                mavenBom 'test:dependency-management-with-classifier-bom:1.0'
+            }
+        }
+        then: 'The dependency management with a classifier is ignored'
+        project.dependencyManagement.managedVersions.isEmpty()
+    }
+
 }

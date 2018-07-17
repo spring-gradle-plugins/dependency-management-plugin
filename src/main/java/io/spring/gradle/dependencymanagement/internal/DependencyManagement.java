@@ -184,11 +184,13 @@ public class DependencyManagement {
 
         for (Pom resolvedBom: this.resolvedBoms) {
             for (Dependency dependency : resolvedBom.getManagedDependencies()) {
-                Coordinates coordinates = dependency.getCoordinates();
-                this.versions.put(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
-                        coordinates.getVersion());
-                this.allExclusions.add(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
-                        dependency.getExclusions());
+                if (dependency.getClassifier() == null || dependency.getClassifier().length() == 0) {
+                    Coordinates coordinates = dependency.getCoordinates();
+                    this.versions.put(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
+                            coordinates.getVersion());
+                    this.allExclusions.add(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
+                            dependency.getExclusions());
+                }
             }
             this.bomProperties.putAll(resolvedBom.getProperties());
         }
