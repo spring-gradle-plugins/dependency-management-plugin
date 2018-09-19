@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package io.spring.gradle.dependencymanagement.internal.maven;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.gradle.api.Project;
 import org.slf4j.Logger;
@@ -33,6 +35,7 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.Def
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.FileModelSource;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingException;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingResult;
+import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelCache;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelProblem;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.ModelResolver;
 
@@ -44,6 +47,8 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.M
 final class EffectiveModelBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(EffectiveModelBuilder.class);
+
+    private final ModelCache modelCache = new InMemoryModelCache();
 
     private final ModelResolver modelResolver;
 
@@ -57,6 +62,7 @@ final class EffectiveModelBuilder {
         request.setSystemProperties(System.getProperties());
         request.setModelSource(new FileModelSource(pom));
         request.setModelResolver(this.modelResolver);
+        request.setModelCache(this.modelCache);
 
         try {
             ModelBuildingResult result = createModelBuilder(properties).build(request);
@@ -97,6 +103,79 @@ final class EffectiveModelBuilder {
                 .setModelInterpolator(new PropertiesModelInterpolator(properties));
         modelBuilder.setModelValidator(new RelaxedModelValidator());
         return modelBuilder;
+    }
+
+    private static final class InMemoryModelCache implements ModelCache {
+
+        private final Map<Key, Object> cache = new ConcurrentHashMap<Key, Object>();
+
+        @Override
+        public Object get(String groupId, String artifactId, String version, String tag) {
+            return this.cache.get(new Key(groupId, artifactId, version, tag));
+        }
+
+        @Override
+        public void put(String groupId, String artifactId, String version, String tag, Object item) {
+            this.cache.put(new Key(groupId, artifactId, version, tag), item);
+        }
+
+        private static final class Key {
+
+            private final String groupId;
+
+            private final String artifactId;
+
+            private final String version;
+
+            private final String tag;
+
+            private Key(String groupId, String artifactId, String version, String tag) {
+                this.groupId = groupId;
+                this.artifactId = artifactId;
+                this.version = version;
+                this.tag = tag;
+            }
+
+            @Override
+            public int hashCode() {
+                final int prime = 31;
+                int result = 1;
+                result = prime * result + groupId.hashCode();
+                result = prime * result + artifactId.hashCode();
+                result = prime * result + version.hashCode();
+                result = prime * result + tag.hashCode();
+                return result;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (this == obj) {
+                    return true;
+                }
+                if (obj == null) {
+                    return false;
+                }
+                if (getClass() != obj.getClass()) {
+                    return false;
+                }
+                Key other = (Key) obj;
+                if (!groupId.equals(other.groupId)) {
+                    return false;
+                }
+                if (!artifactId.equals(other.artifactId)) {
+                    return false;
+                }
+                if (!version.equals(other.version)) {
+                    return false;
+                }
+                if (!tag.equals(other.tag)) {
+                    return false;
+                }
+                return true;
+            }
+
+        }
+
     }
 
 }
