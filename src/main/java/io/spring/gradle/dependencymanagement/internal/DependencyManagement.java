@@ -76,8 +76,8 @@ public class DependencyManagement {
         this.targetConfiguration = targetConfiguration;
     }
 
-    void importBom(Coordinates coordinates, PropertySource properties) {
-        this.importedBoms.add(new PomReference(coordinates, properties));
+    void importBom(Object dependencyNotation, PropertySource properties) {
+        this.importedBoms.add(new PomReference(dependencyNotation, properties));
     }
 
     /**

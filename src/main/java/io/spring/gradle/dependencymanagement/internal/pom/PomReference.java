@@ -28,7 +28,7 @@ import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
  */
 public final class PomReference {
 
-    private final Coordinates coordinates;
+    private final Object dependencyNotation;
 
     private final PropertySource properties;
 
@@ -44,21 +44,27 @@ public final class PomReference {
     /**
      * Creates a new {@code PomReference}.
      *
-     * @param coordinates the coordinates of the referenced pom
+     * @param dependencyNotation the dependency notation of the referenced pom
      * @param properties the properties that should be used when resolving the pom's contents
      */
-    public PomReference(Coordinates coordinates, PropertySource properties) {
-        this.coordinates = coordinates;
+    public PomReference(Object dependencyNotation, PropertySource properties) {
+        if (dependencyNotation instanceof Coordinates) {
+            Coordinates coordinates = (Coordinates) dependencyNotation;
+            this.dependencyNotation = coordinates.getGroupId() + ":" + coordinates.getArtifactId() + ":"
+                    + coordinates.getVersion() + "@pom";
+        } else {
+            this.dependencyNotation = dependencyNotation;
+        }
         this.properties = properties;
     }
 
     /**
-     * Returns the coordinates of the referenced pom.
+     * Returns the dependency notation of the referenced pom.
      *
      * @return the coordinates
      */
-    public Coordinates getCoordinates() {
-        return this.coordinates;
+    public Object getDependencyNotation() {
+        return dependencyNotation;
     }
 
     /**

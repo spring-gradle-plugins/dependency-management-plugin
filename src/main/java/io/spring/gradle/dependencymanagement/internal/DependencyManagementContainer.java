@@ -97,16 +97,16 @@ public class DependencyManagementContainer {
 
     /**
      * Adds an import of a bom to the dependency management for the given {@code configuration}. The bom is
-     * identified by the given {@code coordinates} and the given {@code properties} will be used when resolving the
-     * bom's contents.
+     * identified by the given {@code dependencyNotation} and the given {@code properties} will be used when resolving
+     * the bom's contents.
      *
      * @param configuration the configuration
-     * @param coordinates the coordinates of the bom
+     * @param dependencyNotation the dependency notation of the bom
      * @param properties the properties to use when resolving the bom's contents
      */
-    public void importBom(Configuration configuration, Coordinates coordinates,
+    public void importBom(Configuration configuration, Object dependencyNotation,
             PropertySource properties) {
-        dependencyManagementForConfiguration(configuration).importBom(coordinates, properties);
+        dependencyManagementForConfiguration(configuration).importBom(dependencyNotation, properties);
     }
 
     String getManagedVersion(Configuration configuration, String group, String name) {

@@ -94,6 +94,49 @@ public class DependencyManagementPluginSpec extends Specification {
             files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar'])
     }
 
+    def "A bom file can be used to apply dependency management"() {
+        given: 'A project with the plugin applied'
+            project.apply plugin: 'io.spring.dependency-management'
+            project.apply plugin: 'java'
+
+            project.file("pom.xml") << '''
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                <modelVersion>4.0.0</modelVersion>
+            
+                <groupId>test</groupId>
+                <artifactId>file-bom</artifactId>
+                <version>1.0</version>
+                <packaging>pom</packaging>
+            
+                <dependencyManagement>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.springframework</groupId>
+                            <artifactId>spring-core</artifactId>
+                            <version>4.0.6.RELEASE</version>
+                        </dependency>
+                    </dependencies>
+                </dependencyManagement>
+            </project>
+            '''.stripIndent()
+
+            project.dependencyManagement {
+                imports {
+                    mavenBom(project.files("pom.xml"))
+                }
+            }
+
+            project.dependencies {
+                compile 'org.springframework:spring-core'
+            }
+        when: 'A configuration is resolved'
+            def files = project.configurations.compile.resolve()
+        then: "The bom's dependency management has been applied"
+            files.collect { it.name }.containsAll(['spring-core-4.0.6.RELEASE.jar'])
+    }
+
     def "An imported bom's versions can be overridden"() {
         given: 'A project that overrides a version of an imported bom'
             project.apply plugin: 'io.spring.dependency-management'
