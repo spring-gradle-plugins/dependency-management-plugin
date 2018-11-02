@@ -16,11 +16,26 @@ poms of your project's dependencies.
 
 The plugin is available in the Gradle Plugin Portal and can be applied like this:
 
+<details open>
+<summary>Groovy</summary>
+
 ```groovy
 plugins {
     id "io.spring.dependency-management" version "1.0.6.RELEASE"
 }
 ```
+
+</details>
+<details>
+<summary>Kotlin</summary>
+
+```kotlin
+plugins {
+    id("io.spring.dependency-management") version "1.0.6.RELEASE"
+}
+```
+
+</details>
 
 If you prefer, the plugin is also available from Maven Central and JCenter.  Snapshots are
 available from https://repo.spring.io/plugins-snapshot and can be used as shown in the
@@ -52,6 +67,9 @@ configurations.
 The DSL allows you to declare dependency management using `dependency 'groupId:artifactId:version'`
 or `dependency group:'group', name:'name', version:version'`. For example:
 
+<details open>
+<summary>Groovy</summary>
+
 ```groovy
 dependencyManagement {
      dependencies {
@@ -64,6 +82,25 @@ dependencies {
      compile 'org.springframework:spring-core'
 }
 ```
+
+</details>
+<details>
+<summary>Kotlin</summary>
+
+```kotlin
+dependencyManagement {
+     dependencies {
+          dependency("org.springframework:spring-core:4.0.3.RELEASE")
+          dependency(mapOf("group" to "commons-logging", "name" to "commons-logging", "version" to "1.1.2"))
+     }
+}
+
+dependencies {
+     compile("org.springframework:spring-core")
+}
+```
+
+</details>
 
 This configuration will cause all dependencies (direct or transitive) on `spring-core` and
 `commons-logging` to have the versions `4.0.3.RELEASE` and `1.1.2` respectively:
@@ -85,6 +122,9 @@ When you want to provide dependency management for multiple modules with the sam
 version you should use a dependency set. Using a dependency set removes the need to specify
 the same group and version multiple times:
 
+<details open>
+<summary>Groovy</summary>
+
 ```groovy
 dependencyManagement {
      dependencies {
@@ -96,6 +136,23 @@ dependencyManagement {
 }
 ```
 
+</details>
+<details>
+<summary>Kotlin</summary>
+
+```kotlin
+dependencyManagement {
+    dependencies {
+        dependencySet("org.slf4j:1.7.7") {
+            entry("slf4j-api")
+            entry("slf4j-simple")
+        }
+    }
+}
+```
+
+</details>
+
 #### Exclusions
 
 You can also use the DSL to declare exclusions. The two main advantages of using this mechanism
@@ -104,6 +161,9 @@ are that they will be included in the `<dependencyManagement>` of your project's
 [Maven's exclusion semantics](#maven-exclusions).
 
 An exclusion can be declared on individual dependencies:
+
+<details open>
+<summary>Groovy</summary>
 
 ```groovy
 dependencyManagement {
@@ -115,7 +175,26 @@ dependencyManagement {
 }
 ```
 
+</details>
+<details>
+<summary>Kotlin</summary>
+
+```kotlin
+dependencyManagement {
+    dependencies {
+        dependency("org.springframework:spring-core:4.0.3.RELEASE") {
+            exclude("commons-logging:commons-logging")
+        }
+    }
+}
+```
+
+</details>
+
 An exclusion can also be declared on an entry in a dependency set:
+
+<details open>
+<summary>Groovy</summary>
 
 ```groovy
 dependencyManagement {
@@ -129,6 +208,24 @@ dependencyManagement {
 }
 ```
 
+</details>
+<details>
+<summary>Kotlin</summary>
+
+```kotlin
+dependencyManagement {
+    dependencies {
+        dependencySet("org.springframework:4.1.4.RELEASE") {
+            entry("spring-core") {
+                exclude("commons-logging:commons-logging")
+            }
+        }
+    }
+}
+```
+
+</details>
+
 Note that, as shown in the two examples above, an exclusion can be identified using `'group:name'`
 or `group: 'group', name: 'name'`.
 
@@ -141,6 +238,9 @@ classifier is involved.
 The plugin also allows you to import an existing Maven bom to utilise its dependency management.
 For example:
 
+<details open>
+<summary>Groovy</summary>
+
 ```groovy
 dependencyManagement {
      imports {
@@ -152,6 +252,24 @@ dependencies {
      compile 'org.springframework.integration:spring-integration-core'
 }
 ```
+
+</details>
+<details>
+<summary>Kotlin</summary>
+
+```kotlin
+dependencyManagement {
+    imports {
+        mavenBom("io.spring.platform:platform-bom:1.0.1.RELEASE")
+    }
+}
+
+dependencies {
+    compile("org.springframework.integration:spring-integration-core")
+}
+```
+
+</details>
 
 This configuration will apply the [versions in the Spring IO Platform bom][4] to the project's
 dependencies:
@@ -216,7 +334,11 @@ Building on the example above, the Spring IO Platform bom that is used contains 
 named `spring.version`. This property determines the version of all of the Spring Framework modules
 and, by default, its value is `4.0.6.RELEASE`.
 
-A property can be overriden as part of importing a bom:
+A property can be overridden as part of importing a bom:
+
+<details open>
+<summary>Groovy</summary>
+
 
 ```groovy
 dependencyManagement {
@@ -242,7 +364,39 @@ dependencyManagement {
 }
 ```
 
-Alternatively, the property can also be overriden using a project's properties configured via any
+</details>
+<details>
+<summary>Kotlin</summary>
+
+
+```kotlin
+dependencyManagement {
+    imports {
+        mavenBom("io.spring.platform:platform-bom:1.0.1.RELEASE") {
+            bomProperty("spring.version", "4.0.4.RELEASE")
+        }
+    }
+}
+```
+
+You can also use a map:
+
+```kotlin
+dependencyManagement {
+    imports {
+        mavenBom("io.spring.platform:platform-bom:1.0.1.RELEASE") {
+            bomProperties(mapOf(
+                "spring.version" to "4.0.4.RELEASE"
+            ))
+        }
+    }
+}
+```
+
+</details>
+
+
+Alternatively, the property can also be overridden using a project's properties configured via any
 of the mechanisms that Gradle provides. For example, you may choose to configure it in your
 `build.gradle` script:
 
@@ -299,6 +453,10 @@ in the Maven pom that's generated for your Gradle project, you should use depend
 perform the override. For example, if you're using the Spring IO Platform bom, you can override its
 version of Guava and have that override apply to the generated pom:
 
+<details open>
+<summary>Groovy</summary>
+
+
 ```groovy
 dependencyManagement {
     imports {
@@ -309,6 +467,24 @@ dependencyManagement {
     }
 }
 ```
+
+</details>
+<details>
+<summary>Kotlin</summary>
+
+
+```kotlin
+dependencyManagement {
+    imports {
+        mavenBom("io.spring.platform:platform-bom:1.1.1.RELEASE")
+    }
+    dependencies {
+        dependency("com.google.guava:guava:18.0")
+    }
+}
+```
+
+</details>
 
 This will produce the following `<dependencyManagement>` in the generated pom file:
 
@@ -337,9 +513,9 @@ any dependency management for Guava in the `platform-bom` that's been imported.
 You can also override the dependency management by declaring a dependency and configuring it with
 the desired version. For example:
 
-```
+```groovy
 dependencies {
-    compile 'com.google.guava:guava:18.0'
+    compile("com.google.guava:guava:18.0")
 }
 ```
 
@@ -348,11 +524,28 @@ This will cause any dependency (direct or transitive) on `com.google.guava:guava
 exist. If you do not want a project's dependencies to override its dependency management, this
 behavior can be disabled:
 
-```
+<details open>
+<summary>Groovy</summary>
+
+
+```groovy
 dependencyManagement {
     overriddenByDependencies = false
 }
 ```
+
+</details>
+<details>
+<summary>Kotlin</summary>
+
+
+```kotlin
+dependencyManagement {
+    overriddenByDependencies(false)
+}
+```
+
+</details>
 
 #### Configuring the dependency management resolution strategy
 
@@ -361,6 +554,9 @@ can configure the [`resolution strategy`][7] for these configurations using a cl
 example, you may want to configure the caching of an imported bom because you're using a
 snapshot:
 
+<details open>
+<summary>Groovy</summary>
+
 ```groovy
 dependencyManagement {
     resolutionStrategy {
@@ -368,6 +564,21 @@ dependencyManagement {
     }
 }
 ```
+
+</details>
+<details>
+<summary>Kotlin</summary>
+
+
+```kotlin
+dependencyManagement {
+    resolutionStrategy {
+        cacheChangingModulesFor(0, TimeUnit.SECONDS)
+    }
+}
+```
+
+</details>
 
 ### Dependency management for specific configurations
 
@@ -392,6 +603,9 @@ To target dependency management at multiple configurations, you use `configurati
 configurations to which the dependency management should be applied. For example, the following
 will apply dependency management to the compile and custom configurations:
 
+<details open>
+<summary>Groovy</summary>
+
 ```groovy
 dependencyManagement {
      configurations(compile, custom) {
@@ -405,12 +619,40 @@ dependencyManagement {
 }
 ```
 
+</details>
+<details>
+<summary>Kotlin</summary>
+
+
+```kotlin
+dependencyManagement {
+    configurations {
+        listOf("compile", "custom").forEach {configName ->
+            getByName(configName) {
+                dependencies {
+                    …
+                }
+                imports {
+                    …
+                }
+            }
+        }
+
+    }
+}
+```
+
+</details>
+
 ## Accessing properties from imported boms
 
 The plugin makes all of the properties from imported boms available for use in your Gradle build.
 Properties from both global dependency management and configuration-specific dependency management
 can be accessed. For example, accessing a property named `spring.version` from global dependency
 management:
+
+<details open>
+<summary>Groovy</summary>
 
 ```groovy
 dependencyManagement.importedProperties['spring.version']
@@ -421,6 +663,23 @@ And the same property from the compile configuration's dependency management:
 ```groovy
 dependencyManagement.compile.importedProperties['spring.version']
 ```
+
+</details>
+<details>
+<summary>Kotlin</summary>
+
+
+```kotlin
+dependencyManagement.importedProperties["spring.version"]
+```
+
+And the same property from the compile configuration's dependency management:
+
+```kotlin
+//NOTE: Not currently supported
+```
+
+</details>
 
 ## Maven exclusions
 
@@ -482,11 +741,26 @@ Maven boms.
 
 The plugin's support for applying Maven's exclusion semantics can be disabled:
 
+<details open>
+<summary>Groovy</summary>
+
 ```groovy
 dependencyManagement {
     applyMavenExclusions = false
 }
 ```
+
+</details>
+<details>
+<summary>Kotlin</summary>
+
+```kotlin
+dependencyManagement {
+    applyMavenExclusions(false)
+}
+```
+
+</details>
 
 ## Pom generation
 
@@ -495,6 +769,9 @@ published artifact. The plugin will automatically include any global dependency 
 dependency management that does not target a specific configuration, in the
 `<dependencyManagement>` section of the generated pom file. For example the following dependency
 management configuration:
+
+<details open>
+<summary>Groovy</summary>
 
 ```groovy
 dependencyManagement {
@@ -506,6 +783,23 @@ dependencyManagement {
      }
 }
 ```
+
+</details>
+<details>
+<summary>Kotlin</summary>
+
+```kotlin
+dependencyManagement {
+    imports {
+        mavenBom("com.example:bom:1.0")
+    }
+    dependencies {
+        dependency("com.example:dependency:1.5")
+    }
+}
+```
+
+</details>
 
 Will result in the following `<dependencyManagement>` in the generated pom file:
 
@@ -533,6 +827,9 @@ Will result in the following `<dependencyManagement>` in the generated pom file:
 If you prefer to have complete control over your project's generated pom, you can disable
 the plugin's customization:
 
+<details open>
+<summary>Groovy</summary>
+
 ```groovy
 dependencyManagement {
     generatedPomCustomization {
@@ -540,6 +837,20 @@ dependencyManagement {
     }
 }
 ```
+
+</details>
+<details>
+<summary>Kotlin</summary>
+
+```kotlin
+dependencyManagement {
+    generatedPomCustomization {
+        enabled(false)
+    }
+}
+```
+
+</details>
 
 ### Configuring your own pom
 
@@ -611,6 +922,9 @@ The plugin provides an API for accessing the versions provided by the configured
 dependency management. The managed versions from global dependency management are
 available from `dependencyManagement.managedVersions`:
 
+<details open>
+<summary>Groovy</summary>
+
 ```groovy
 def managedVersions = dependencyManagement.managedVersions
 ```
@@ -630,6 +944,32 @@ the managed version for `org.springframework:spring-core` can be accessed like t
 ```groovy
 def springCoreVersion = managedVersions['org.springframework:spring-core']
 ```
+
+</details>
+<details>
+<summary>Kotlin</summary>
+
+```kotlin
+val managedVersions = dependencyManagement.managedVersions
+```
+
+ Managed versions from
+configuration-specific dependency management are available from
+`dependencyManagement.<configuration>.managedVersions`. For example, to access the
+managed versions from the compile configuration:
+
+```kotlin
+dependencyManagement.getManagedVersionsForConfiguration(configurations.getByName("compile"))
+```
+
+The managed versions are of map of `groupId:artifactId` to `version`. For example,
+the managed version for `org.springframework:spring-core` can be accessed like this:
+
+```kotlin
+val springCoreVersion = managedVersions["org.springframework:spring-core"]
+```
+
+</details>
 
 ## Contributing
 
