@@ -7,6 +7,7 @@ buildscript {
     dependencies {
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0'
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:1.2'
+		classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
     }
 }
 
@@ -15,6 +16,7 @@ apply plugin: 'maven'
 apply plugin: 'com.jfrog.artifactory'
 apply plugin: 'checkstyle'
 apply plugin: 'jacoco'
+apply plugin: 'org.asciidoctor.convert'
 
 apply from: 'publish-maven.gradle'
 
@@ -39,6 +41,7 @@ checkstyle {
 repositories {
     mavenCentral()
     maven { url 'https://repo.gradle.org/gradle/libs-releases' }
+    maven { url 'https://repo.spring.io/release' }
 }
 
 group = 'io.spring.gradle'
@@ -77,6 +80,7 @@ task mavenRepackJar(type: Jar) { repackJar ->
 }
 
 dependencies {
+    asciidoctor 'io.spring.asciidoctor:spring-asciidoctor-extensions:0.1.2.RELEASE'
     compile gradleApi()
     compile localGroovy()
     compile(files(mavenRepackJar))
@@ -116,6 +120,12 @@ javadoc {
     }
 }
 
+asciidoctor {
+	resources {
+		from 'src/docs/resources'
+	}
+}
+
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
@@ -126,9 +136,26 @@ task javadocJar(type: Jar) {
     from javadoc
 }
 
+task docsZip(type: Zip, dependsOn: [':asciidoctor', ':javadoc']) {
+    group = 'Distribution'
+    baseName = 'dependency-management-plugin'
+    classifier = 'docs'
+    description = "Builds -${classifier} archive containing API and reference documentation"
+    destinationDir = file("${project.buildDir}/distributions")
+
+    from(asciidoctor) {
+        into 'reference'
+    }
+
+    from(javadoc) {
+        into 'api'
+    }
+}
+
 artifacts {
     archives sourcesJar
     archives javadocJar
+    archives docsZip
 }
 
 jacoco {
