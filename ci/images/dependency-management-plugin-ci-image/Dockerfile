@@ -8,6 +8,6 @@ ENV JAVA_HOME /opt/openjdk
 ENV PATH $JAVA_HOME/bin:$PATH
 RUN mkdir -p /opt/openjdk && \
     cd /opt/openjdk && \
-    curl https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u192-b12/OpenJDK8U-jdk_x64_linux_hotspot_8u192b12.tar.gz | tar xz
+    curl -L https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u192-b12/OpenJDK8U-jdk_x64_linux_hotspot_8u192b12.tar.gz | tar xz --strip-components=2
 
 ADD https://raw.githubusercontent.com/spring-io/concourse-java-scripts/v0.0.2/concourse-java.sh /opt/
