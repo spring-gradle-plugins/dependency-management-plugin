@@ -10,11 +10,11 @@ version=$( cat artifactory-repo/build-info.json | jq -r '.buildInfo.modules[0].i
 
 
 if [[ $RELEASE_TYPE = "M" ]]; then
-	targetRepo="libs-milestone-local"
+	targetRepo="plugins-milestone-local"
 elif [[ $RELEASE_TYPE = "RC" ]]; then
-	targetRepo="libs-milestone-local"
+	targetRepo="plugins-milestone-local"
 elif [[ $RELEASE_TYPE = "RELEASE" ]]; then
-	targetRepo="libs-release-local"
+	targetRepo="plugins-release-local"
 else
 	echo "Unknown release type $RELEASE_TYPE" >&2; exit 1;
 fi
