@@ -144,26 +144,3 @@ test {
         exceptionFormat 'full'
     }
 }
-
-artifactory {
-    contextUrl = 'https://repo.spring.io'
-    publish {
-        repository {
-            repoKey = artifactoryRepository
-            if (project.hasProperty('artifactoryUsername')
-                    && project.hasProperty('artifactoryPassword')) {
-                username = artifactoryUsername
-                password = artifactoryPassword
-            }
-        }
-    }
-}
-
-artifactoryPublish {
-    publishConfigs 'archives'
-    publishIvy false
-    properties = [
-        'bintray.package': "${project.group}:dependency-management",
-        'bintray.version': "${project.version}"
-    ]
-}
