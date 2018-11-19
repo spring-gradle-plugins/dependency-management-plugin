@@ -12,7 +12,5 @@ run:
   args:
     - -ec
     - |
-      source /docker-lib.sh
-      start_docker
       ${PWD}/git-repo/ci/scripts/build-project.sh
 
