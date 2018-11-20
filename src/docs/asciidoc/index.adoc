@@ -57,7 +57,6 @@ If you prefer, the plugin is also available from Maven Central and JCenter.
 Snapshots are available from https://repo.spring.io/plugins-snapshot and can be used as
 shown in the following example:
 
-
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
@@ -69,12 +68,25 @@ buildscript {
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.7.BUILD-SNAPSHOT'
     }
 }
+
+apply plugin: "io.spring.dependency-management"
 ----
 
 [source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
 .Kotlin
 ----
-// TODO
+buildscript {
+  repositories {
+    maven {
+      url = uri("https://repo.spring.io/plugins-snapshot")
+    }
+  }
+  dependencies {
+    classpath("io.spring.gradle:dependency-management-plugin:1.0.7.BUILD-SNAPSHOT")
+  }
+}
+
+apply(plugin = "io.spring.dependency-management")
 ----
 
 
