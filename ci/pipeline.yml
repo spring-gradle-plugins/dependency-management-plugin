@@ -4,10 +4,6 @@ resource_types:
   source:
     repository: springio/artifactory-resource
     tag: 0.0.6
-- name: pull-request
-  type: docker-image
-  source:
-    repository: jtarchie/pr
 resources:
 - name: git-repo
   type: git
@@ -17,13 +13,6 @@ resources:
     password: ((github-password))
     branch: ((branch))
     ignore_paths: ["ci/images/*"]
-- name: git-pull-request
-  type: pull-request
-  source:
-    access_token: ((github-access-token))
-    repo: ((github-repo-name))
-    base: ((branch))
-    ignore_paths: ["ci/*"]
 - name: ci-images-git-repo
   type: git
   source:
@@ -79,34 +68,6 @@ jobs:
         properties:
           "zip.type": "docs"
           "zip.deployed": "false"
-- name: build-pull-requests
-  serial: true
-  public: true
-  plan:
-  - get: dependency-management-plugin-ci-image
-  - get: git-repo
-    resource: git-pull-request
-    trigger: true
-    version: every
-  - do:
-    - put: git-pull-request
-      params:
-        path: git-repo
-        status: pending
-    - task: build-project
-      timeout: 1h30m
-      image: dependency-management-plugin-ci-image
-      file: git-repo/ci/tasks/build-pr-project.yml
-    on_success:
-      put: git-pull-request
-      params:
-        path: git-repo
-        status: success
-    on_failure:
-      put: git-pull-request
-      params:
-        path: git-repo
-        status: failure
 - name: stage-release
   serial: true
   plan:
@@ -174,5 +135,3 @@ groups:
   jobs: ["stage-release", "promote-release", "sync-to-maven-central"]
 - name: "CI Images"
   jobs: ["build-dependency-management-plugin-ci-images"]
-- name: "Build Pull Requests"
-  jobs: ["build-pull-requests"]
