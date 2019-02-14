@@ -2,10 +2,16 @@
 Andy Wilkinson
 :doctype: book
 :icons: font
-:source-highlighter: highlightjs
-:highlightjsdir: highlight
+:source-highlighter: highlight.js
+:highlightjsdir: js/highlight
+:highlightjs-theme: atom-one-dark-reasonable
 :toc: left
 :toclevels: 4
+:docinfo: shared
+:stylesdir: css
+:stylesheet: style.css
+:linkcss: true
+:sectanchors: true
 :sectlinks:
 
 :github: https://github.com/spring-gradle-plugins/dependency-management-plugin

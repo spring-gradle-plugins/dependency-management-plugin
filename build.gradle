@@ -58,6 +58,7 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 configurations {
+    docs
     jarjar
     maven
 }
@@ -84,6 +85,7 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
     compile(files(mavenRepackJar))
+    docs 'io.spring.docresources:spring-doc-resources:0.1.0.RELEASE@zip'
     jarjar "org.gradle.jarjar:jarjar:$jarjarVersion"
     maven "org.apache.maven:maven-model-builder:$mavenVersion"
     testCompile("org.spockframework:spock-core:$spockVersion") {
@@ -120,10 +122,26 @@ javadoc {
     }
 }
 
+task prepareAsciidocBuild(type: Sync) {
+    from {
+        configurations.docs.collect { zipTree(it) }
+    }
+    from 'src/docs/asciidoc/'
+    from 'src/docs/css/'
+    into "$buildDir/asciidoc/src"
+}
+
 asciidoctor {
-	resources {
-		from 'src/docs/resources'
-	}
+    dependsOn 'prepareAsciidocBuild'
+    sourceDir "$buildDir/asciidoc/src"
+    sources {
+        include 'index.adoc'
+    }
+    resources {
+        from(sourceDir) {
+            include 'css/**', 'js/**'
+        }
+    }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -143,8 +161,8 @@ task docsZip(type: Zip, dependsOn: [':asciidoctor', ':javadoc']) {
     description = "Builds -${classifier} archive containing API and reference documentation"
     destinationDir = file("${project.buildDir}/distributions")
 
-    from(asciidoctor) {
-        into 'reference'
+    from("$asciidoctor.outputDir/html5") {
+        into 'reference/html'
     }
 
     from(javadoc) {
