@@ -127,7 +127,9 @@ task prepareAsciidocBuild(type: Sync) {
         configurations.docs.collect { zipTree(it) }
     }
     from 'src/docs/asciidoc/'
-    from 'src/docs/css/'
+    from ('src/docs/css/') {
+        into "css"
+    }
     into "$buildDir/asciidoc/src"
 }
 
