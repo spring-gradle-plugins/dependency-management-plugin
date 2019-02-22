@@ -5,7 +5,7 @@ source $(dirname $0)/common.sh
 
 buildName=$( cat artifactory-repo/build-info.json | jq -r '.buildInfo.name' )
 buildNumber=$( cat artifactory-repo/build-info.json | jq -r '.buildInfo.number' )
-groupId=$( cat artifactory-repo/build-info.json | jq -r '.buildInfo.modules[0].id' | sed 's/\(.*\):.*:.*/\1/' )
+packageName="io.spring.gradle.dependency-management"
 version=$( cat artifactory-repo/build-info.json | jq -r '.buildInfo.modules[0].id' | sed 's/.*:.*:\(.*\)/\1/' )
 
 
@@ -49,7 +49,7 @@ if [[ $RELEASE_TYPE = "RELEASE" ]]; then
 	WAIT_TIME=10
 	COUNTER=0
 	while [ $ARTIFACTS_PUBLISHED == "false" ] && [ $COUNTER -lt 120 ]; do
-		result=$( curl -s https://api.bintray.com/packages/"${BINTRAY_SUBJECT}"/"${BINTRAY_REPO}"/"${groupId}" )
+		result=$( curl -s https://api.bintray.com/packages/"${BINTRAY_SUBJECT}"/"${BINTRAY_REPO}"/"${packageName}" )
 		versions=$( echo "$result" | jq -r '.versions' )
 		exists=$( echo "$versions" | grep "$version" -o || true )
 		if [ "$exists" = "$version" ]; then
@@ -68,7 +68,7 @@ if [[ $RELEASE_TYPE = "RELEASE" ]]; then
 			-H "Content-Type: application/json" \
 			-d '[ { "name": "gradle-plugin", "values": ["io.spring.dependency-management:io.spring.gradle:dependency-management-plugin"] } ]' \
 			-X POST \
-			https://api.bintray.com/packages/${BINTRAY_SUBJECT}/${BINTRAY_REPO}/${groupId}/versions/${version}/attributes  > /dev/null || { echo "Failed to add attributes" >&2; exit 1; }
+			https://api.bintray.com/packages/${BINTRAY_SUBJECT}/${BINTRAY_REPO}/${packageName}/versions/${version}/attributes  > /dev/null || { echo "Failed to add attributes" >&2; exit 1; }
 	fi
 fi
 
