@@ -39,7 +39,7 @@ if [[ $RELEASE_TYPE = "RELEASE" ]]; then
 		--max-time 2700 \
 		-u ${ARTIFACTORY_USERNAME}:${ARTIFACTORY_PASSWORD} \
 		-H "Content-type:application/json" \
-		-d "{\"sourceRepos\": [\"libs-release-local\"], \"targetRepo\" : \"spring-distributions\", \"async\":\"true\"}" \
+		-d "{\"sourceRepos\": [\"plugins-release-local\"], \"targetRepo\" : \"spring-dependency-management-distributions\", \"async\":\"true\"}" \
 		-f \
 		-X \
 		POST "${ARTIFACTORY_SERVER}/api/build/distribute/${buildName}/${buildNumber}" > /dev/null || { echo "Failed to distribute" >&2; exit 1; }
