@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,15 @@ class StandardDependenciesHandlerSpec extends Specification {
 
         then:
         1 * container.addManagedVersion(configuration, "group", "name", "1.0", _)
+    }
+
+    def 'Dependency configured with an empty artifactId is rejected'() {
+        when: 'A dependency is configured with not artifactId'
+        handler.dependency 'com.example::1.0'
+
+        then: 'An exception with an appropriate message is thrown'
+        def ex = thrown(GradleException)
+        ex.message == "Dependency identifier 'com.example::1.0' is malformed. The required form is 'group:name:version'"
     }
 
     def 'Dependency set can be configured using a Map with GString values'() {
