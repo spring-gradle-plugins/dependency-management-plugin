@@ -117,8 +117,7 @@ javadoc {
     exclude 'io/spring/gradle/dependencymanagement/internal/**'
     options {
         links "https://docs.gradle.org/${GradleVersion.current().version}/javadoc/",
-            'https://docs.oracle.com/javase/6/docs/api/',
-            "http://docs.groovy-lang.org/${GroovySystem.version}/html/gapi/"
+              'https://docs.oracle.com/javase/6/docs/api/'
     }
 }
 
