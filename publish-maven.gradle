@@ -5,15 +5,15 @@ install {
             generatedPom.project {
                 name = 'Dependency management plugin'
                 description = 'A Gradle plugin that provides Maven-like dependency management functionality'
-                url = 'http://github.com/spring-gradle-plugins/dependency-management-plugin'
+                url = 'https://github.com/spring-gradle-plugins/dependency-management-plugin'
                 organization {
                     name = 'Pivotal Software, Inc.'
-                    url = 'http://spring.io'
+                    url = 'https://spring.io'
                 }
                 licenses {
                     license {
                         name = 'The Apache Software License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
                 scm {
