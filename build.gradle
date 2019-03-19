@@ -1,7 +1,7 @@
 buildscript {
     repositories {
-        mavenCentral()
-        jcenter()
+        maven { url 'https://repo1.maven.org/maven2' }
+    	maven { url 'https://jcenter.bintray.com' }
     }
     dependencies {
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0'
@@ -17,7 +17,7 @@ apply plugin: 'com.jfrog.artifactory'
 apply from: 'publish-maven.gradle'
 
 repositories {
-    mavenCentral()
+    maven { url 'https://repo1.maven.org/maven2' }
     maven { url 'https://repo.gradle.org/gradle/libs-releases' }
 }
 

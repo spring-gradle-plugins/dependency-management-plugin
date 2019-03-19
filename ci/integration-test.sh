@@ -2,7 +2,7 @@
 
 set -e
 
-curl --silent --output gradle.zip -L http://services.gradle.org/distributions/gradle-$GRADLE_VERSION-bin.zip
+curl --silent --output gradle.zip -L https://services.gradle.org/distributions/gradle-$GRADLE_VERSION-bin.zip
 unzip -qq gradle.zip
 cd dependency-management-plugin
 export GRADLE_OPTS=-Dorg.gradle.native=false
