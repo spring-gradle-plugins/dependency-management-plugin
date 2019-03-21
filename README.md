@@ -27,4 +27,4 @@ license][7].
 [4]: CODE_OF_CONDUCT.md
 [5]: https://help.github.com/articles/using-pull-requests/
 [6]: CONTRIBUTING.md
-[7]: http://www.apache.org/licenses/LICENSE-2.0.html
+[7]: https://www.apache.org/licenses/LICENSE-2.0.html
