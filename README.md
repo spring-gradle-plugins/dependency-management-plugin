@@ -668,5 +668,5 @@ Dependency Management Plugin is open source software released under the [Apache 
 [9]: CODE_OF_CONDUCT.md
 [10]: https://help.github.com/articles/using-pull-requests/
 [11]: CONTRIBUTING.md
-[12]: http://www.apache.org/licenses/LICENSE-2.0.html
+[12]: https://www.apache.org/licenses/LICENSE-2.0.html
 
