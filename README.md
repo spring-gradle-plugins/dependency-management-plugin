@@ -660,11 +660,11 @@ Contributors to this project agree to uphold its [code of conduct][9].
 
 Dependency Management Plugin is open source software released under the [Apache 2.0 license][12].
 
-[3]: http://plugins.gradle.org/plugin/io.spring.dependency-management
-[4]: http://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions
+[3]: https://plugins.gradle.org/plugin/io.spring.dependency-management
+[4]: https://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle/#appendix-dependency-versions
 [5]: https://gitter.im/spring-gradle-plugins/dependency-management-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [6]: https://badges.gitter.im/Join%20Chat.svg
-[7]: http://gradle.org/docs/current/dsl/org.gradle.api.artifacts.ResolutionStrategy.html
+[7]: https://gradle.org/docs/current/dsl/org.gradle.api.artifacts.ResolutionStrategy.html
 [9]: CODE_OF_CONDUCT.md
 [10]: https://help.github.com/articles/using-pull-requests/
 [11]: CONTRIBUTING.md

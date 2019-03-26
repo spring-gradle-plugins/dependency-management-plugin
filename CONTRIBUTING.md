@@ -49,4 +49,4 @@ $ ./gradlew build
 
 [1]: CODE_OF_CONDUCT.md
 [2]: https://cla.pivotal.io/sign/spring
-[3]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
+[3]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
