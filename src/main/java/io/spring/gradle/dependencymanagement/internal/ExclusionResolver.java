@@ -45,8 +45,6 @@ class ExclusionResolver {
     private static final Set<String> IGNORED_SCOPES = Collections
             .unmodifiableSet(new HashSet<String>(Arrays.asList("provided", "test")));
 
-    private final Map<String, Exclusions> exclusionsCache = new HashMap<String, Exclusions>();
-
     private final PomResolver pomResolver;
 
     ExclusionResolver(PomResolver pomResolver) {
@@ -64,7 +62,7 @@ class ExclusionResolver {
                     .getName() != null) {
                 String id = resolvedComponent.getModuleVersion()
                         .getGroup() + ":" + resolvedComponent.getModuleVersion().getName();
-                Exclusions exclusions = this.exclusionsCache.get(id);
+                Exclusions exclusions = ExclusionsCache.get(id);
                 if (exclusions != null) {
                     exclusionsById.put(id, exclusions);
                 }
@@ -79,7 +77,7 @@ class ExclusionResolver {
         for (Pom pom: poms) {
             String id = pom.getCoordinates().getGroupId() + ":" + pom.getCoordinates().getArtifactId();
             Exclusions exclusions = collectExclusions(pom);
-            this.exclusionsCache.put(id, exclusions);
+            ExclusionsCache.put(id, exclusions);
             exclusionsById.put(id, exclusions);
         }
         return exclusionsById;
