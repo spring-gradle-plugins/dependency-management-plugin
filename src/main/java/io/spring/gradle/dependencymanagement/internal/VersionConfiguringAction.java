@@ -73,14 +73,23 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
                         details.getRequested().getName());
 
         if (version != null) {
-            logger.debug("Using version '{}' for dependency '{}'", version,
-                    details.getRequested());
-            details.useVersion(version);
+            if (isVersionSpecified(details)) {
+                 logger.debug("Using version '{}' for dependency '{}'", version, details.getRequested());
+                 details.useVersion(version);
+             }
+             else {
+                 logger.debug("Dependency '{}' has allready version, not using version {}", details.getRequested(), version);
+            }
         }
         else {
             logger.debug("No dependency management for dependency '{}'", details.getRequested());
         }
 
+    }
+
+    private boolean isVersionSpecified(final DependencyResolveDetails details) {
+         String version = details.getTarget().getVersion();
+         return version != null && ! version.trim().isEmpty();
     }
 
     private boolean isDirectDependency(DependencyResolveDetails details) {
