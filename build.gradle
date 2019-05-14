@@ -11,6 +11,7 @@ buildscript {
     }
 }
 
+apply plugin: 'eclipse'
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'com.jfrog.artifactory'
