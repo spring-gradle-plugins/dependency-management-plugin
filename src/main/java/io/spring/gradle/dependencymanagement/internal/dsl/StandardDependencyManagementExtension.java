@@ -22,6 +22,7 @@ import java.util.Map;
 
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
+import org.codehaus.groovy.runtime.ReflectionMethodInvoker;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -164,7 +165,10 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport i
             closure.setDelegate(new CompoundDependencyManagementConfigurer(extractConfigurers(argsArray)));
         }
         else {
-            Configuration configuration = this.project.getConfigurations().getAt(name);
+            Configuration configuration = this.project.getConfigurations().findByName(name);
+            if (configuration == null) {
+                return ReflectionMethodInvoker.invoke(this.project, name, argsArray);
+            }
             closure = (Closure) argsArray[0];
             closure.setDelegate(new StandardDependencyManagementHandler(this.dependencyManagementContainer, configuration));
         }

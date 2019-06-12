@@ -682,6 +682,23 @@ public class DependencyManagementPluginSpec extends Specification {
 
     }
 
+    def 'The import of a bom can use property method to reference a property'() {
+        given: 'A project with the plugin applied and a version property'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
+        project.ext['platformVersion'] = '1.0.1.RELEASE'
+        when: 'Dependency management that imports a bom using a property for its version is declared'
+        project.dependencyManagement {
+            imports {
+                mavenBom "io.spring.platform:platform-bom:${property('platformVersion')}"
+            }
+        }
+        then: 'The dependency management from the bom has been applied'
+        project.dependencyManagement
+                .managedVersions['org.springframework:spring-core'] == '4.0.6.RELEASE'
+
+    }
+
     def 'An explicit dependency prevents the dependency from being excluded'() {
         given: 'A project that imports a bom'
             project.apply plugin: 'io.spring.dependency-management'
