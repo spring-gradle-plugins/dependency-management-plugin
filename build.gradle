@@ -61,6 +61,7 @@ configurations {
     docs
     jarjar
     maven
+    nohttp
 }
 
 task mavenRepackJar(type: Jar) { repackJar ->
@@ -88,6 +89,7 @@ dependencies {
     docs 'io.spring.docresources:spring-doc-resources:0.1.0.RELEASE@zip'
     jarjar "org.gradle.jarjar:jarjar:$jarjarVersion"
     maven "org.apache.maven:maven-model-builder:$mavenVersion"
+    nohttp "io.spring.nohttp:nohttp-cli:0.0.2.RELEASE"
     testCompile("org.spockframework:spock-core:$spockVersion") {
         exclude group: 'org.codehaus.groovy'
     }
@@ -169,6 +171,20 @@ task docsZip(type: Zip, dependsOn: [':asciidoctor', ':javadoc']) {
     from(javadoc) {
         into 'api'
     }
+}
+
+task nohttp(type: JavaExec) {
+    main = 'org.springframework.boot.loader.JarLauncher'
+    classpath = configurations.nohttp
+    args = [
+        '-D=reports',
+        '-D=styles',
+        '-D=expandedArchives'
+    ]
+}
+
+check {
+    dependsOn nohttp
 }
 
 artifacts {
