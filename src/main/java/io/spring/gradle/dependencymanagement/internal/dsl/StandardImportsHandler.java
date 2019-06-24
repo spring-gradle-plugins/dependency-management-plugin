@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement.internal.dsl;
 
 import groovy.lang.Closure;
+import groovy.lang.GString;
 import groovy.lang.GroovyObjectSupport;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -44,13 +45,13 @@ class StandardImportsHandler extends GroovyObjectSupport implements ImportsHandl
     }
 
     @Override
-    public void mavenBom(String coordinates) {
-        this.mavenBom(coordinates, (Action<MavenBomHandler>) null);
+    public void mavenBom(Object dependencyNotation) {
+        this.mavenBom(dependencyNotation, (Action<MavenBomHandler>) null);
     }
 
     @Override
-    public void mavenBom(String coordinates, final Closure closure) {
-        mavenBom(coordinates, new Action<MavenBomHandler>() {
+    public void mavenBom(Object dependencyNotation, final Closure closure) {
+        mavenBom(dependencyNotation, new Action<MavenBomHandler>() {
 
             @Override
             public void execute(MavenBomHandler mavenBomHandler) {
@@ -64,17 +65,19 @@ class StandardImportsHandler extends GroovyObjectSupport implements ImportsHandl
     }
 
     @Override
-    public void mavenBom(String coordinates, Action<MavenBomHandler> action) {
+    public void mavenBom(Object dependencyNotation, Action<MavenBomHandler> action) {
         StandardMavenBomHandler mavenBomHandler = new StandardMavenBomHandler();
         if (action != null) {
             action.execute(mavenBomHandler);
         }
-        String[] components = coordinates.split(":");
-        if (components.length != 3) {
-            throw new IllegalArgumentException("Bom coordinates must be of the form groupId:artifactId:version");
+        if (dependencyNotation instanceof String || dependencyNotation instanceof GString) {
+            String[] components = dependencyNotation.toString().split(":");
+            if (components.length != 3) {
+                throw new IllegalArgumentException("Bom coordinates must be of the form groupId:artifactId:version");
+            }
+            dependencyNotation = new Coordinates(components[0], components[1], components[2]);
         }
-        this.container.importBom(this.configuration, new Coordinates(components[0], components[1], components[2]),
-                mavenBomHandler.getBomProperties());
+        this.container.importBom(this.configuration, dependencyNotation, mavenBomHandler.getBomProperties());
     }
 
 

@@ -28,8 +28,7 @@ import java.util.Set;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ModuleVersionIdentifier;
-import org.gradle.api.artifacts.ResolvedArtifact;
+import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.specs.Specs;
 
@@ -73,40 +72,36 @@ public class MavenPomResolver implements PomResolver {
 
     @Override
     public List<Pom> resolvePomsLeniently(List<PomReference> pomReferences) {
-        return createPoms(createConfiguration(pomReferences).getResolvedConfiguration().getLenientConfiguration()
-                .getArtifacts(Specs.SATISFIES_ALL), pomReferences,
-                        new MapPropertySource(Collections.<String, Object>emptyMap()));
+        return createPoms(pomReferences, new MapPropertySource(Collections.<String, Object>emptyMap()), true);
     }
 
     @Override
     public List<Pom> resolvePoms(List<PomReference> pomReferences, PropertySource properties) {
-        return createPoms(createConfiguration(pomReferences).getResolvedConfiguration().getResolvedArtifacts(),
-                pomReferences, properties);
+        return createPoms(pomReferences, properties, false);
     }
 
-    private Configuration createConfiguration(List<PomReference> pomReferences) {
-        Configuration configuration = this.configurationContainer.newConfiguration();
-        for (PomReference pomReference: pomReferences) {
-            Coordinates coordinates = pomReference.getCoordinates();
-            configuration.getDependencies().add(this.dependencyHandler.create(coordinates.getGroupId() + ":"
-                    + coordinates.getArtifactId() + ":" + coordinates.getVersion() + "@pom"));
-        }
-        return configuration;
+    private Configuration createConfiguration(PomReference pomReference) {
+        return this.configurationContainer.newConfiguration(
+                this.dependencyHandler.create(pomReference.getDependencyNotation())
+        );
     }
 
-    private List<Pom> createPoms(Set<ResolvedArtifact> resolvedArtifacts, List<PomReference> pomReferences,
-            PropertySource properties) {
-        Map<String, PomReference> referencesById = new HashMap<String, PomReference>();
-        for (PomReference pomReference: pomReferences) {
-            referencesById.put(createKey(pomReference.getCoordinates().getGroupId(),
-                    pomReference.getCoordinates().getArtifactId()), pomReference);
-        }
+    private List<Pom> createPoms(List<PomReference> pomReferences, PropertySource properties, boolean lenient) {
         List<Pom> resolvedPoms = new ArrayList<Pom>();
-        for (ResolvedArtifact resolvedArtifact: resolvedArtifacts) {
-            ModuleVersionIdentifier id = resolvedArtifact.getModuleVersion().getId();
-            PomReference reference = referencesById.get(createKey(id.getGroup(), id.getName()));
-            CompositePropertySource allProperties = new CompositePropertySource(reference.getProperties(), properties);
-            resolvedPoms.add(createPom(resolvedArtifact.getFile(), allProperties));
+        for (PomReference pomReference: pomReferences) {
+            ResolvedConfiguration resolvedConfiguration = createConfiguration(pomReference).getResolvedConfiguration();
+
+            Set<File> files;
+            if (lenient) {
+                files = resolvedConfiguration.getLenientConfiguration().getFiles(Specs.SATISFIES_ALL);
+            } else {
+                files = resolvedConfiguration.getFiles(Specs.SATISFIES_ALL);
+            }
+
+            for (File file : files) {
+                CompositePropertySource allProperties = new CompositePropertySource(pomReference.getProperties(), properties);
+                resolvedPoms.add(createPom(file, allProperties));
+            }
         }
         return resolvedPoms;
     }

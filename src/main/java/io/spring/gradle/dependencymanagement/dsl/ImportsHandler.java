@@ -28,29 +28,29 @@ import org.gradle.api.Action;
 public interface ImportsHandler {
 
     /**
-     * Imports the Maven bom with the given {@code coordinates} in the form {@code group:name:version}.
+     * Imports the Maven bom with the given {@code dependencyNotation}.
      *
-     * @param coordinates the bom's coordinates
+     * @param dependencyNotation the bom's dependency notation
      */
-    void mavenBom(String coordinates);
+    void mavenBom(Object dependencyNotation);
 
     /**
-     * Imports the Maven bom with the given {@code coordinates} in the form {@code group:name:version}. The import
-     * is customized using the given {@code closure} which is called with a {@link MavenBomHandler} as its delegate.
+     * Imports the Maven bom with the given {@code dependencyNotation}. The import is customized using the given
+     * {@code closure} which is called with a {@link MavenBomHandler} as its delegate.
      *
-     * @param coordinates the bom's coordinates
+     * @param dependencyNotation the bom's dependency notation
      * @param closure the closure
      * @see MavenBomHandler
      */
-    void mavenBom(String coordinates, Closure closure);
+    void mavenBom(Object dependencyNotation, Closure closure);
 
     /**
-     * Imports the Maven bom with the given {@code coordinates} in the form {@code group:name:version}. The import
+     * Imports the Maven bom with the given {@code dependencyNotation}. The import
      * is customized using the given {@code action}.
      *
-     * @param coordinates the bom's coordinates
+     * @param dependencyNotation the bom's dependency notation
      * @param action the action
      */
-    void mavenBom(String coordinates, Action<MavenBomHandler> action);
+    void mavenBom(Object dependencyNotation, Action<MavenBomHandler> action);
 
 }
