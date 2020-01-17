@@ -84,14 +84,16 @@ class GradleVersionCompatibilitySpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create().withProjectDir(projectFolder.root).withArguments("resolve").build()
+        def result = GradleRunner.create().withProjectDir(projectFolder.root).withArguments("resolve")
+                .withGradleVersion(gradleVersion).build()
 
         then:
         result.task(":resolve").outcome == TaskOutcome.SUCCESS
 
         where:
-        gradleVersion << ['2.9', '2.10', '2.11', '2.12', '2.13', '2.14', '2.14.1', '3.0', '3.1', '3.2', '3.3', '3.4',
-                          '3.4.1', '3.5', '3.5.1', '4.0', '4.1', '4.2', '4.2.1', '4.3', '4.3.1', '4.4', '4.4.1']
+        gradleVersion << ['2.9', '2.10', '2.11', '2.12', '2.13', '2.14.1', '3.0', '3.1', '3.2', '3.3', '3.4',
+                          '3.4.1', '3.5.1', '4.0', '4.1', '4.2.1', '4.3.1', '4.4.1', '4.5.1', '4.6', '4.7',
+                          '4.8', '4.9', '4.10.2']
     }
 
 }
