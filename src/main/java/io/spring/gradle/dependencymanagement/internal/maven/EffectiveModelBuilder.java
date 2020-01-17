@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,8 +53,8 @@ final class EffectiveModelBuilder {
     private final ModelResolver modelResolver;
 
     EffectiveModelBuilder(Project project,
-            DependencyManagementConfigurationContainer configurationContainer) {
-        this.modelResolver = new ConfigurationModelResolver(project, configurationContainer);
+            DependencyManagementConfigurationContainer configurationContainer, PlatformCategoryAttributeConfigurer attributeConfigurer) {
+        this.modelResolver = new ConfigurationModelResolver(project, configurationContainer, attributeConfigurer);
     }
 
     Model buildModel(File pom, PropertySource properties) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,8 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model;
  */
 public class MavenPomResolver implements PomResolver {
 
+    private final PlatformCategoryAttributeConfigurer attributeConfigurer = new PlatformCategoryAttributeConfigurer();
+
     private final DependencyManagementConfigurationContainer configurationContainer;
 
     private final EffectiveModelBuilder effectiveModelBuilder;
@@ -67,7 +69,7 @@ public class MavenPomResolver implements PomResolver {
      */
     public MavenPomResolver(Project project, DependencyManagementConfigurationContainer configurationContainer) {
         this.configurationContainer = configurationContainer;
-        this.effectiveModelBuilder = new EffectiveModelBuilder(project, configurationContainer);
+        this.effectiveModelBuilder = new EffectiveModelBuilder(project, configurationContainer, this.attributeConfigurer);
         this.dependencyHandler = project.getDependencies();
     }
 
@@ -87,9 +89,11 @@ public class MavenPomResolver implements PomResolver {
     private Configuration createConfiguration(List<PomReference> pomReferences) {
         Configuration configuration = this.configurationContainer.newConfiguration();
         for (PomReference pomReference: pomReferences) {
-            Coordinates coordinates = pomReference.getCoordinates();
-            configuration.getDependencies().add(this.dependencyHandler.create(coordinates.getGroupId() + ":"
-                    + coordinates.getArtifactId() + ":" + coordinates.getVersion() + "@pom"));
+            final Coordinates coordinates = pomReference.getCoordinates();
+            org.gradle.api.artifacts.Dependency dependency = this.dependencyHandler.create(coordinates.getGroupId() + ":"
+                    + coordinates.getArtifactId() + ":" + coordinates.getVersion() + "@pom");
+            this.attributeConfigurer.configureCategoryAttribute(dependency);
+            configuration.getDependencies().add(dependency);
         }
         return configuration;
     }

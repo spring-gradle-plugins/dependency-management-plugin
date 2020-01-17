@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,15 +38,19 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.U
  */
 class ConfigurationModelResolver implements ModelResolver {
 
+    private final Map<String, FileModelSource> pomCache = new HashMap<String, FileModelSource>();
+
     private final Project project;
 
     private final DependencyManagementConfigurationContainer configurationContainer;
 
-    private final Map<String, FileModelSource> pomCache = new HashMap<String, FileModelSource>();
+    private final PlatformCategoryAttributeConfigurer attributeConfigurer;
 
-    ConfigurationModelResolver(Project project,  DependencyManagementConfigurationContainer configurationContainer) {
+    ConfigurationModelResolver(Project project,  DependencyManagementConfigurationContainer configurationContainer,
+            PlatformCategoryAttributeConfigurer attributeConfigurer) {
         this.project = project;
         this.configurationContainer = configurationContainer;
+        this.attributeConfigurer = attributeConfigurer;
     }
 
     @Override
@@ -61,8 +65,9 @@ class ConfigurationModelResolver implements ModelResolver {
         return pom;
     }
 
-    private FileModelSource resolveModel(String coordinates) {
+    private FileModelSource resolveModel(final String coordinates) {
         Dependency dependency = this.project.getDependencies().create(coordinates);
+        this.attributeConfigurer.configureCategoryAttribute(dependency);
         Configuration configuration = this.configurationContainer.newConfiguration(dependency);
         return new FileModelSource(configuration.resolve().iterator().next());
     }
