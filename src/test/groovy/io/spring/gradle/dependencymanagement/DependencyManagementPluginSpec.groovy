@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1032,6 +1032,22 @@ public class DependencyManagementPluginSpec extends Specification {
             }
         then: 'The versions from the second bom override the versions from the first'
             '4.2.3.RELEASE' == project.dependencyManagement.managedVersions['org.springframework:spring-core']
+    }
+
+    def "The order in which boms are imported is reflected in the managed versions when the same bom is imported multiple times"() {
+        given: 'A project that has the plugin applied'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
+        when: 'A bom is imported first and third'
+        project.dependencyManagement {
+            imports {
+                mavenBom 'io.spring.platform:platform-bom:2.0.0.RELEASE'
+                mavenBom 'org.springframework.boot:spring-boot-dependencies:1.2.7.RELEASE'
+                mavenBom 'io.spring.platform:platform-bom:2.0.0.RELEASE'
+            }
+        }
+        then: 'The versions from the second bom are overridden'
+        '4.2.3.RELEASE' == project.dependencyManagement.managedVersions['org.springframework:spring-core']
     }
 
     def "A configuration's own managed versions can be accessed"() {

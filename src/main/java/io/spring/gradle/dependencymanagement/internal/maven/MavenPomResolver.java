@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -82,8 +83,22 @@ public class MavenPomResolver implements PomResolver {
 
     @Override
     public List<Pom> resolvePoms(List<PomReference> pomReferences, PropertySource properties) {
-        return createPoms(createConfiguration(pomReferences).getResolvedConfiguration().getResolvedArtifacts(),
-                pomReferences, properties);
+        List<PomReference> deduplicatedPomReferences = deduplicate(pomReferences);
+        return createPoms(createConfiguration(deduplicatedPomReferences).getResolvedConfiguration().getResolvedArtifacts(),
+                deduplicatedPomReferences, properties);
+    }
+
+    private List<PomReference> deduplicate(List<PomReference> pomReferences) {
+        List<PomReference> deduplicatedReferences = new ArrayList<PomReference>();
+        Set<String> seen = new HashSet<String>();
+        for (int i = pomReferences.size() - 1; i >= 0; i--) {
+            PomReference pomReference = pomReferences.get(i);
+            if (seen.add(createKey(pomReference.getCoordinates().getGroupId(), pomReference.getCoordinates().getArtifactId()))) {
+                deduplicatedReferences.add(pomReference);
+            }
+        }
+        Collections.reverse(deduplicatedReferences);
+        return deduplicatedReferences;
     }
 
     private Configuration createConfiguration(List<PomReference> pomReferences) {
