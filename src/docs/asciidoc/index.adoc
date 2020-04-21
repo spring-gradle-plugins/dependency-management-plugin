@@ -753,7 +753,7 @@ supported when using the Kotlin DSL.
 [[maven-exclusions]]
 == Maven Exclusions
 
-While Gradle can consume dependencies described with a Maven pom file, Gradle doesn't not
+While Gradle can consume dependencies described with a Maven pom file, Gradle does not
 honour Maven's semantics when it is using the pom to build the dependency graph. A notable
 difference that results from this is in how exclusions are handled. This is best
 illustrated with an example.
