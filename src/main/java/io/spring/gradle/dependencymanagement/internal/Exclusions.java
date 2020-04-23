@@ -32,6 +32,11 @@ class Exclusions {
     private final Map<String, Set<String>> exclusionsByDependency = new HashMap<String, Set<String>>();
 
     void add(String dependency, Collection<String> exclusionsForDependency) {
+        // Most dependencies will have no exclusions, so avoid bloating this container with empty hashmaps.
+        if (exclusionsForDependency.isEmpty()) {
+            return;
+        }
+
         Set<String> exclusions = this.exclusionsByDependency.get(dependency);
         if (exclusions == null) {
             exclusions = new HashSet<String>();
@@ -47,7 +52,8 @@ class Exclusions {
     }
 
     Set<String> exclusionsForDependency(String dependency) {
-        return this.exclusionsByDependency.get(dependency);
+        Set<String> result = this.exclusionsByDependency.get(dependency);
+        return result == null ? new HashSet<String>() : result;
     }
 
     @Override

@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +46,16 @@ class ExclusionResolver {
     private static final Set<String> IGNORED_SCOPES = Collections
             .unmodifiableSet(new HashSet<String>(Arrays.asList("provided", "test")));
 
-    private final Map<String, Exclusions> exclusionsCache = new HashMap<String, Exclusions>();
+    // Least Recently Used Cache of exclusions by POM coordinates.
+    // This improves the performance of dependency resolution when using the Gradle daemon,
+    // avoiding reparsing the same POM files on each resolve.
+    private static final Map<String, Exclusions> exclusionsByPomCache = Collections.synchronizedMap(
+            new LinkedHashMap<String, Exclusions>(16, 0.75f, true) {
+        protected boolean removeEldestEntry(Map.Entry eldest) {
+            // Equates to ~5MB if each entry is ~0.5KB
+            return size() > 10000;
+        }
+    });
 
     private final PomResolver pomResolver;
 
@@ -64,7 +74,8 @@ class ExclusionResolver {
                     .getName() != null) {
                 String id = resolvedComponent.getModuleVersion()
                         .getGroup() + ":" + resolvedComponent.getModuleVersion().getName();
-                Exclusions exclusions = this.exclusionsCache.get(id);
+                String coordinates = id + ":" + resolvedComponent.getModuleVersion().getVersion();
+                Exclusions exclusions = exclusionsByPomCache.get(coordinates);
                 if (exclusions != null) {
                     exclusionsById.put(id, exclusions);
                 }
@@ -79,8 +90,10 @@ class ExclusionResolver {
         for (Pom pom: poms) {
             String id = pom.getCoordinates().getGroupId() + ":" + pom.getCoordinates().getArtifactId();
             Exclusions exclusions = collectExclusions(pom);
-            this.exclusionsCache.put(id, exclusions);
             exclusionsById.put(id, exclusions);
+
+            String coordinates = id + ":" + pom.getCoordinates().getVersion();
+            exclusionsByPomCache.put(coordinates, exclusions);
         }
         return exclusionsById;
     }
