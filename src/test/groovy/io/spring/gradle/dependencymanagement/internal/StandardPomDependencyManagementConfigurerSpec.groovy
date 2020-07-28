@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ class StandardPomDependencyManagementConfigurerSpec extends Specification {
     def "Dependency management exclusions are added to the pom"() {
         given: 'Dependency management that manages a dependency with an exclusion'
             this.dependencyManagement.addManagedVersion(null, 'org.springframework', 'spring-core', '4.1.3.RELEASE',
-                    ['commons-logging:commons-logging', 'foo:bar'])
+                    [new Exclusion('commons-logging', 'commons-logging'), new Exclusion('foo', 'bar')])
         when: 'The pom is configured'
             Node pom = new XmlParser().parseText("<project></project>")
             new StandardPomDependencyManagementConfigurer(dependencyManagement.globalDependencyManagement,

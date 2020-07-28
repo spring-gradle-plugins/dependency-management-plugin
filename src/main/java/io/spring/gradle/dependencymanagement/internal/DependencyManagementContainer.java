@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ public class DependencyManagementContainer {
      * @param exclusions the dependency's exclusions
      */
     public void addManagedVersion(Configuration configuration, String group, String name, String version,
-            List<String> exclusions) {
+            List<Exclusion> exclusions) {
         dependencyManagementForConfiguration(configuration)
                 .addExplicitManagedVersion(group, name, version, exclusions);
     }

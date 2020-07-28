@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,7 +142,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
     private Set<DependencyCandidate> determineIncludedComponents(ResolvedComponentResult root,
             Map<String, Exclusions> pomExclusionsById) {
         LinkedList<Node> queue = new LinkedList<Node>();
-        queue.add(new Node(root, getId(root), new HashSet<String>()));
+        queue.add(new Node(root, getId(root), new HashSet<Exclusion>()));
         Set<ResolvedComponentResult> seen = new HashSet<ResolvedComponentResult>();
         Set<DependencyCandidate> includedComponents = new HashSet<DependencyCandidate>();
         while (!queue.isEmpty()) {
@@ -194,9 +194,9 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
                 .getGroup(), attemptedModuleSelector.getModule());
     }
 
-    private Set<String> getChildExclusions(Node parent, String childId,
+    private Set<Exclusion> getChildExclusions(Node parent, String childId,
             Map<String, Exclusions> pomExclusionsById) {
-        Set<String> childExclusions = new HashSet<String>(parent.exclusions);
+        Set<Exclusion> childExclusions = new HashSet<Exclusion>(parent.exclusions);
         addAllIfPossible(childExclusions,
                 this.dependencyManagementContainer.getExclusions(this.configuration)
                         .exclusionsForDependency(childId));
@@ -207,7 +207,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
         return childExclusions;
     }
 
-    private void addAllIfPossible(Set<String> current, Set<String> addition) {
+    private void addAllIfPossible(Set<Exclusion> current, Set<Exclusion> addition) {
         if (addition != null) {
             current.addAll(addition);
         }
@@ -225,16 +225,25 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
         private final String id;
 
-        private final Set<String> exclusions;
+        private final Set<Exclusion> exclusions;
 
-        private Node(ResolvedComponentResult component, String id, Set<String> exclusions) {
+        private Node(ResolvedComponentResult component, String id, Set<Exclusion> exclusions) {
             this.component = component;
             this.id = id;
             this.exclusions = exclusions;
         }
 
         private boolean excluded(String id) {
-            return this.exclusions != null && this.exclusions.contains(id);
+            if (this.exclusions == null || this.exclusions.isEmpty()) {
+                return false;
+            }
+            String[] components = id.split(":");
+            for (Exclusion exclusion: this.exclusions) {
+                if (exclusion.getGroupId().equals(components[0]) && exclusion.getArtifactId().equals(components[1])) {
+                    return true;
+                }
+            }
+            return false;
         }
 
     }

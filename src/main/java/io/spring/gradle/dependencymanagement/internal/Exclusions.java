@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,24 +29,24 @@ import java.util.Set;
  */
 class Exclusions {
 
-    private final Map<String, Set<String>> exclusionsByDependency = new HashMap<String, Set<String>>();
+    private final Map<String, Set<Exclusion>> exclusionsByDependency = new HashMap<String, Set<Exclusion>>();
 
-    void add(String dependency, Collection<String> exclusionsForDependency) {
-        Set<String> exclusions = this.exclusionsByDependency.get(dependency);
+    void add(String dependency, Collection<Exclusion> exclusionsForDependency) {
+        Set<Exclusion> exclusions = this.exclusionsByDependency.get(dependency);
         if (exclusions == null) {
-            exclusions = new HashSet<String>();
+            exclusions = new HashSet<Exclusion>();
             this.exclusionsByDependency.put(dependency, exclusions);
         }
         exclusions.addAll(exclusionsForDependency);
     }
 
     void addAll(Exclusions exclusions) {
-        for (Map.Entry<String, Set<String>> entry : exclusions.exclusionsByDependency.entrySet()) {
+        for (Map.Entry<String, Set<Exclusion>> entry : exclusions.exclusionsByDependency.entrySet()) {
             add(entry.getKey(), entry.getValue());
         }
     }
 
-    Set<String> exclusionsForDependency(String dependency) {
+    Set<Exclusion> exclusionsForDependency(String dependency) {
         return this.exclusionsByDependency.get(dependency);
     }
 

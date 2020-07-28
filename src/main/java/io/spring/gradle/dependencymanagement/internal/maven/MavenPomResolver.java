@@ -35,6 +35,7 @@ import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.specs.Specs;
 
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
+import io.spring.gradle.dependencymanagement.internal.Exclusion;
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
@@ -43,7 +44,6 @@ import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
 import io.spring.gradle.dependencymanagement.internal.properties.CompositePropertySource;
 import io.spring.gradle.dependencymanagement.internal.properties.MapPropertySource;
 import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
-import io.spring.gradle.dependencymanagement.org.apache.maven.model.Exclusion;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model;
 
 /**
@@ -150,10 +150,10 @@ public class MavenPomResolver implements PomResolver {
     }
 
     private Dependency createDependency(io.spring.gradle.dependencymanagement.org.apache.maven.model.Dependency dependency) {
-        Set<String> exclusions = new LinkedHashSet<String>();
+        Set<Exclusion> exclusions = new LinkedHashSet<Exclusion>();
         if (dependency.getExclusions() != null) {
-            for (Exclusion exclusion: dependency.getExclusions()) {
-                exclusions.add(exclusion.getGroupId() + ":" + exclusion.getArtifactId());
+            for (io.spring.gradle.dependencymanagement.org.apache.maven.model.Exclusion exclusion: dependency.getExclusions()) {
+                exclusions.add(new Exclusion(exclusion.getGroupId(), exclusion.getArtifactId()));
             }
         }
         return new Dependency(new Coordinates(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion()),

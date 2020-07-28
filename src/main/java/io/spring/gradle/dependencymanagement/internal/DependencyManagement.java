@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ public class DependencyManagement {
         this.versions.put(createKey(group, name), version);
     }
 
-    void addExplicitManagedVersion(String group, String name, String version, List<String>
+    void addExplicitManagedVersion(String group, String name, String version, List<Exclusion>
             exclusions) {
         String key = createKey(group, name);
         this.explicitVersions.put(key, version);

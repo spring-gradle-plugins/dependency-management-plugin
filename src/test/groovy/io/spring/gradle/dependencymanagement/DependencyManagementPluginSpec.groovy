@@ -16,6 +16,7 @@
 
 package io.spring.gradle.dependencymanagement
 
+import io.spring.gradle.dependencymanagement.internal.Exclusion
 import io.spring.gradle.dependencymanagement.internal.dsl.StandardDependencyManagementExtension
 import org.gradle.api.Action
 import org.gradle.api.GradleException
@@ -164,9 +165,9 @@ public class DependencyManagementPluginSpec extends Specification {
             project.dependencyManagement.managedVersions['charlie:delta'] == '2.0'
             def exclusions =  project.dependencyManagement.dependencyManagementContainer
                     .getExclusions(null)
-            exclusions.exclusionsForDependency('charlie:delta') as List == ['bar:baz']
+            exclusions.exclusionsForDependency('charlie:delta') as List == [new Exclusion('bar', 'baz')]
             exclusions.exclusionsForDependency('commons-logging:commons-logging') as List ==
-                    ['foo:bar']
+                    [new Exclusion('foo', 'bar')]
     }
 
     def "Dependency management with exclusions can be declared in the build"() {

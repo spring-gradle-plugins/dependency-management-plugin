@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package io.spring.gradle.dependencymanagement.internal.pom;
 import java.util.Collections;
 import java.util.Set;
 
+import io.spring.gradle.dependencymanagement.internal.Exclusion;
+
 /**
  * A dependency in a Maven {@link Pom}.
  *
@@ -36,7 +38,7 @@ public final class Dependency {
 
     private final String scope;
 
-    private final Set<String> exclusions;
+    private final Set<Exclusion> exclusions;
 
     /**
      * Creates a new dependency.
@@ -44,7 +46,7 @@ public final class Dependency {
      * @param coordinates the coordinates
      * @param exclusions the exclusions int the form {@code groupId:artifactId}
      */
-    public Dependency(Coordinates coordinates, Set<String> exclusions) {
+    public Dependency(Coordinates coordinates, Set<Exclusion> exclusions) {
         this(coordinates, false, null, null, null, exclusions);
     }
 
@@ -59,13 +61,13 @@ public final class Dependency {
      * @param exclusions the exclusions int the form {@code groupId:artifactId}
      */
     public Dependency(Coordinates coordinates, boolean optional, String type,
-            String classifier, String scope, Set<String> exclusions) {
+            String classifier, String scope, Set<Exclusion> exclusions) {
         this.coordinates = coordinates;
         this.optional = optional;
         this.type = type == null ? "jar" : type;
         this.classifier = classifier;
         this.scope = scope;
-        this.exclusions = exclusions == null ? Collections.<String>emptySet() : exclusions;
+        this.exclusions = exclusions == null ? Collections.<Exclusion>emptySet() : exclusions;
     }
 
     /**
@@ -82,7 +84,7 @@ public final class Dependency {
      *
      * @return the exclusions
      */
-    public Set<String> getExclusions() {
+    public Set<Exclusion> getExclusions() {
         return this.exclusions;
     }
 

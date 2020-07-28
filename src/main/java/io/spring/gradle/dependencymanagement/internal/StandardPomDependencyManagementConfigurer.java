@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -211,11 +211,10 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
                 managedDependency.getType());
         if (!managedDependency.getExclusions().isEmpty()) {
             Node exclusionsNode = dependencyNode.appendNode(NODE_NAME_EXCLUSIONS);
-            for (String exclusion : managedDependency.getExclusions()) {
-                String[] exclusionComponents = exclusion.split(":");
+            for (Exclusion exclusion : managedDependency.getExclusions()) {
                 Node exclusionNode = exclusionsNode.appendNode(NODE_NAME_EXCLUSION);
-                exclusionNode.appendNode(NODE_NAME_GROUP_ID, exclusionComponents[0]);
-                exclusionNode.appendNode(NODE_NAME_ARTIFACT_ID, exclusionComponents[1]);
+                exclusionNode.appendNode(NODE_NAME_GROUP_ID, exclusion.getGroupId());
+                exclusionNode.appendNode(NODE_NAME_ARTIFACT_ID, exclusion.getArtifactId());
             }
         }
         if (classifier != null) {
