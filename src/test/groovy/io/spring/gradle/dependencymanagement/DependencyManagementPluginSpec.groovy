@@ -827,6 +827,30 @@ public class DependencyManagementPluginSpec extends Specification {
                                                    'spring-core-4.1.2.RELEASE.jar'])
     }
 
+    def 'A wildcard exclusion declared in a bom is honoured'() {
+        given: 'A project with the plugin applied'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
+        project.repositories {
+            maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+        }
+        when: 'It imports a bom that excludes commons-logging:*'
+        project.dependencyManagement {
+            imports {
+                mavenBom 'test:wildcard-exclude-bom:1.0'
+            }
+        }
+        project.dependencies {
+            compile 'org.springframework:spring-tx:4.1.2.RELEASE'
+        }
+        def files = project.configurations.compile.resolve()
+        then: "commons-logging has been excluded"
+        files.size() == 3
+        files.collect { it.name }.containsAll(['spring-tx-4.1.2.RELEASE.jar',
+                                               'spring-beans-4.1.2.RELEASE.jar',
+                                               'spring-core-4.1.2.RELEASE.jar'])
+    }
+
     def 'A transitive exclusion declared in a bom is honoured'() {
         given: 'A project with the plugin applied'
             project.apply plugin: 'io.spring.dependency-management'

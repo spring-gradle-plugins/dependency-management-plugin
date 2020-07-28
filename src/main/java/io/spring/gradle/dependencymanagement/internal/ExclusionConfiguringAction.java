@@ -239,11 +239,15 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
             }
             String[] components = id.split(":");
             for (Exclusion exclusion: this.exclusions) {
-                if (exclusion.getGroupId().equals(components[0]) && exclusion.getArtifactId().equals(components[1])) {
+                if (matches(components[0], exclusion.getGroupId()) && matches(components[1], exclusion.getArtifactId())) {
                     return true;
                 }
             }
             return false;
+        }
+
+        private boolean matches(String candidate, String exclusion) {
+            return exclusion.equals("*") || exclusion.equals(candidate);
         }
 
     }
