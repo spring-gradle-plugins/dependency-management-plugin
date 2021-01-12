@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1470,6 +1470,25 @@ public class DependencyManagementPluginSpec extends Specification {
         }
         then: 'The dependency management without a version is ignored'
         project.dependencyManagement.managedVersions.isEmpty()
+    }
+
+    def 'An exclusion that is malformed is tolerated'() {
+        given: 'A project with the plugin applied'
+        project.apply plugin: 'io.spring.dependency-management'
+        project.apply plugin: 'java'
+        project.repositories {
+            maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+        }
+        when: 'it depends on a module with malformed exclusions'
+        project.dependencies {
+            compile 'test:malformed-exclude:1.0'
+        }
+        def files = project.configurations.compile.resolve()
+        then: "the project can be built"
+        files.size() == 3
+        files.collect { it.name }.containsAll(['malformed-exclude-1.0.jar',
+                                               'spring-core-4.1.2.RELEASE.jar',
+                                               'commons-logging-1.1.3.jar'])
     }
 
 }
