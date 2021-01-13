@@ -45,6 +45,8 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 
     private Set<String> directDependencies;
 
+    private Set<String> localProjectNames;
+
     VersionConfiguringAction(Project project,
                              DependencyManagementContainer dependencyManagementContainer,
                              Configuration configuration) {
@@ -97,16 +99,15 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 
     private boolean isDependencyOnLocalProject(Project project,
                                                DependencyResolveDetails details) {
-        return getAllLocalProjectNames(project.getRootProject()).contains(details.getRequested()
-                .getGroup() + ":" + details.getRequested().getName());
-    }
-
-    private Set<String> getAllLocalProjectNames(Project rootProject) {
-        Set<String> names = new HashSet<String>();
-        for (Project localProject: rootProject.getAllprojects()) {
-            names.add(localProject.getGroup() + ":" + localProject.getName());
+        if (this.localProjectNames == null) {
+            Set<String> names = new HashSet<String>();
+            for (Project localProject : project.getRootProject().getAllprojects()) {
+                names.add(localProject.getGroup() + ":" + localProject.getName());
+            }
+            this.localProjectNames = names;
         }
-        return names;
-    }
 
+        return localProjectNames
+                .contains(details.getRequested().getGroup() + ":" + details.getRequested().getName());
+    }
 }
