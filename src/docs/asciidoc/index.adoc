@@ -40,13 +40,14 @@ The Plugin has the following requirements:
 [[getting-started]]
 == Getting Started
 
-The plugin is available in the Gradle Plugin Portal and can be applied like this:
+The plugin is https://plugins.gradle.org/plugin/io.spring.dependency-management[available
+in the Gradle Plugin Portal] and can be applied like this:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
 plugins {
-    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id "io.spring.dependency-management" version <<version>>
 }
 ----
 
@@ -54,7 +55,7 @@ plugins {
 .Kotlin
 ----
 plugins {
-    id("io.spring.dependency-management") version "1.0.6.RELEASE"
+    id("io.spring.dependency-management") version <<version>>
 }
 ----
 
@@ -71,7 +72,7 @@ buildscript {
         maven { url 'https://repo.spring.io/plugins-snapshot' }
     }
     dependencies {
-        classpath 'io.spring.gradle:dependency-management-plugin:1.0.7.BUILD-SNAPSHOT'
+        classpath 'io.spring.gradle:dependency-management-plugin:<<snapshot-version>>'
     }
 }
 
@@ -88,7 +89,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath("io.spring.gradle:dependency-management-plugin:1.0.7.BUILD-SNAPSHOT")
+    classpath("io.spring.gradle:dependency-management-plugin:<<snapshot-version>>")
   }
 }
 
@@ -601,7 +602,7 @@ dependencies {
 ----
 
 This will cause any dependency (direct or transitive) on `com.google.guava:guava:18.0` in
-the `compile` configuration to use version `18.0`, overriding any dependency management
+the `implementation` configuration to use version `18.0`, overriding any dependency management
 that may exist. If you do not want a project's dependencies to override its dependency
 management, this behavior can be disabled using `overriddenByDependencies`, as shown in
 the following example:
