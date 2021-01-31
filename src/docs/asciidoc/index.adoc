@@ -159,7 +159,6 @@ dependencyManagement {
 ----
 dependencyManagement {
     dependencies {
-        dependency("org.springframework:spring-core:4.0.3.RELEASE")
         dependency(mapOf(
             "group" to "org.springframework",
             "name" to "spring-core",
