@@ -31,7 +31,7 @@ None of these is essential for a pull request, but they will all help
   than cosmetic changes).
 - Add some Javadocs
 - Add unit tests that covers and new or modified functionality
-- Whenever possible, please rebase your branch against the current master (or other
+- Whenever possible, please rebase your branch against the current main (or other
   target branch in the main project).
 - When writing a commit message please follow [these conventions][3]. Also, if you are
   fixing an existing issue please add `Fixes gh-nnn` at the end of the commit message

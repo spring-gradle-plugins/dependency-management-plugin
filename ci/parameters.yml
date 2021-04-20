@@ -2,7 +2,7 @@ github-repo: "https://github.com/spring-gradle-plugins/dependency-management-plu
 github-repo-name: "spring-gradle-plugins/dependency-management-plugin"
 docker-hub-organization: "springci"
 artifactory-server: "https://repo.spring.io"
-branch: "master"
+branch: "main"
 build-name: "dependency-management-plugin"
 bintray-subject: "spring"
 bintray-repo: "jars"
