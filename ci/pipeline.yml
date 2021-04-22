@@ -1,6 +1,6 @@
 resource_types:
 - name: artifactory-resource
-  type: docker-image
+  type: registry-image
   source:
     repository: springio/artifactory-resource
     tag: 0.0.7
@@ -33,8 +33,8 @@ resources:
     uri: ((github-repo))
     branch: ((branch))
     paths: ["ci/images/*"]
-- name: dependency-management-plugin-ci-image
-  type: docker-image
+- name: ci-image
+  type: registry-image
   source:
     repository: ((docker-hub-organization))/dependency-management-plugin-ci-image
     username: ((docker-hub-username))
@@ -48,25 +48,33 @@ resources:
     password: ((artifactory-password))
     build_name: ((build-name))
 jobs:
-- name: build-dependency-management-plugin-ci-images
+- name: build-ci-images
   plan:
+  - get: git-repo
   - get: ci-images-git-repo
     trigger: true
-  - put: dependency-management-plugin-ci-image
+  - task: build-ci-image
+    privileged: true
+    file: git-repo/ci/tasks/build-ci-image.yml
+    output_mapping:
+      image: ci-image
+    vars:
+      ci-image-name: ci-image
+  - put: ci-image
     params:
-      build: ci-images-git-repo/ci/images/dependency-management-plugin-ci-image
+      image: ci-image/image.tar
 - name: build
   serial: true
   public: true
   plan:
-  - get: dependency-management-plugin-ci-image
+  - get: ci-image
   - get: git-repo
     trigger: true
   - do:
     - task: build-project
       privileged: true
       timeout: 1h30m
-      image: dependency-management-plugin-ci-image
+      image: ci-image
       file: git-repo/ci/tasks/build-project.yml
   - put: artifactory-repo
     params: &artifactory-params
@@ -85,11 +93,11 @@ jobs:
 - name: stage-milestone
   serial: true
   plan:
-  - get: dependency-management-plugin-ci-image
+  - get: ci-image
   - get: git-repo
     trigger: false
   - task: stage
-    image: dependency-management-plugin-ci-image
+    image: ci-image
     file: git-repo/ci/tasks/stage.yml
     params:
       RELEASE_TYPE: M
@@ -103,11 +111,11 @@ jobs:
 - name: stage-rc
   serial: true
   plan:
-  - get: dependency-management-plugin-ci-image
+  - get: ci-image
   - get: git-repo
     trigger: false
   - task: stage
-    image: dependency-management-plugin-ci-image
+    image: ci-image
     file: git-repo/ci/tasks/stage.yml
     params:
       RELEASE_TYPE: RC
@@ -121,11 +129,11 @@ jobs:
 - name: stage-release
   serial: true
   plan:
-  - get: dependency-management-plugin-ci-image
+  - get: ci-image
   - get: git-repo
     trigger: false
   - task: stage
-    image: dependency-management-plugin-ci-image
+    image: ci-image
     file: git-repo/ci/tasks/stage.yml
     params:
       RELEASE_TYPE: RELEASE
@@ -139,7 +147,7 @@ jobs:
 - name: promote-milestone
   serial: true
   plan:
-  - get: dependency-management-plugin-ci-image
+  - get: ci-image
   - get: git-repo
     trigger: false
   - get: artifactory-repo
@@ -148,7 +156,7 @@ jobs:
     params:
       save_build_info: true
   - task: promote
-    image: dependency-management-plugin-ci-image
+    image: ci-image
     file: git-repo/ci/tasks/promote.yml
     params:
       RELEASE_TYPE: M
@@ -169,7 +177,7 @@ jobs:
 - name: promote-rc
   serial: true
   plan:
-  - get: dependency-management-plugin-ci-image
+  - get: ci-image
   - get: git-repo
     trigger: false
   - get: artifactory-repo
@@ -178,7 +186,7 @@ jobs:
     params:
       save_build_info: true
   - task: promote
-    image: dependency-management-plugin-ci-image
+    image: ci-image
     file: git-repo/ci/tasks/promote.yml
     params:
       RELEASE_TYPE: RC
@@ -199,7 +207,7 @@ jobs:
 - name: promote-release
   serial: true
   plan:
-  - get: dependency-management-plugin-ci-image
+  - get: ci-image
   - get: git-repo
     trigger: false
   - get: artifactory-repo
@@ -208,7 +216,7 @@ jobs:
     params:
       save_build_info: true
   - task: promote
-    image: dependency-management-plugin-ci-image
+    image: ci-image
     file: git-repo/ci/tasks/promote.yml
     params:
       RELEASE_TYPE: RELEASE
@@ -233,7 +241,7 @@ jobs:
 - name: sync-to-maven-central
   serial: true
   plan:
-  - get: dependency-management-plugin-ci-image
+  - get: ci-image
   - get: git-repo
     trigger: false
   - get: artifactory-repo
@@ -242,7 +250,7 @@ jobs:
     params:
       save_build_info: true
   - task: sync-to-maven-central
-    image: dependency-management-plugin-ci-image
+    image: ci-image
     file: git-repo/ci/tasks/sync-to-maven-central.yml
     params:
       BINTRAY_USERNAME: ((bintray-username))
@@ -257,4 +265,4 @@ groups:
 - name: "release"
   jobs: ["stage-milestone", "stage-rc", "stage-release", "promote-milestone", "promote-rc", "promote-release", "sync-to-maven-central"]
 - name: "ci-images"
-  jobs: ["build-dependency-management-plugin-ci-images"]
+  jobs: ["build-ci-images"]
