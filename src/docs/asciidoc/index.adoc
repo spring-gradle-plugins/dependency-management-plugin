@@ -1071,7 +1071,7 @@ def managedVersions = dependencyManagement.implementation.managedVersions
 ----
 
 [source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
-.Koltin
+.Kotlin
 ----
 dependencyManagement.getManagedVersionsForConfiguration(configurations.getByName("implementation"))
 ----
