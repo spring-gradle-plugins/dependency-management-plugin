@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,9 @@ public class ProjectPropertySource implements PropertySource {
 
     @Override
     public String getProperty(String name) {
+        if ("version".equals(name)) {
+            return null;
+        }
         if (this.project.hasProperty(name)) {
             Object property = this.project.property(name);
             if (property != null) {

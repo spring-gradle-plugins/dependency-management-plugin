@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,15 @@ public class ProjectPropertySourceSpec extends Specification {
         this.project.extensions.extraProperties.setProperty("alpha", null)
         when: 'The property is retrieved'
         def property = this.propertySource.getProperty("alpha")
+        then: 'The property is null'
+        property == null
+    }
+
+    def 'Null is returned when project has null property'() {
+        given: 'A project'
+        project.version = '1.2.3'
+        when: 'The version property is retrieved'
+        def property = this.propertySource.getProperty("version")
         then: 'The property is null'
         property == null
     }
