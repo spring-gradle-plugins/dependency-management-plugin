@@ -66,7 +66,7 @@ public class ProjectPropertySourceSpec extends Specification {
         property == null
     }
 
-    def 'Null is returned when project has null property'() {
+    def 'Null is returned when version property is retrieved'() {
         given: 'A project'
         project.version = '1.2.3'
         when: 'The version property is retrieved'
