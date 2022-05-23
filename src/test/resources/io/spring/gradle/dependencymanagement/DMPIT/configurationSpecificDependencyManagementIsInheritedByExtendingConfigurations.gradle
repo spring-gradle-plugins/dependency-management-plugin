@@ -1,0 +1,29 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+	compile {
+		dependencies {
+			dependency 'commons-logging:commons-logging:1.1.1'
+		}
+	}
+}
+
+dependencies {
+	testRuntime 'commons-logging:commons-logging'
+}
+
+task resolve {
+	doFirst {
+	    def files = project.configurations.testRuntime.resolve()
+	    def output = new File("${buildDir}/resolved.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

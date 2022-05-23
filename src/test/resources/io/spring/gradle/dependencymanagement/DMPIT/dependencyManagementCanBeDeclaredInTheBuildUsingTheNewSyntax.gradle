@@ -1,0 +1,46 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+	dependencies {
+		dependency 'org.springframework:spring-core:4.0.4.RELEASE'
+		dependency('commons-logging:commons-logging:1.1.2') {
+			exclude 'foo:bar'
+		}
+		dependency group:'alpha', name: 'bravo', version: '1.0'
+		dependency(group:'charlie', name: 'delta', version: '2.0') {
+			exclude group:'bar', name:'baz'
+		}
+	}
+}
+
+
+task managedVersions {
+	doFirst {
+	    def output = new File("${buildDir}/managed-versions.txt")
+	    output.parentFile.mkdirs()
+	    dependencyManagement.managedVersions.each { key, value -> 
+	    	output << "${key} -> ${value}\n"
+	    }
+	}
+}
+
+task exclusions {
+	doFirst {
+		def output = new File("${buildDir}/exclusions.txt")
+		output.parentFile.mkdirs()
+		def exclusions = project.dependencyManagement.dependencyManagementContainer.getExclusions(null)
+		exclusions.exclusionsByDependency.each { key, value ->
+			output << "${key} -> "
+			output << value.collect { "${it.groupId}:${it.artifactId}" }
+			output << "\n"
+		}
+		
+	}
+}

@@ -1,0 +1,25 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	maven { url 'https://repo.spring.io/libs-milestone' }
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.cloud:spring-cloud-starter-parent:1.0.0.M3'
+	}
+}
+
+
+task managedVersions {
+	doFirst {
+	    def output = new File("${buildDir}/managed-versions.txt")
+	    output.parentFile.mkdirs()
+	    dependencyManagement.managedVersions.each { key, value -> 
+	    	output << "${key} -> ${value}\n"
+	    }
+	}
+}

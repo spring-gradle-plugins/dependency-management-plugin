@@ -1,0 +1,29 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+	maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+}
+
+project.ext['spring.version'] = '4.0.1.RELEASE'
+
+dependencyManagement {
+    imports {
+        mavenBom('org.springframework.boot:spring-boot-dependencies:1.3.5.RELEASE') {
+            bomProperty 'spring.version', '4.3.0.RELEASE'
+        }
+    }
+}
+
+task managedVersions {
+	doFirst {
+	    def output = new File("${buildDir}/managed-versions.txt")
+	    output.parentFile.mkdirs()
+	    dependencyManagement.managedVersions.each { key, value -> 
+	    	output << "${key} -> ${value}\n"
+	    }
+	}
+}

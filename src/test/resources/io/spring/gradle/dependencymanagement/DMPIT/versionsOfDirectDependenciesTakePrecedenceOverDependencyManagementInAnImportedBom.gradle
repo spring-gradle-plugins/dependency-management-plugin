@@ -1,0 +1,26 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+	}
+}
+dependencies {
+	compile 'org.springframework:spring-core:4.0.4.RELEASE'
+}
+
+task resolve {
+	doFirst {
+	    def files = project.configurations.compile.resolve()
+	    def output = new File("${buildDir}/resolved.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

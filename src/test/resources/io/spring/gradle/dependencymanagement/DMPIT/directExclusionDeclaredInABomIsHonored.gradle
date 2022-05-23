@@ -1,0 +1,27 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+	maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'test:direct-exclude-bom:1.0'
+	}
+}
+dependencies {
+	compile 'org.springframework:spring-tx:4.1.2.RELEASE'
+}
+
+task resolve {
+	doFirst {
+	    def files = project.configurations.compile.resolve()
+	    def output = new File("${buildDir}/resolved.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

@@ -1,0 +1,27 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+	dependencies {
+		dependency 'test:child:1.0.0'
+	}
+}
+
+dependencies {
+	compile project([path: ':child'])
+}
+
+task resolve {
+	doFirst {
+	    def files = project.configurations.compile.resolve()
+	    def output = new File("${buildDir}/resolved.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

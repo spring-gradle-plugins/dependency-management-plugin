@@ -1,0 +1,22 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+	maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+}
+
+dependencies {
+	compile 'test:transitive-exclude:1.0'
+}
+
+task resolve {
+	doFirst {
+	    def files = project.configurations.compile.resolve()
+	    def output = new File("${buildDir}/resolved.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

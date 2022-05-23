@@ -1,0 +1,29 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+	maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.boot:spring-boot-dependencies:1.2.0.RELEASE'
+	}
+}
+
+dependencies {
+	compile 'org.codehaus.groovy:groovy'
+	testCompile 'org.springframework.boot:spring-boot-starter-test'
+}
+
+task resolve {
+	doFirst {
+	    def files = project.configurations.testCompile.resolve()
+	    def output = new File("${buildDir}/resolved.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

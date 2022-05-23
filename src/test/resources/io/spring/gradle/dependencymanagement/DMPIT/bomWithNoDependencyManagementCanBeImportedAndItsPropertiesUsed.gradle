@@ -1,0 +1,26 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	maven {
+		url new File("src/test/resources/maven-repo").absoluteFile
+	}
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'test:no-dependency-management-bom:1.0'
+	}
+}
+
+task importedProperties {
+	doFirst {
+	    def output = new File("${buildDir}/imported-properties.txt")
+	    output.parentFile.mkdirs()
+	    project.dependencyManagement.importedProperties.each { key, value ->
+	    	output << "${key} -> ${value}\n"
+	    }
+	}
+}

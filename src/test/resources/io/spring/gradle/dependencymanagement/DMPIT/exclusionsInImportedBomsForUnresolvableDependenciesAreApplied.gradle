@@ -1,0 +1,27 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+	maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'test:exclude-unresolvable-dependency:1.0'
+	}
+}
+dependencies {
+	compile 'test:unresolvable-transitive-dependency'
+}
+
+task resolve {
+	doFirst {
+	    def files = project.configurations.compile.resolve()
+	    def output = new File("${buildDir}/resolved.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

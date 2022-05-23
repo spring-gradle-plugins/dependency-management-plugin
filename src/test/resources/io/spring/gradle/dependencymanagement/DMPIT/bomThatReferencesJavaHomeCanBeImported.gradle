@@ -1,0 +1,25 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.jboss:jboss-parent:11'
+	}
+}
+
+
+task managedVersions {
+	doFirst {
+	    def output = new File("${buildDir}/managed-versions.txt")
+	    output.parentFile.mkdirs()
+	    dependencyManagement.managedVersions.each { key, value -> 
+	    	output << "${key} -> ${value}\n"
+	    }
+	}
+}

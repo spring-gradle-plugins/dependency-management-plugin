@@ -1,0 +1,14 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+	dependencies {
+	    dependency group: 'a'
+	}
+}

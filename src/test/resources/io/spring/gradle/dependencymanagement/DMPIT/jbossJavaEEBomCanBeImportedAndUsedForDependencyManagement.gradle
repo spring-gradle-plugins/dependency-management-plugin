@@ -1,0 +1,26 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.jboss.spec:jboss-javaee-6.0:1.0.0.Final'
+	}
+}
+dependencies {
+	compile 'org.jboss.spec.javax.el:jboss-el-api_2.2_spec'
+}
+
+task resolve {
+	doFirst {
+	    def files = project.configurations.compile.resolve()
+	    def output = new File("${buildDir}/resolved.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

@@ -1,0 +1,54 @@
+plugins {
+	id "io.spring.dependency-management"
+}
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	managed1
+	managed2
+	unmanaged
+}
+
+dependencyManagement {
+	configurations(managed1, managed2) {
+		dependencies {
+			dependency ('commons-logging:commons-logging:1.1.2')
+		}
+	}
+}
+
+dependencies {
+	managed1 'org.springframework:spring-core:4.0.6.RELEASE'
+	managed2 'org.springframework:spring-core:4.0.6.RELEASE'
+	unmanaged 'org.springframework:spring-core:4.0.6.RELEASE'
+}
+
+task resolveManaged1 {
+	doFirst {
+	    def files = project.configurations.managed2.resolve()
+	    def output = new File("${buildDir}/resolved-managed1.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}
+
+task resolveManaged2 {
+	doFirst {
+	    def files = project.configurations.managed1.resolve()
+	    def output = new File("${buildDir}/resolved-managed2.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}
+
+task resolveUnmanaged {
+	doFirst {
+	    def files = project.configurations.unmanaged.resolve()
+	    def output = new File("${buildDir}/resolved-unmanaged.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

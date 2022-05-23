@@ -8,7 +8,7 @@ buildscript {
     }
 }
 
-apply plugin: 'groovy'
+apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'checkstyle'
 apply plugin: 'org.asciidoctor.convert'
@@ -34,7 +34,6 @@ ext {
     cglibVersion = '3.1'
     jarjarVersion = '1.2.1'
     mavenVersion = '3.0.4'
-    spockVersion = GroovySystem.version.startsWith('1.') ? '0.7-groovy-1.8' : '0.7-groovy-2.0'
 }
 
 sourceCompatibility = 1.6
@@ -66,18 +65,24 @@ task mavenRepackJar(type: Jar) { repackJar ->
 
 dependencies {
     asciidoctor 'io.spring.asciidoctor:spring-asciidoctor-extensions:0.1.2.RELEASE'
+    
     compile gradleApi()
     compile localGroovy()
     compile(files(mavenRepackJar))
+
     docs 'io.spring.docresources:spring-doc-resources:0.1.0.RELEASE@zip'
+
     jarjar "org.gradle.jarjar:jarjar:$jarjarVersion"
+
     maven "org.apache.maven:maven-model-builder:$mavenVersion"
+
     nohttp "io.spring.nohttp:nohttp-cli:0.0.10"
-    testCompile("org.spockframework:spock-core:$spockVersion") {
-        exclude group: 'org.codehaus.groovy'
-    }
-    testCompile "cglib:cglib-nodep:$cglibVersion"
+
     testCompile gradleTestKit()
+    testCompile "cglib:cglib-nodep:$cglibVersion"
+    testCompile "org.assertj:assertj-core:1.7.1"
+    testCompile "org.mockito:mockito-core:2.28.2"
+    testCompile "junit:junit:4.13.2"
 }
 
 jar {

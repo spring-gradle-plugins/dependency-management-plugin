@@ -1,0 +1,31 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	myConfiguration
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+	}
+}
+
+dependencies {
+	myConfiguration "org.hibernate:hibernate-envers:${project.dependencyManagement.importedProperties['hibernate.version']}"
+}
+
+task resolve {
+	doFirst {
+	    def files = project.configurations.myConfiguration.resolve()
+	    def output = new File("${buildDir}/resolved.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

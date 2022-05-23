@@ -1,0 +1,26 @@
+plugins {
+	id 'io.spring.dependency-management'
+	id 'java'
+	id 'maven-publish'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+	generatedPomCustomization {
+		enabled = false
+	}
+    imports {
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:1.4.2.RELEASE'
+    }
+}
+
+publishing {
+   publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}

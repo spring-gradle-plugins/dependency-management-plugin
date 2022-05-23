@@ -1,0 +1,39 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	myConfiguration
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+	}
+	myConfiguration {
+		imports {
+			mavenBom 'org.springframework.boot:spring-boot-dependencies:1.2.1.RELEASE'
+		}
+	}
+}
+
+def verifyImportedProperty(def properties, def name, def expected) {
+	def actual = properties[name]
+	if (actual != expected) {
+		throw new GradleException("Property named '${name}' was '${actual}' but '${expected}' was expected")
+	}
+}
+
+
+task verify {
+	doFirst {
+		verifyImportedProperty(dependencyManagement.importedProperties, "hibernate.version", "4.3.5.Final")
+		verifyImportedProperty(dependencyManagement.myConfiguration.importedProperties, "spring.version", "4.1.4.RELEASE")
+		verifyImportedProperty(dependencyManagement.myConfiguration.importedProperties, "jruby.version", "1.7.12")
+	}
+}

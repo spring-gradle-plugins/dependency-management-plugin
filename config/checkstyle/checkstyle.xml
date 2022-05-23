@@ -74,7 +74,7 @@
         <!-- Imports -->
         <module name="AvoidStarImport" />
         <module name="AvoidStaticImport">
-            <property name="excludes" value="" />
+            <property name="excludes" value="org.assertj.core.api.Assertions.assertThat, org.assertj.core.api.Assertions.fail, org.mockito.ArgumentMatchers.any, org.mockito.ArgumentMatchers.eq, org.mockito.BDDMockito.then, org.mockito.Mockito.mock" />
         </module>
         <module name="IllegalImport" />
         <module name="RedundantImport" />

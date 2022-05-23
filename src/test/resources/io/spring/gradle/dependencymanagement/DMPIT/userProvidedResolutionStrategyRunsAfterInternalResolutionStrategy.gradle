@@ -1,0 +1,46 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+    dependencies {
+        dependency 'org.springframework:spring-core:4.2.6.RELEASE'
+    }
+}
+
+dependencies {
+    compile 'org.springframework:spring-core:#'
+}
+
+Closure versionStrategy = {
+    it.eachDependency(new Action<DependencyResolveDetails>() {
+
+        @Override
+        void execute(DependencyResolveDetails details) {
+            if (details.target.name == 'spring-core') {
+                details.useVersion('4.2.6.RELEASE')
+            }
+        }
+
+    })
+}
+
+dependencyManagement.resolutionStrategy versionStrategy
+
+configurations.all {
+    resolutionStrategy versionStrategy
+}
+
+task resolve {
+	doFirst {
+	    def files = project.configurations.compile.resolve()
+	    def output = new File("${buildDir}/resolved.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

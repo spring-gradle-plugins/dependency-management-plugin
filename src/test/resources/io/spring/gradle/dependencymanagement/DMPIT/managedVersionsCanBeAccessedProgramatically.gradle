@@ -1,0 +1,53 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+	}
+	testRuntime {
+		dependencies {
+			dependency 'com.foo:bar:1.2.3'
+		}
+	}
+	dependencies {
+		dependencySet(group: 'com.alpha', version: '1.0') {
+			entry 'bravo'
+			entry 'charlie'
+		}
+	}
+}
+
+def verifyManagedVersion(def versions, def id, def expected) {
+	def actual = versions[id]
+	if (actual != expected) {
+		throw new GradleException("Managed version for '${id}' was '${actual}' but '${expected}' was expected")
+	}
+}
+
+
+task verify {
+	doFirst {
+		verifyManagedVersion(dependencyManagement.compile.managedVersions, "org.springframework:spring-core", "4.0.6.RELEASE")
+		verifyManagedVersion(dependencyManagement.testRuntime.managedVersions, "org.springframework:spring-core", "4.0.6.RELEASE")
+		verifyManagedVersion(dependencyManagement.managedVersions, "org.springframework:spring-core", "4.0.6.RELEASE")
+		
+		verifyManagedVersion(dependencyManagement.compile.managedVersions, "com.foo:bar", null)
+		verifyManagedVersion(dependencyManagement.testRuntime.managedVersions, "com.foo:bar", "1.2.3")
+		verifyManagedVersion(dependencyManagement.managedVersions, "com.foo:bar", null)
+		
+		verifyManagedVersion(dependencyManagement.compile.managedVersions, "com.alpha:bravo", "1.0")
+		verifyManagedVersion(dependencyManagement.testRuntime.managedVersions, "com.alpha:bravo", "1.0")
+		verifyManagedVersion(dependencyManagement.managedVersions, "com.alpha:bravo", "1.0")
+		
+		verifyManagedVersion(dependencyManagement.compile.managedVersions, "com.alpha:charlie", "1.0")
+		verifyManagedVersion(dependencyManagement.testRuntime.managedVersions, "com.alpha:charlie", "1.0")
+		verifyManagedVersion(dependencyManagement.managedVersions, "com.alpha:charlie", "1.0")
+	}
+}

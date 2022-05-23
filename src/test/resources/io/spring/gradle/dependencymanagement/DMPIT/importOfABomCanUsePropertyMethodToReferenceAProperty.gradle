@@ -1,0 +1,26 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext['platformVersion'] = '1.0.1.RELEASE'
+
+dependencyManagement {
+    imports {
+        mavenBom "io.spring.platform:platform-bom:${property('platformVersion')}"
+    }
+}
+
+task managedVersions {
+	doFirst {
+	    def output = new File("${buildDir}/managed-versions.txt")
+	    output.parentFile.mkdirs()
+	    dependencyManagement.managedVersions.each { key, value -> 
+	    	output << "${key} -> ${value}\n"
+	    }
+	}
+}

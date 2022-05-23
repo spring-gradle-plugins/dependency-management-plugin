@@ -1,0 +1,31 @@
+plugins {
+	id "io.spring.dependency-management"
+	id "java"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+	dependencies {
+		dependencySet(group: 'org.slf4j', version: '1.7.7') {
+			entry 'slf4j-api'
+			entry 'slf4j-simple'
+		}
+	}
+}
+
+dependencies {
+	compile 'org.slf4j:slf4j-api'
+	compile 'org.slf4j:slf4j-simple'
+}
+
+task resolve {
+	doFirst {
+	    def files = project.configurations.compile.resolve()
+	    def output = new File("${buildDir}/resolved.txt")
+	    output.parentFile.mkdirs()
+	    files.collect { it.name }.each { output << "${it}\n" }
+	}
+}
