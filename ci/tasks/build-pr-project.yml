@@ -5,7 +5,8 @@ inputs:
 outputs:
 - name: distribution-repository
 caches:
-- path: maven
 - path: gradle
+params:
+  CI: true
 run:
-  path: git-repo/ci/scripts/build-project.sh
+  path: git-repo/ci/scripts/build-pr-project.sh

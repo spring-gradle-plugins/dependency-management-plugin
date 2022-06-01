@@ -1,8 +1,12 @@
-github-repo: "https://github.com/spring-gradle-plugins/dependency-management-plugin.git"
-github-repo-name: "spring-gradle-plugins/dependency-management-plugin"
+github-organization: "spring-gradle-plugins"
+github-repository: "dependency-management-plugin"
 docker-hub-organization: "springci"
 artifactory-server: "https://repo.spring.io"
 branch: "main"
+milestone: "1.0.x"
 build-name: "dependency-management-plugin"
-bintray-subject: "spring"
-bintray-repo: "jars"
+concourse-url: "https://ci.spring.io"
+task-timeout: 1h00m
+registry-mirror-host: docker.repo.spring.io
+registry-mirror-username: ((artifactory-username))
+registry-mirror-password: ((artifactory-password))

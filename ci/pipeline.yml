@@ -1,58 +1,145 @@
+anchors:
+  git-repo-resource-source: &git-repo-resource-source
+    uri: "https://github.com/((github-organization))/((github-repository)).git"
+    username: ((github-username))
+    password: ((github-password))
+    branch: ((branch))
+  registry-image-resource-source: &registry-image-resource-source
+    username: ((docker-hub-username))
+    password: ((docker-hub-password))
+    tag: ((milestone))
+  docker-hub-task-params: &docker-hub-task-params
+    DOCKER_HUB_USERNAME: ((docker-hub-username))
+    DOCKER_HUB_PASSWORD: ((docker-hub-password))
+  github-task-params: &github-task-params
+    GITHUB_REPO: ((github-repository))
+    GITHUB_ORGANIZATION: ((github-organization))
+    GITHUB_PASSWORD: ((github-ci-release-token))
+    GITHUB_USERNAME: ((github-username))
+    MILESTONE: ((milestone))
+  sontatype-task-params: &sonatype-task-params
+    SONATYPE_USERNAME: ((s01-user-token))
+    SONATYPE_PASSWORD: ((s01-user-token-password))
+    SONATYPE_URL: ((sonatype-url))
+    SONATYPE_STAGING_PROFILE_ID: ((sonatype-staging-profile-id))
+  artifactory-task-params: &artifactory-task-params
+    ARTIFACTORY_SERVER: ((artifactory-server))
+    ARTIFACTORY_USERNAME: ((artifactory-username))
+    ARTIFACTORY_PASSWORD: ((artifactory-password))
+  build-project-task-params: &build-project-task-params
+    privileged: true
+    timeout: ((task-timeout))
+    file: git-repo/ci/tasks/build-project.yml
+    params:
+      BRANCH: ((branch))
+      <<: *docker-hub-task-params
+  artifactory-repo-put-params: &artifactory-repo-put-params
+    signing_key: ((signing-key))
+    signing_passphrase: ((signing-passphrase))
+    repo: plugins-snapshot-local
+    folder: distribution-repository
+    build_uri: "https://ci.spring.io/teams/${BUILD_TEAM_NAME}/pipelines/${BUILD_PIPELINE_NAME}/jobs/${BUILD_JOB_NAME}/builds/${BUILD_NAME}"
+    build_number: "${BUILD_PIPELINE_NAME}-${BUILD_JOB_NAME}-${BUILD_NAME}"
+    disable_checksum_uploads: true
+    threads: 8
+    artifact_set:
+    - include:
+      - "/**/dependency-management-plugin-*.zip"
+      properties:
+        "zip.type": "docs"
+        "zip.deployed": "false"
+    username: concourse-ci
+  registry-mirror-vars: &registry-mirror-vars
+    registry-mirror-host: ((registry-mirror-host))
+    registry-mirror-username: ((registry-mirror-username))
+    registry-mirror-password: ((registry-mirror-password))
 resource_types:
 - name: artifactory-resource
   type: registry-image
   source:
     repository: springio/artifactory-resource
-    tag: 0.0.7
+    tag: 0.0.17
+- name: pull-request
+  type: registry-image
+  source:
+    repository: teliaoss/github-pr-resource
+    tag: v0.23.0
+- name: github-status-resource
+  type: registry-image
+  source:
+    repository: dpb587/github-status-resource
+    tag: master
+- name: github-release
+  type: registry-image
+  source:
+    repository: concourse/github-release-resource
+    tag: 1.5.5
 resources:
 - name: git-repo
   type: git
+  icon: github
   source:
-    uri: ((github-repo))
-    username: ((github-username))
-    password: ((github-password))
-    branch: ((branch))
-    ignore_paths: ["ci/images/*"]
+    <<: *git-repo-resource-source
+- name: git-pull-request
+  type: pull-request
+  icon: source-pull
+  source:
+    access_token: ((github-ci-pull-request-token))
+    repository: ((github-organization))/((github-repository))
+    base_branch: ((branch))
+    ignore_paths: ["ci/*"]
 - name: github-pre-release
   type: github-release
+  icon: briefcase-download-outline
   source:
-    owner: spring-gradle-plugins
-    repository: dependency-management-plugin
-    access_token: ((github-release-notes-access-token))
+    owner: ((github-organization))
+    repository: ((github-repository))
+    access_token: ((github-ci-release-token))
     pre_release: true
+    release: false
 - name: github-release
   type: github-release
+  icon: briefcase-download
   source:
-    owner: spring-gradle-plugins
-    repository: dependency-management-plugin
-    access_token: ((github-release-notes-access-token))
+    owner: ((github-organization))
+    repository: ((github-repository))
+    access_token: ((github-ci-release-token))
     pre_release: false
 - name: ci-images-git-repo
   type: git
+  icon: github
   source:
-    uri: ((github-repo))
+    uri: https://github.com/((github-organization))/((github-repository)).git
     branch: ((branch))
     paths: ["ci/images/*"]
 - name: ci-image
   type: registry-image
+  icon: docker
   source:
-    repository: ((docker-hub-organization))/dependency-management-plugin-ci-image
-    username: ((docker-hub-username))
-    password: ((docker-hub-password))
-    tag: ((branch))
+    <<: *registry-image-resource-source
+    repository: ((docker-hub-organization))/((github-repository))-ci
 - name: artifactory-repo
   type: artifactory-resource
+  icon: package-variant
   source:
     uri: ((artifactory-server))
     username: ((artifactory-username))
     password: ((artifactory-password))
     build_name: ((build-name))
+- name: repo-status-build
+  type: github-status-resource
+  icon: eye-check-outline
+  source:
+    repository: ((github-organization))/((github-repository))
+    access_token: ((github-ci-status-token))
+    branch: ((branch))
+    context: build
 jobs:
 - name: build-ci-images
   plan:
-  - get: git-repo
   - get: ci-images-git-repo
     trigger: true
+  - get: git-repo
   - task: build-ci-image
     privileged: true
     file: git-repo/ci/tasks/build-ci-image.yml
@@ -60,6 +147,7 @@ jobs:
       image: ci-image
     vars:
       ci-image-name: ci-image
+      <<: *registry-mirror-vars
   - put: ci-image
     params:
       image: ci-image/image.tar
@@ -70,26 +158,51 @@ jobs:
   - get: ci-image
   - get: git-repo
     trigger: true
+  - put: repo-status-build
+    params: { state: "pending", commit: "git-repo" }
   - do:
     - task: build-project
-      privileged: true
-      timeout: 1h30m
       image: ci-image
-      file: git-repo/ci/tasks/build-project.yml
+      <<: *build-project-task-params
+    on_failure:
+      do:
+      - put: repo-status-build
+        params: { state: "failure", commit: "git-repo" }
+  - put: repo-status-build
+    params: { state: "success", commit: "git-repo" }
   - put: artifactory-repo
-    params: &artifactory-params
-      repo: plugins-snapshot-local
-      build_number: "${BUILD_ID}"
-      folder: distribution-repository
-      build_uri: "https://ci.spring.io/teams/${BUILD_TEAM_NAME}/pipelines/${BUILD_PIPELINE_NAME}/jobs/${BUILD_JOB_NAME}/builds/${BUILD_NAME}"
-      build_number: "${BUILD_PIPELINE_NAME}-${BUILD_JOB_NAME}-${BUILD_NAME}"
-      disable_checksum_uploads: true
-      artifact_set:
-      - include:
-        - "/**/dependency-management-plugin-*-docs.zip"
-        properties:
-          "zip.type": "docs"
-          "zip.deployed": "false"
+    params:
+      <<: *artifactory-repo-put-params
+    get_params:
+      threads: 8
+- name: build-pull-requests
+  serial: true
+  public: true
+  plan:
+  - get: ci-image
+  - get: git-repo
+    resource: git-pull-request
+    trigger: true
+    version: every
+  - do:
+    - put: git-pull-request
+      params:
+        path: git-repo
+        status: pending
+    - task: build-project
+      image: ci-image
+      file: git-repo/ci/tasks/build-pr-project.yml
+      timeout: ((task-timeout))
+    on_success:
+      put: git-pull-request
+      params:
+        path: git-repo
+        status: success
+    on_failure:
+      put: git-pull-request
+      params:
+        path: git-repo
+        status: failure
 - name: stage-milestone
   serial: true
   plan:
@@ -101,9 +214,10 @@ jobs:
     file: git-repo/ci/tasks/stage.yml
     params:
       RELEASE_TYPE: M
+      <<: *docker-hub-task-params
   - put: artifactory-repo
     params:
-      <<: *artifactory-params
+      <<: *artifactory-repo-put-params
       repo: libs-staging-local
   - put: git-repo
     params:
@@ -119,9 +233,10 @@ jobs:
     file: git-repo/ci/tasks/stage.yml
     params:
       RELEASE_TYPE: RC
+      <<: *docker-hub-task-params
   - put: artifactory-repo
     params:
-      <<: *artifactory-params
+      <<: *artifactory-repo-put-params
       repo: libs-staging-local
   - put: git-repo
     params:
@@ -137,9 +252,10 @@ jobs:
     file: git-repo/ci/tasks/stage.yml
     params:
       RELEASE_TYPE: RELEASE
+      <<: *docker-hub-task-params
   - put: artifactory-repo
     params:
-      <<: *artifactory-params
+      <<: *artifactory-repo-put-params
       repo: libs-staging-local
   - put: git-repo
     params:
@@ -154,26 +270,27 @@ jobs:
     trigger: false
     passed: [stage-milestone]
     params:
+      download_artifacts: false
       save_build_info: true
   - task: promote
     image: ci-image
     file: git-repo/ci/tasks/promote.yml
     params:
       RELEASE_TYPE: M
-      ARTIFACTORY_SERVER: ((artifactory-server))
-      ARTIFACTORY_USERNAME: ((artifactory-username))
-      ARTIFACTORY_PASSWORD: ((artifactory-password))
-  - task: generate-release-notes
-    file: git-repo/ci/tasks/generate-release-notes.yml
+      <<: *artifactory-task-params
+  - task: generate-changelog
+    file: git-repo/ci/tasks/generate-changelog.yml
     params:
       RELEASE_TYPE: M
       GITHUB_USERNAME: ((github-username))
-      GITHUB_TOKEN: ((github-release-notes-access-token))
+      GITHUB_TOKEN: ((github-ci-release-token))
+    vars:
+      <<: *registry-mirror-vars
   - put: github-pre-release
     params:
-      name: generated-release-notes/tag
-      tag: generated-release-notes/tag
-      body: generated-release-notes/release-notes.md
+      name: generated-changelog/tag
+      tag: generated-changelog/tag
+      body: generated-changelog/changelog.md
 - name: promote-rc
   serial: true
   plan:
@@ -184,26 +301,27 @@ jobs:
     trigger: false
     passed: [stage-rc]
     params:
+      download_artifacts: false
       save_build_info: true
   - task: promote
     image: ci-image
     file: git-repo/ci/tasks/promote.yml
     params:
       RELEASE_TYPE: RC
-      ARTIFACTORY_SERVER: ((artifactory-server))
-      ARTIFACTORY_USERNAME: ((artifactory-username))
-      ARTIFACTORY_PASSWORD: ((artifactory-password))
-  - task: generate-release-notes
-    file: git-repo/ci/tasks/generate-release-notes.yml
+      <<: *artifactory-task-params
+  - task: generate-changelog
+    file: git-repo/ci/tasks/generate-changelog.yml
     params:
       RELEASE_TYPE: RC
       GITHUB_USERNAME: ((github-username))
-      GITHUB_TOKEN: ((github-release-notes-access-token))
+      GITHUB_TOKEN: ((github-ci-release-token))
+    vars:
+      <<: *registry-mirror-vars
   - put: github-pre-release
     params:
-      name: generated-release-notes/tag
-      tag: generated-release-notes/tag
-      body: generated-release-notes/release-notes.md
+      name: generated-changelog/tag
+      tag: generated-changelog/tag
+      body: generated-changelog/changelog.md
 - name: promote-release
   serial: true
   plan:
@@ -214,55 +332,45 @@ jobs:
     trigger: false
     passed: [stage-release]
     params:
+      download_artifacts: true
       save_build_info: true
   - task: promote
     image: ci-image
     file: git-repo/ci/tasks/promote.yml
     params:
       RELEASE_TYPE: RELEASE
-      ARTIFACTORY_SERVER: ((artifactory-server))
-      ARTIFACTORY_USERNAME: ((artifactory-username))
-      ARTIFACTORY_PASSWORD: ((artifactory-password))
-      BINTRAY_SUBJECT: ((bintray-subject))
-      BINTRAY_REPO: ((bintray-repo))
-      BINTRAY_USERNAME: ((bintray-username))
-      BINTRAY_API_KEY: ((bintray-api-key))
-  - task: generate-release-notes
-    file: git-repo/ci/tasks/generate-release-notes.yml
-    params:
-      RELEASE_TYPE: RELEASE
-      GITHUB_USERNAME: ((github-username))
-      GITHUB_TOKEN: ((github-release-notes-access-token))
-  - put: github-release
-    params:
-      name: generated-release-notes/tag
-      tag: generated-release-notes/tag
-      body: generated-release-notes/release-notes.md
-- name: sync-to-maven-central
+      <<: *artifactory-task-params
+      <<: *sonatype-task-params
+- name: create-github-release
   serial: true
   plan:
   - get: ci-image
   - get: git-repo
-    trigger: false
   - get: artifactory-repo
-    trigger: false
+    trigger: true
     passed: [promote-release]
     params:
+      download_artifacts: false
       save_build_info: true
-  - task: sync-to-maven-central
-    image: ci-image
-    file: git-repo/ci/tasks/sync-to-maven-central.yml
+  - task: generate-changelog
+    file: git-repo/ci/tasks/generate-changelog.yml
     params:
-      BINTRAY_USERNAME: ((bintray-username))
-      BINTRAY_API_KEY: ((bintray-api-key))
-      SONATYPE_USER_TOKEN: ((sonatype-user-token))
-      SONATYPE_PASSWORD_TOKEN: ((sonatype-user-token-password))
-      BINTRAY_SUBJECT: ((bintray-subject))
-      BINTRAY_REPO: ((bintray-repo))
+      RELEASE_TYPE: RELEASE
+      GITHUB_USERNAME: ((github-username))
+      GITHUB_TOKEN: ((github-ci-release-token))
+    vars:
+      <<: *registry-mirror-vars
+  - put: github-release
+    params:
+      name: generated-changelog/tag
+      tag: generated-changelog/tag
+      body: generated-changelog/changelog.md
 groups:
-- name: "build"
+- name: "builds"
   jobs: ["build"]
-- name: "release"
-  jobs: ["stage-milestone", "stage-rc", "stage-release", "promote-milestone", "promote-rc", "promote-release", "sync-to-maven-central"]
+- name: "releases"
+  jobs: ["stage-milestone", "stage-rc", "stage-release", "promote-milestone", "promote-rc", "promote-release", "create-github-release"]
 - name: "ci-images"
   jobs: ["build-ci-images"]
+- name: "pull-requests"
+  jobs: ["build-pull-requests"]

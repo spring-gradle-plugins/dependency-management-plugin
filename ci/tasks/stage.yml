@@ -7,8 +7,8 @@ outputs:
 - name: distribution-repository
 params:
   RELEASE_TYPE:
+  CI: true
 caches:
-- path: maven
 - path: gradle
 run:
   path: git-repo/ci/scripts/stage.sh

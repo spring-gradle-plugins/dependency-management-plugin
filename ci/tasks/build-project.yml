@@ -4,13 +4,12 @@ inputs:
 - name: git-repo
 outputs:
 - name: distribution-repository
+- name: git-repo
 caches:
 - path: maven
 - path: gradle
+params:
+  BRANCH:
+  CI: true
 run:
-  path: bash
-  args:
-    - -ec
-    - |
-      ${PWD}/git-repo/ci/scripts/build-project.sh
-
+  path: git-repo/ci/scripts/build-project.sh

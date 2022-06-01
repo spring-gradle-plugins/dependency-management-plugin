@@ -1,34 +1,47 @@
-install {
-    repositories.mavenInstaller {
-        pom.whenConfigured { generatedPom ->
-            generatedPom.dependencies.removeAll { it.scope == 'test' }
-            generatedPom.project {
-                name = 'Dependency management plugin'
-                description = 'A Gradle plugin that provides Maven-like dependency management functionality'
-                url = 'https://github.com/spring-gradle-plugins/dependency-management-plugin'
-                organization {
-                    name = 'Pivotal Software, Inc.'
-                    url = 'https://spring.io'
-                }
-                licenses {
-                    license {
-                        name = 'The Apache Software License, Version 2.0'
-                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                scm {
-                    url = 'https://github.com/spring-gradle-plugins/dependency-management-plugin'
-                    connection = 'scm:git:https://github.com/spring-gradle-plugins/dependency-management-plugin'
-                }
-                developers {
-                    developer {
-                        id = 'wilkinsona'
-                        name = 'Andy Wilkinson'
-                        email = 'awilkinson@pivotal.io'
-                        roles = ["Project lead"]
-                    }
-                }
+def configurePom(def generatedPom) {
+    generatedPom.dependencies.removeAll { it.scope == 'test' }
+    generatedPom.project {
+        name = 'Dependency management plugin'
+        description = 'A Gradle plugin that provides Maven-like dependency management functionality'
+        url = 'https://github.com/spring-gradle-plugins/dependency-management-plugin'
+        organization {
+            name = 'Pivotal Software, Inc.'
+            url = 'https://spring.io'
+        }
+        licenses {
+            license {
+                name = 'The Apache Software License, Version 2.0'
+                url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
             }
+        }
+        scm {
+            url = 'https://github.com/spring-gradle-plugins/dependency-management-plugin'
+            connection = 'scm:git:https://github.com/spring-gradle-plugins/dependency-management-plugin'
+        }
+        developers {
+            developer {
+                id = 'wilkinsona'
+                name = 'Andy Wilkinson'
+                email = 'awilkinson@pivotal.io'
+                roles = ["Project lead"]
+            }
+        }
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: new File("$distributionRepository").toURI().toURL())
+            pom.whenConfigured { configurePom(it) }
+        }
+    }
+}
+
+install {
+    repositories {
+        mavenInstaller {
+            pom.whenConfigured { configurePom(it) }
         }
     }
 }

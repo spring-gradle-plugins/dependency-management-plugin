@@ -5,5 +5,5 @@ source $(dirname $0)/common.sh
 repository=$(pwd)/distribution-repository
 
 pushd git-repo > /dev/null
-./gradlew --no-daemon clean build install -Dmaven.repo.local=${repository}
+./gradlew --no-daemon -PdistributionRepository=${repository} build uploadArchives
 popd > /dev/null

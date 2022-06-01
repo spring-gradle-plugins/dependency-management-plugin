@@ -1,37 +1,17 @@
 == Concourse pipeline
 
+Ensure that you've setup the dependency-management-plugin target and can login
+
+[source]
+----
+$ fly -t dependency-management-plugin login -n dependency-management-plugin -c https://ci.spring.io
+----
+
 The pipeline can be deployed using the following command:
 
 [source]
 ----
-$ fly -t spring set-pipeline -p dependency-management-plugin -c ci/pipeline.yml -l ci/parameters.yml
+$ fly -t dependency-management-plugin set-pipeline -p dependency-management-plugin-1.0.x -c ci/pipeline.yml -l ci/parameters.yml
 ----
 
-NOTE: This assumes that you have credhub integration configured with the appropriate
-secrets.
-
-=== Release
-
-To release a milestone:
-
-[source]
-----
-$ fly -t spring trigger-job -j dependency-management-plugin/stage-milestone
-$ fly -t spring trigger-job -j dependency-management-plugin/promote-milestone
-----
-
-To release an RC:
-
-[source]
-----
-$ fly -t spring trigger-job -j dependency-management-plugin/stage-rc
-$ fly -t spring trigger-job -j dependency-management-plugin/promote-rc
-----
-
-To release a GA:
-
-[source]
-----
-$ fly -t spring trigger-job -j dependency-management-plugin/stage-release
-$ fly -t spring trigger-job -j dependency-management-plugin/promote-release
-----
+NOTE: This assumes that you have Vault integration configured with the appropriate secrets.
