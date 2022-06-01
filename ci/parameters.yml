@@ -7,6 +7,3 @@ milestone: "1.0.x"
 build-name: "dependency-management-plugin"
 concourse-url: "https://ci.spring.io"
 task-timeout: 1h00m
-registry-mirror-host: docker.repo.spring.io
-registry-mirror-username: ((artifactory-username))
-registry-mirror-password: ((artifactory-password))

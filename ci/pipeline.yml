@@ -49,10 +49,6 @@ anchors:
         "zip.type": "docs"
         "zip.deployed": "false"
     username: concourse-ci
-  registry-mirror-vars: &registry-mirror-vars
-    registry-mirror-host: ((registry-mirror-host))
-    registry-mirror-username: ((registry-mirror-username))
-    registry-mirror-password: ((registry-mirror-password))
 resource_types:
 - name: artifactory-resource
   type: registry-image
@@ -147,7 +143,6 @@ jobs:
       image: ci-image
     vars:
       ci-image-name: ci-image
-      <<: *registry-mirror-vars
   - put: ci-image
     params:
       image: ci-image/image.tar
@@ -284,8 +279,6 @@ jobs:
       RELEASE_TYPE: M
       GITHUB_USERNAME: ((github-username))
       GITHUB_TOKEN: ((github-ci-release-token))
-    vars:
-      <<: *registry-mirror-vars
   - put: github-pre-release
     params:
       name: generated-changelog/tag
@@ -315,8 +308,6 @@ jobs:
       RELEASE_TYPE: RC
       GITHUB_USERNAME: ((github-username))
       GITHUB_TOKEN: ((github-ci-release-token))
-    vars:
-      <<: *registry-mirror-vars
   - put: github-pre-release
     params:
       name: generated-changelog/tag
@@ -358,8 +349,6 @@ jobs:
       RELEASE_TYPE: RELEASE
       GITHUB_USERNAME: ((github-username))
       GITHUB_TOKEN: ((github-ci-release-token))
-    vars:
-      <<: *registry-mirror-vars
   - put: github-release
     params:
       name: generated-changelog/tag
