@@ -32,7 +32,9 @@ def configurePom(def generatedPom) {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: new File("$distributionRepository").toURI().toURL())
+            if (project.hasProperty("distributionRepository")) {
+                repository(url: new File("$distributionRepository").toURI().toURL())
+            }
             pom.whenConfigured { configurePom(it) }
         }
     }
