@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,9 +140,9 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
         for (Dependency override: overrides) {
             appendDependencyNode(dependencies, override.getCoordinates(), override.getScope(), override.getType());
         }
-        List<Pom> importedBoms = this.dependencyManagement.getImportedBoms();
+        List<PomReference> importedBoms = this.dependencyManagement.getImportedBomReferences();
         Collections.reverse(importedBoms);
-        for (Pom resolvedBom: importedBoms) {
+        for (PomReference resolvedBom: importedBoms) {
             addImport(dependencies, resolvedBom);
         }
     }
@@ -175,7 +175,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
         return !version1.equals(version2);
     }
 
-    private void addImport(Node dependencies, Pom importedBom) {
+    private void addImport(Node dependencies, PomReference importedBom) {
         appendDependencyNode(dependencies, importedBom.getCoordinates(), "import", "pom");
     }
 

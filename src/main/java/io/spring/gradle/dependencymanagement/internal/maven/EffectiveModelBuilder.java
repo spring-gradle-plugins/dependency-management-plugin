@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,8 +48,6 @@ final class EffectiveModelBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(EffectiveModelBuilder.class);
 
-    private final ModelCache modelCache = new InMemoryModelCache();
-
     private final ModelResolver modelResolver;
 
     EffectiveModelBuilder(Project project,
@@ -57,24 +55,33 @@ final class EffectiveModelBuilder {
         this.modelResolver = new ConfigurationModelResolver(project, configurationContainer, attributeConfigurer);
     }
 
-    Model buildModel(File pom, PropertySource properties) {
+    List<Model> buildModels(List<ModelInput> inputs) {
+        List<Model> models = new ArrayList<Model>();
+        InMemoryModelCache cache = new InMemoryModelCache();
+        for (ModelInput input: inputs) {
+            models.add(buildModel(input, cache));
+        }
+        return models;
+    }
+
+    private Model buildModel(ModelInput input, InMemoryModelCache cache) {
         DefaultModelBuildingRequest request = new DefaultModelBuildingRequest();
         request.setSystemProperties(System.getProperties());
-        request.setModelSource(new FileModelSource(pom));
+        request.setModelSource(new FileModelSource(input.pom));
         request.setModelResolver(this.modelResolver);
-        request.setModelCache(this.modelCache);
+        request.setModelCache(cache);
 
         try {
-            ModelBuildingResult result = createModelBuilder(properties).build(request);
+            ModelBuildingResult result = createModelBuilder(input.properties).build(request);
             List<ModelProblem> errors = extractErrors(result.getProblems());
             if (!errors.isEmpty()) {
-                reportErrors(errors, pom);
+                reportErrors(errors, input.pom);
             }
             return result.getEffectiveModel();
         }
         catch (ModelBuildingException ex) {
             logger.debug("Model building failed", ex);
-            reportErrors(extractErrors(ex.getProblems()), pom);
+            reportErrors(extractErrors(ex.getProblems()), input.pom);
             return ex.getResult().getEffectiveModel();
         }
     }
@@ -103,6 +110,22 @@ final class EffectiveModelBuilder {
                 .setModelInterpolator(new PropertiesModelInterpolator(properties));
         modelBuilder.setModelValidator(new RelaxedModelValidator());
         return modelBuilder;
+    }
+
+    /**
+     * Input to a model building request.
+     */
+    static class ModelInput {
+
+        private final File pom;
+
+        private final PropertySource properties;
+
+        ModelInput(File pom, PropertySource properties) {
+            this.pom = pom;
+            this.properties = properties;
+        }
+
     }
 
     private static final class InMemoryModelCache implements ModelCache {

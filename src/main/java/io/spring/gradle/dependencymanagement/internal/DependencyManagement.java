@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,8 +64,6 @@ public class DependencyManagement {
 
     private final List<PomReference> importedBoms = new ArrayList<PomReference>();
 
-    private List<Pom> resolvedBoms = new ArrayList<Pom>();
-
     DependencyManagement(Project project, PomResolver pomResolver) {
         this(project, null, pomResolver);
     }
@@ -78,16 +76,6 @@ public class DependencyManagement {
 
     void importBom(Coordinates coordinates, PropertySource properties) {
         this.importedBoms.add(new PomReference(coordinates, properties));
-    }
-
-    /**
-     * Returns the {@link Pom Poms} that have been imported.
-     *
-     * @return the imported poms
-     */
-    List<Pom> getImportedBoms() {
-        resolveIfNecessary();
-        return new ArrayList<Pom>(this.resolvedBoms);
     }
 
     List<PomReference> getImportedBomReferences() {
@@ -180,9 +168,9 @@ public class DependencyManagement {
 
         logger.debug("Preserving existing versions: {}", existingVersions);
 
-        this.resolvedBoms = this.pomResolver.resolvePoms(this.importedBoms, new ProjectPropertySource(this.project));
+        List<Pom> resolvedBoms = this.pomResolver.resolvePoms(this.importedBoms, new ProjectPropertySource(this.project));
 
-        for (Pom resolvedBom: this.resolvedBoms) {
+        for (Pom resolvedBom: resolvedBoms) {
             for (Dependency dependency : resolvedBom.getManagedDependencies()) {
                 if (isEmpty(dependency.getClassifier())) {
                     Coordinates coordinates = dependency.getCoordinates();

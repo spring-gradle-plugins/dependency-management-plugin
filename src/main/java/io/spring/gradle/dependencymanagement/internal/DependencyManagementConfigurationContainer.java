@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 
 package io.spring.gradle.dependencymanagement.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.gradle.api.Action;
-import org.gradle.api.DomainObjectCollection;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -31,7 +33,7 @@ import org.gradle.api.artifacts.Dependency;
  */
 public class DependencyManagementConfigurationContainer {
 
-    private final DomainObjectCollection<Configuration> configurations;
+    private final List<Action<Configuration>> actions = new ArrayList<Action<Configuration>>();
 
     private final ConfigurationContainer delegate;
 
@@ -43,7 +45,6 @@ public class DependencyManagementConfigurationContainer {
      */
     public DependencyManagementConfigurationContainer(Project project) {
         this.delegate = project.getConfigurations();
-        this.configurations = project.container(Configuration.class);
     }
 
     /**
@@ -70,7 +71,9 @@ public class DependencyManagementConfigurationContainer {
         if (configurer != null) {
             configurer.configure(configuration);
         }
-        this.configurations.add(configuration);
+        for (Action<Configuration> action: this.actions) {
+            action.execute(configuration);
+        }
         return configuration;
     }
 
@@ -80,7 +83,7 @@ public class DependencyManagementConfigurationContainer {
      * @param action the action to apply
      */
     public void apply(Action<Configuration> action) {
-        this.configurations.all(action);
+        this.actions.add(action);
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package io.spring.gradle.dependencymanagement.internal.maven;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,6 +35,7 @@ import org.gradle.api.specs.Specs;
 
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
 import io.spring.gradle.dependencymanagement.internal.Exclusion;
+import io.spring.gradle.dependencymanagement.internal.maven.EffectiveModelBuilder.ModelInput;
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
@@ -120,22 +120,26 @@ public class MavenPomResolver implements PomResolver {
             referencesById.put(createKey(pomReference.getCoordinates().getGroupId(),
                     pomReference.getCoordinates().getArtifactId()), pomReference);
         }
-        List<Pom> resolvedPoms = new ArrayList<Pom>();
+        List<ModelInput> modelInputs = new ArrayList<ModelInput>();
         for (ResolvedArtifact resolvedArtifact: resolvedArtifacts) {
             ModuleVersionIdentifier id = resolvedArtifact.getModuleVersion().getId();
             PomReference reference = referencesById.get(createKey(id.getGroup(), id.getName()));
             CompositePropertySource allProperties = new CompositePropertySource(reference.getProperties(), properties);
-            resolvedPoms.add(createPom(resolvedArtifact.getFile(), allProperties));
+            modelInputs.add(new ModelInput(resolvedArtifact.getFile(), allProperties));
         }
-        return resolvedPoms;
+        return createPoms(modelInputs);
     }
 
-    private Pom createPom(File file, PropertySource properties) {
-        Model effectiveModel = this.effectiveModelBuilder.buildModel(file, properties);
-        Coordinates coordinates = new Coordinates(effectiveModel.getGroupId(), effectiveModel.getArtifactId(),
-                effectiveModel.getVersion());
-        return new Pom(coordinates, getManagedDependencies(effectiveModel), getDependencies(effectiveModel),
-                asMap(effectiveModel.getProperties()));
+    private List<Pom> createPoms(List<ModelInput> inputs) {
+        List<Model> effectiveModels = this.effectiveModelBuilder.buildModels(inputs);
+        List<Pom> poms = new ArrayList<Pom>(effectiveModels.size());
+        for (Model effectiveModel: effectiveModels) {
+            Coordinates coordinates = new Coordinates(effectiveModel.getGroupId(), effectiveModel.getArtifactId(),
+                    effectiveModel.getVersion());
+            poms.add(new Pom(coordinates, getManagedDependencies(effectiveModel), getDependencies(effectiveModel),
+                    asMap(effectiveModel.getProperties())));
+        }
+        return poms;
     }
 
     private List<Dependency> getManagedDependencies(Model model) {
