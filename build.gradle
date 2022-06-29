@@ -1,24 +1,17 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        maven { url 'https://plugins.gradle.org/m2/' }
-    }
-    dependencies {
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
-    }
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'checkstyle'
+    id 'java-gradle-plugin'
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id 'io.spring.nohttp' version '0.0.10'
 }
-
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'checkstyle'
-apply plugin: 'org.asciidoctor.convert'
 
 apply from: 'publish-maven.gradle'
 
 checkstyle {
     configFile = rootProject.file('config/checkstyle/checkstyle.xml')
     configProperties = [ 'checkstyle.config.dir' : rootProject.file('config/checkstyle') ]
-    toolVersion = '7.3'
 }
 
 repositories {
@@ -39,16 +32,25 @@ ext {
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
+gradlePlugin {
+    plugins {
+        dependencyManagement {
+            id = 'io.spring.dependency-management'
+            implementationClass = 'io.spring.gradle.dependencymanagement.DependencyManagementPlugin'
+        }
+    }
+}
+
 configurations {
+    asciidoctorExt
     docs
     jarjar
     maven
-    nohttp
 }
 
 task mavenRepackJar(type: Jar) { repackJar ->
-    repackJar.baseName = "maven-repack"
-    repackJar.version = mavenVersion
+    repackJar.archiveBaseName = "maven-repack"
+    repackJar.archiveVersion = mavenVersion
 
     doLast() {
         project.ant {
@@ -64,11 +66,9 @@ task mavenRepackJar(type: Jar) { repackJar ->
 }
 
 dependencies {
-    asciidoctor 'io.spring.asciidoctor:spring-asciidoctor-extensions:0.1.2.RELEASE'
-    
-    compile gradleApi()
-    compile localGroovy()
-    compile(files(mavenRepackJar))
+    asciidoctorExt 'io.spring.asciidoctor:spring-asciidoctor-extensions:0.1.2.RELEASE'
+
+    implementation(files(mavenRepackJar))
 
     docs 'io.spring.docresources:spring-doc-resources:0.1.0.RELEASE@zip'
 
@@ -76,13 +76,14 @@ dependencies {
 
     maven "org.apache.maven:maven-model-builder:$mavenVersion"
 
-    nohttp "io.spring.nohttp:nohttp-cli:0.0.10"
+    testImplementation "cglib:cglib-nodep:$cglibVersion"
+    testImplementation "org.assertj:assertj-core:1.7.1"
+    testImplementation "org.mockito:mockito-core:2.28.2"
+    testImplementation "junit:junit:4.13.2"
+}
 
-    testCompile gradleTestKit()
-    testCompile "cglib:cglib-nodep:$cglibVersion"
-    testCompile "org.assertj:assertj-core:1.7.1"
-    testCompile "org.mockito:mockito-core:2.28.2"
-    testCompile "junit:junit:4.13.2"
+asciidoctor {
+    configurations 'asciidoctorExt'
 }
 
 jar {
@@ -102,11 +103,16 @@ jar {
     }
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 javadoc {
     title = "$project.description $project.version API"
     exclude 'io/spring/gradle/dependencymanagement/internal/**'
     options {
-        links "https://docs.gradle.org/${GradleVersion.current().version}/javadoc/",
+        links "https://docs.gradle.org/${project.gradle.gradleVersion}/javadoc/",
               'https://docs.oracle.com/javase/6/docs/api/'
     }
 }
@@ -135,22 +141,12 @@ asciidoctor {
     }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar) {
-    classifier = "javadoc"
-    from javadoc
-}
-
 task docsZip(type: Zip, dependsOn: [':asciidoctor', ':javadoc']) {
     group = 'Distribution'
-    baseName = 'dependency-management-plugin'
-    classifier = 'docs'
-    description = "Builds -${classifier} archive containing API and reference documentation"
-    destinationDir = file("${project.buildDir}/distributions")
+    archiveBaseName = 'dependency-management-plugin'
+    archiveClassifier = 'docs'
+    description = "Builds docs archive containing API and reference documentation"
+    destinationDirectory = file("${project.buildDir}/distributions")
 
     from("$asciidoctor.outputDir/html5") {
         into 'reference/html'
@@ -159,22 +155,4 @@ task docsZip(type: Zip, dependsOn: [':asciidoctor', ':javadoc']) {
     from(javadoc) {
         into 'api'
     }
-}
-
-task nohttp(type: JavaExec) {
-    main = 'io.spring.nohttp.cli.NoHttpCliMain'
-    classpath = configurations.nohttp
-    args = [
-        '-D=build'
-    ]
-}
-
-check {
-    dependsOn nohttp
-}
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-    archives docsZip
 }

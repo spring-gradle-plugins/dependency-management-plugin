@@ -5,7 +5,6 @@ plugins {
 
 repositories {
 	mavenCentral()
-	maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
 }
 
 project.ext['spring.version'] = '4.0.1.RELEASE'

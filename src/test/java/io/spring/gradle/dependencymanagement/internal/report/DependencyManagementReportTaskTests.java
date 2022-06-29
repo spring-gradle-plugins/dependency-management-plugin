@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
  */
 public class DependencyManagementReportTaskTests {
 
-    private Project project = new ProjectBuilder().build();
+    private Project project = ProjectBuilder.builder().build();
 
     private DependencyManagementReportTask task = this.project.getTasks().create("dependencyManagement", DependencyManagementReportTask.class);
 

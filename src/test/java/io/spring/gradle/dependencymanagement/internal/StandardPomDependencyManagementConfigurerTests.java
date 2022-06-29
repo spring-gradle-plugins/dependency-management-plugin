@@ -50,7 +50,7 @@ public class StandardPomDependencyManagementConfigurerTests {
     private final PomResolver pomResolver;
 
     public StandardPomDependencyManagementConfigurerTests() {
-        this.project = new ProjectBuilder().build();
+        this.project = ProjectBuilder.builder().build();
         this.project.getRepositories().mavenCentral();
         this.pomResolver = new MavenPomResolver(this.project, new DependencyManagementConfigurationContainer(project));
         this.dependencyManagement = new DependencyManagementContainer(this.project, this.pomResolver);

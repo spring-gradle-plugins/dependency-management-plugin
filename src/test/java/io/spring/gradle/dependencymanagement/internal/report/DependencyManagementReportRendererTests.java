@@ -48,7 +48,7 @@ public class DependencyManagementReportRendererTests {
 
     @Test
     public void projectHeaderForRootProject() {
-        Project rootProject = new ProjectBuilder().build();
+        Project rootProject = ProjectBuilder.builder().build();
         this.renderer.startProject(rootProject);
         assertThat(outputLines()).containsExactly("",
                     "------------------------------------------------------------",
@@ -59,7 +59,7 @@ public class DependencyManagementReportRendererTests {
 
     @Test
     public void projectHeaderForSubproject() {
-        Project subproject = new ProjectBuilder().withParent(new ProjectBuilder().build()).withName("alpha").build();
+        Project subproject = ProjectBuilder.builder().withParent(ProjectBuilder.builder().build()).withName("alpha").build();
         this.renderer.startProject(subproject);
         assertThat(outputLines()).containsExactly("",
                     "------------------------------------------------------------",
@@ -70,7 +70,7 @@ public class DependencyManagementReportRendererTests {
 
     @Test
     public void projectHeaderForSubprojectWithDescription() {
-        Project subproject = new ProjectBuilder().withParent(new ProjectBuilder().build()).withName("alpha").build();
+        Project subproject = ProjectBuilder.builder().withParent(ProjectBuilder.builder().build()).withName("alpha").build();
         subproject.setDescription("description of alpha project");
         this.renderer.startProject(subproject);
         assertThat(outputLines()).containsExactly("",
@@ -100,7 +100,7 @@ public class DependencyManagementReportRendererTests {
 
     @Test
     public void configurationDependencyManagementWitNoManagedVersionsAtAll() {
-        Configuration configuration = new ProjectBuilder().build().getConfigurations().create("test");
+        Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
         this.renderer.renderConfigurationManagedVersions(Collections.<String, String>emptyMap(), configuration, Collections.<String, String>emptyMap());
         assertThat(outputLines()).containsExactly("test - Dependency management for the test configuration", "No dependency management", "");
     }
@@ -108,7 +108,7 @@ public class DependencyManagementReportRendererTests {
     @Test
     public void configurationDependencyManagementWithOnlyGlobalManagedVersions() {
         Map<String, String> managedVersions = Collections.singletonMap("a:b", "1.0");
-        Configuration configuration = new ProjectBuilder().build().getConfigurations().create("test");
+        Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
         this.renderer.renderConfigurationManagedVersions(managedVersions, configuration, managedVersions);
         assertThat(outputLines()).containsExactly("test - Dependency management for the test configuration", "No configuration-specific dependency management", "");
     }
@@ -118,7 +118,7 @@ public class DependencyManagementReportRendererTests {
         Map<String, String> managedVersions = new HashMap<String, String>();
         managedVersions.put("com.example:bravo", "1.0.0");
         managedVersions.put("com.example:alpha", "1.2.3");
-        Configuration configuration = new ProjectBuilder().build().getConfigurations().create("test");
+        Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
         this.renderer.renderConfigurationManagedVersions(managedVersions, configuration, Collections.<String, String>emptyMap());
         assertThat(outputLines()).containsExactly("test - Dependency management for the test configuration", "    com.example:alpha 1.2.3", "    com.example:bravo 1.0.0", "");
     }

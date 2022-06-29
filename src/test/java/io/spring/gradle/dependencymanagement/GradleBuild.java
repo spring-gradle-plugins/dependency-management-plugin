@@ -18,6 +18,7 @@ package io.spring.gradle.dependencymanagement;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +54,7 @@ public class GradleBuild implements TestRule {
                 List<File> pluginClasspath = Arrays.asList(new File("build/classes/main").getAbsoluteFile(), new File("build/resources/main").getAbsoluteFile(),
                         new File("build/libs/maven-repack-3.0.4.jar").getAbsoluteFile());
                 runner = GradleRunner.create().withPluginClasspath(pluginClasspath).withProjectDir(temporaryFolder.getRoot());
+                runner.withArguments("-PmavenRepo=" + new File("src/test/resources/maven-repo").getAbsolutePath());
                 Class<?> testClass = description.getTestClass();
                 String methodName = description.getMethodName();
                 if (methodName.contains("[")) {
@@ -63,6 +65,7 @@ public class GradleBuild implements TestRule {
                     throw new IllegalStateException("No build script found for " + testClass.getName() + " " + methodName);
                 }
                 copy(input, temporaryFolder.newFile("build.gradle"));
+                copyRecursively(new File("src/test/resources/maven-repo"), temporaryFolder.newFolder("maven-repo"));
                 try {
                     base.evaluate();
                 }
@@ -89,7 +92,25 @@ public class GradleBuild implements TestRule {
         return runner;
     }
 
-    private void copy(InputStream input, File target) {
+    public static void copyRecursively(File src, File dest) throws IOException {
+        doCopyRecursively(src, dest);
+    }
+
+    private static void doCopyRecursively(File src, File dest) throws IOException {
+        if (src.isDirectory()) {
+            dest.mkdir();
+            File[] entries = src.listFiles();
+            for (File entry : entries) {
+                doCopyRecursively(entry, new File(dest, entry.getName()));
+            }
+        }
+        else {
+            copy(new FileInputStream(src), dest);
+        }
+    }
+
+
+    private static void copy(InputStream input, File target) {
         try {
             copy(input, new FileOutputStream(target));
         }
@@ -97,7 +118,7 @@ public class GradleBuild implements TestRule {
         }
     }
 
-    private void copy(InputStream input, OutputStream output) {
+    private static void copy(InputStream input, OutputStream output) {
         try {
             byte[] buffer = new byte[4096];
             int read;
@@ -114,7 +135,7 @@ public class GradleBuild implements TestRule {
         }
     }
 
-    private void closeQuietly(Closeable closeable) {
+    private static void closeQuietly(Closeable closeable) {
         if (closeable != null) {
             try {
                 closeable.close();

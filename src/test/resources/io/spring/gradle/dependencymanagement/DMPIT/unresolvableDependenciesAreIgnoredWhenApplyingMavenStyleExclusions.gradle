@@ -5,7 +5,9 @@ plugins {
 
 repositories {
 	mavenCentral()
-	maven { url new File("src/test/resources/maven-repo").toURI().toURL().toString() }
+	maven {
+		url file("maven-repo")
+	}
 }
 
 dependencyManagement {

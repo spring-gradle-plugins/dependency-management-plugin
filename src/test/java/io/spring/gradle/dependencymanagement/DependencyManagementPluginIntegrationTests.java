@@ -43,38 +43,38 @@ public class DependencyManagementPluginIntegrationTests {
     @Test
     public void importedBomCanBeUsedToApplyDependencyManagement() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-core-4.0.6.RELEASE.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("spring-core-4.0.6.RELEASE.jar");
     }
 
     @Test
     public void importedBomsVersionsCanBeOverridden() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-core-4.0.5.RELEASE.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("spring-core-4.0.5.RELEASE.jar");
     }
 
     @Test
     public void dependencyManagementCanBeDeclaredInTheBuild() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-core-4.0.4.RELEASE.jar", "commons-logging-1.1.2.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("spring-core-4.0.4.RELEASE.jar", "commons-logging-1.1.2.jar");
     }
 
     @Test
     public void dependencyManagementCanBeDeclaredInTheBuildUsingTheNewSyntax() {
         this.gradleBuild.runner().withArguments("managedVersions", "exclusions").build();
-        assertThat(readLines("managed-versions.txt")).containsExactly("alpha:bravo -> 1.0", "commons-logging:commons-logging -> 1.1.2", "charlie:delta -> 2.0", "org.springframework:spring-core -> 4.0.4.RELEASE");
-        assertThat(readLines("exclusions.txt")).containsExactly("commons-logging:commons-logging -> [foo:bar]", "charlie:delta -> [bar:baz]");
+        assertThat(readLines("managed-versions.txt")).containsOnly("alpha:bravo -> 1.0", "commons-logging:commons-logging -> 1.1.2", "charlie:delta -> 2.0", "org.springframework:spring-core -> 4.0.4.RELEASE");
+        assertThat(readLines("exclusions.txt")).containsOnly("commons-logging:commons-logging -> [foo:bar]", "charlie:delta -> [bar:baz]");
     }
 
     @Test
     public void dependencyManagementWithExclusionsCanBeDeclaredInTheBuild() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-core-4.0.4.RELEASE.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("spring-core-4.0.4.RELEASE.jar");
     }
 
     @Test
     public void versionsOfDirectDependenciesTakePrecedenceOverDirectDependencyManagement() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.3.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.3.jar");
     }
 
     @Test
@@ -84,7 +84,7 @@ public class DependencyManagementPluginIntegrationTests {
         File child = new File(this.gradleBuild.runner().getProjectDir(), "child/build.gradle");
         writeLines(child, "group = 'test'", "version = '1.1.0'", "apply plugin: 'java'");
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("child-1.1.0.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("child-1.1.0.jar");
     }
 
     @Test
@@ -96,60 +96,60 @@ public class DependencyManagementPluginIntegrationTests {
         File grandchild = new File(this.gradleBuild.runner().getProjectDir(), "grandchild/build.gradle");
         writeLines(grandchild, "group = 'test-other'", "version = '1.1.0'", "apply plugin: 'java'", "dependencies {", "\tcompile project([path: ':grandchild'])", "}");
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("child-1.1.0.jar", "grandchild-1.1.0.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("child-1.1.0.jar", "grandchild-1.1.0.jar");
     }
 
     @Test
     public void versionsOfDirectDependenciesTakePrecedenceOverDependencyManagementInAnImportedBom() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-core-4.0.4.RELEASE.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("spring-core-4.0.4.RELEASE.jar");
     }
 
     @Test
     public void dependencyManagementCanBeAppliedToASpecificConfiguration() {
         this.gradleBuild.runner().withArguments("resolveManaged", "resolveUnmanaged").build();
-        assertThat(readLines("resolved-managed.txt")).containsExactly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.2.jar");
-        assertThat(readLines("resolved-unmanaged.txt")).containsExactly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.3.jar");
+        assertThat(readLines("resolved-managed.txt")).containsOnly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.2.jar");
+        assertThat(readLines("resolved-unmanaged.txt")).containsOnly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.3.jar");
     }
 
     @Test
     public void dependencyManagementCanBeAppliedToMultipleSpecificConfigurations() {
         this.gradleBuild.runner().withArguments("resolveManaged1", "resolveManaged2", "resolveUnmanaged").build();
-        assertThat(readLines("resolved-managed1.txt")).containsExactly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.2.jar");
-        assertThat(readLines("resolved-managed2.txt")).containsExactly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.2.jar");
-        assertThat(readLines("resolved-unmanaged.txt")).containsExactly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.3.jar");
+        assertThat(readLines("resolved-managed1.txt")).containsOnly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.2.jar");
+        assertThat(readLines("resolved-managed2.txt")).containsOnly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.2.jar");
+        assertThat(readLines("resolved-unmanaged.txt")).containsOnly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.3.jar");
     }
 
     @Test
     public void configurationSpecificDependencyManagementTakesPrecedenceOverGlobalDependencyManagement() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.1.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.1.jar");
     }
 
     @Test
     public void configurationSpecificDependencyManagementIsInheritedByExtendingConfigurations() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("commons-logging-1.1.1.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("commons-logging-1.1.1.jar");
     }
 
     @Test
     public void versionOnADirectDependencyProvidesDependencyManagementToExtendingConfigurations() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("commons-logging-1.1.3.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("commons-logging-1.1.3.jar");
     }
 
 
     @Test // gh-3
     public void jbossJavaEEBomCanBeImportedAndUsedForDependencyManagement() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("jboss-el-api_2.2_spec-1.0.0.Final.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("jboss-el-api_2.2_spec-1.0.0.Final.jar");
     }
 
 
     @Test // gh-41
     public void bomWithNoDependencyManagementCanBeImportedAndItsPropertiesUsed() {
         this.gradleBuild.runner().withArguments("importedProperties").build();
-        assertThat(readLines("imported-properties.txt")).containsExactly("a -> alpha");
+        assertThat(readLines("imported-properties.txt")).containsOnly("a -> alpha");
     }
 
     @Test
@@ -161,13 +161,13 @@ public class DependencyManagementPluginIntegrationTests {
     @Test
     public void dependencySetCanBeUsedToProvideDependencyManagementForMultipleModulesWithTheSameGroupAndVersion() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("slf4j-api-1.7.7.jar", "slf4j-simple-1.7.7.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("slf4j-simple-1.7.7.jar", "slf4j-api-1.7.7.jar");
     }
 
     @Test
     public void exclusionCanBeDeclaredOnAnEntryInADependencySet() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-core-4.1.4.RELEASE.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("spring-core-4.1.4.RELEASE.jar");
     }
 
     @Test
@@ -221,58 +221,58 @@ public class DependencyManagementPluginIntegrationTests {
     @Test
     public void exclusionDeclaredOnTheDependencyThatHasTheExcludedDependencyIsHonored() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("direct-exclude-1.0.jar", "spring-core-4.1.2.RELEASE.jar",
+        assertThat(readLines("resolved.txt")).containsOnly("direct-exclude-1.0.jar", "spring-core-4.1.2.RELEASE.jar",
                 "spring-tx-4.1.2.RELEASE.jar", "spring-beans-4.1.2.RELEASE.jar");
     }
 
     @Test
     public void dependencyWithAnOtherwiseExcludedTransitiveDependencyOverridesTheExclude() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("direct-exclude-1.0.jar", "spring-core-4.1.2.RELEASE.jar",
+        assertThat(readLines("resolved.txt")).containsOnly("direct-exclude-1.0.jar", "spring-core-4.1.2.RELEASE.jar",
                 "spring-tx-4.1.2.RELEASE.jar", "commons-logging-1.1.3.jar", "spring-beans-4.1.2.RELEASE.jar");
     }
 
     @Test
     public void exclusionThatAppliesTransitivelyIsHonored() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("transitive-exclude-1.0.jar", "spring-beans-4.1.2.RELEASE.jar",
+        assertThat(readLines("resolved.txt")).containsOnly("transitive-exclude-1.0.jar", "spring-beans-4.1.2.RELEASE.jar",
                 "spring-tx-4.1.2.RELEASE.jar", "spring-core-4.1.2.RELEASE.jar");
     }
 
     @Test
     public void directExclusionDeclaredInABomIsHonored() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-tx-4.1.2.RELEASE.jar", "spring-beans-4.1.2.RELEASE.jar",
+        assertThat(readLines("resolved.txt")).containsOnly("spring-tx-4.1.2.RELEASE.jar", "spring-beans-4.1.2.RELEASE.jar",
                 "spring-core-4.1.2.RELEASE.jar");
     }
 
     @Test
     public void wildcardExclusionDeclaredInABomIsHonored() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-tx-4.1.2.RELEASE.jar", "spring-beans-4.1.2.RELEASE.jar",
+        assertThat(readLines("resolved.txt")).containsOnly("spring-tx-4.1.2.RELEASE.jar", "spring-beans-4.1.2.RELEASE.jar",
                 "spring-core-4.1.2.RELEASE.jar");
     }
 
     @Test
     public void transitiveExclusionDeclaredInABomIsHonored() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-tx-4.1.2.RELEASE.jar", "spring-beans-4.1.2.RELEASE.jar",
+        assertThat(readLines("resolved.txt")).containsOnly("spring-tx-4.1.2.RELEASE.jar", "spring-beans-4.1.2.RELEASE.jar",
                 "spring-core-4.1.2.RELEASE.jar");
     }
 
     @Test // gh-21
     public void exclusionsAreNotInheritedAndDoNotAffectDirectDependencies() {
         this.gradleBuild.runner().withArguments("resolveCompile", "resolveTestCompile").build();
-        assertThat(readLines("resolved-compile.txt")).containsExactly("direct-exclude-1.0.jar", "spring-core-4.1.2.RELEASE.jar", "spring-tx-4.1.2.RELEASE.jar",
+        assertThat(readLines("resolved-compile.txt")).containsOnly("direct-exclude-1.0.jar", "spring-core-4.1.2.RELEASE.jar", "spring-tx-4.1.2.RELEASE.jar",
                 "spring-beans-4.1.2.RELEASE.jar");
-        assertThat(readLines("resolved-test-compile.txt")).containsExactly("direct-exclude-1.0.jar", "commons-logging-1.1.3.jar", "spring-core-4.1.2.RELEASE.jar", "spring-tx-4.1.2.RELEASE.jar",
+        assertThat(readLines("resolved-test-compile.txt")).containsOnly("direct-exclude-1.0.jar", "commons-logging-1.1.3.jar", "spring-core-4.1.2.RELEASE.jar", "spring-tx-4.1.2.RELEASE.jar",
                 "spring-beans-4.1.2.RELEASE.jar");
     }
 
     @Test // gh-21
     public void exclusionsAreNotInheritedAndDoNotAffectTransitiveDependencies() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("groovy-2.3.8.jar",
+        assertThat(readLines("resolved.txt")).containsOnly("groovy-2.3.8.jar",
                 "spring-boot-starter-test-1.2.0.RELEASE.jar", "junit-4.12.jar", "mockito-core-1.10.8.jar", "hamcrest-core-1.3.jar",
                 "hamcrest-library-1.3.jar", "spring-core-4.1.3.RELEASE.jar", "spring-test-4.1.3.RELEASE.jar", "objenesis-2.1.jar");
     }
@@ -286,7 +286,7 @@ public class DependencyManagementPluginIntegrationTests {
     @Test
     public void pomExclusionsCanBeDisabled() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.3.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("spring-core-4.0.6.RELEASE.jar", "commons-logging-1.1.3.jar");
     }
 
     @Test
@@ -306,7 +306,7 @@ public class DependencyManagementPluginIntegrationTests {
     @Test
     public void managedDependencyCanBeConfiguredUsingAGString() {
         this.gradleBuild.runner().withArguments("managedVersions").build();
-        assertThat(readLines("managed-versions.txt")).containsExactly("org.springframework:spring-core -> 4.1.5.RELEASE");
+        assertThat(readLines("managed-versions.txt")).containsOnly("org.springframework:spring-core -> 4.1.5.RELEASE");
     }
 
     @Test
@@ -397,19 +397,19 @@ public class DependencyManagementPluginIntegrationTests {
     @Test
     public void exclusionsInImportedBomsForUnresolvableDependenciesAreApplied() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("unresolvable-transitive-dependency-1.0.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("unresolvable-transitive-dependency-1.0.jar");
     }
 
     @Test
     public void unresolvableDependenciesAreIgnoredWhenApplyingMavenStyleExclusions() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-core-4.0.3.RELEASE.jar", "unresolvable-transitive-dependency-1.0.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("spring-core-4.0.3.RELEASE.jar", "unresolvable-transitive-dependency-1.0.jar");
     }
 
     @Test
     public void dependencyManagementBeingOverridenByDependenciesCanBeDisabled() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("spring-core-4.0.3.RELEASE.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("spring-core-4.0.3.RELEASE.jar");
     }
 
     @Test
@@ -418,19 +418,19 @@ public class DependencyManagementPluginIntegrationTests {
         libDir.mkdirs();
         new File(libDir, "foo-1.0.0.jar").createNewFile();
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("foo-1.0.0.jar");
+        assertThat(readLines("resolved.txt")).containsOnly("foo-1.0.0.jar");
     }
 
     @Test
     public void configurationCanBeUsedDirectlyWhenConfiguringConfigurationSpecificDependencyManagement() {
         this.gradleBuild.runner().withArguments("managedVersions").build();
-        assertThat(readLines("managed-versions.txt")).containsExactly("org.springframework:spring-core -> 4.0.0.RELEASE");
+        assertThat(readLines("managed-versions.txt")).containsOnly("org.springframework:spring-core -> 4.0.0.RELEASE");
     }
 
     @Test
     public void configurationCanBeReferredToByNameWhenConfiguringConfigurationSpecificDependencyManagement() {
         this.gradleBuild.runner().withArguments("managedVersions").build();
-        assertThat(readLines("managed-versions.txt")).containsExactly("org.springframework:spring-core -> 4.0.0.RELEASE");
+        assertThat(readLines("managed-versions.txt")).containsOnly("org.springframework:spring-core -> 4.0.0.RELEASE");
     }
 
     @Test
@@ -448,7 +448,7 @@ public class DependencyManagementPluginIntegrationTests {
     @Test
     public void exclusionThatIsMalformedIsTolerated() {
         this.gradleBuild.runner().withArguments("resolve").build();
-        assertThat(readLines("resolved.txt")).containsExactly("malformed-exclude-1.0.jar", "spring-core-4.1.2.RELEASE.jar",
+        assertThat(readLines("resolved.txt")).containsOnly("malformed-exclude-1.0.jar", "spring-core-4.1.2.RELEASE.jar",
                 "commons-logging-1.1.3.jar");
     }
 

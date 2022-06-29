@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class MavenPomResolverTests {
 
-    private final Project project = new ProjectBuilder().build();
+    private final Project project = ProjectBuilder.builder().build();
 
     private final MavenPomResolver resolver = new MavenPomResolver(this.project, new DependencyManagementConfigurationContainer(this.project));
 

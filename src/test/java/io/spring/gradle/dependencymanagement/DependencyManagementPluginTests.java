@@ -41,7 +41,7 @@ public class DependencyManagementPluginTests {
 
     @Before
     public void setUp() {
-        this.project = new ProjectBuilder().withProjectDir(temp.getRoot()).build();
+        this.project = ProjectBuilder.builder().withProjectDir(temp.getRoot()).build();
     }
 
     @Test

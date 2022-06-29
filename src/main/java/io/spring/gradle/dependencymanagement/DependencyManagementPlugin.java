@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.artifacts.maven.MavenResolver;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
@@ -62,11 +61,12 @@ public class DependencyManagementPlugin implements Plugin<Project> {
                 upload.doFirst(new Action<Task>() {
 
                     @Override
+                    @SuppressWarnings("deprecation")
                     public void execute(Task task) {
-                        upload.getRepositories().withType(MavenResolver.class, new Action<MavenResolver>() {
+                        upload.getRepositories().withType(org.gradle.api.artifacts.maven.MavenResolver.class, new Action<org.gradle.api.artifacts.maven.MavenResolver>() {
 
                             @Override
-                            public void execute(MavenResolver mavenResolver) {
+                            public void execute(org.gradle.api.artifacts.maven.MavenResolver mavenResolver) {
                                 mavenResolver.getPom().withXml(pomConfigurer);
                             }
 

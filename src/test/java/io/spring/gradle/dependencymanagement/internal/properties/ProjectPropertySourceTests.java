@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ProjectPropertySourceTests {
 
-    private final Project project = new ProjectBuilder().build();
+    private final Project project = ProjectBuilder.builder().build();
 
     private final ProjectPropertySource propertySource = new ProjectPropertySource(this.project);
 

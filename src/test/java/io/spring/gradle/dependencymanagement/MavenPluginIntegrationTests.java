@@ -18,12 +18,11 @@ package io.spring.gradle.dependencymanagement;
 
 import java.io.File;
 
-import org.gradle.api.plugins.MavenPlugin;
 import org.junit.Rule;
 import org.junit.Test;
 
 /**
- * Integration tests for interacting with the {@link MavenPlugin}.
+ * Integration tests for interacting with the {@link org.gradle.api.plugins.MavenPlugin}.
  *
  * @author Andy Wilkinson
  */
