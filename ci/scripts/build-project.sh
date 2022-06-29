@@ -2,7 +2,7 @@
 set -e
 
 source $(dirname $0)/common.sh
-repository=$(pwd)/deployment-repository
+repository=$(pwd)/distribution-repository
 
 pushd git-repo > /dev/null
 ulimit -n 65536
