@@ -148,7 +148,7 @@ task docsZip(type: Zip, dependsOn: [':asciidoctor', ':javadoc']) {
 	description = "Builds docs archive containing API and reference documentation"
 	destinationDirectory = file("${project.buildDir}/distributions")
 
-	from("$asciidoctor.outputDir/html5") {
+	from("$asciidoctor.outputDir") {
 		into 'reference/html'
 	}
 
