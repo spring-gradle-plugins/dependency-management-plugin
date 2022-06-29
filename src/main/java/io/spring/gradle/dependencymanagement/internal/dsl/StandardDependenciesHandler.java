@@ -38,7 +38,7 @@ import org.gradle.api.artifacts.Configuration;
  *
  * @author Andy Wilkinson
  */
-public class StandardDependenciesHandler implements DependenciesHandler {
+class StandardDependenciesHandler implements DependenciesHandler {
 
 	private static final String KEY_GROUP = "group";
 
@@ -168,7 +168,7 @@ public class StandardDependenciesHandler implements DependenciesHandler {
 	 * @param name the name of the property
 	 * @return the value of the project property
 	 */
-	public Object propertyMissing(String name) {
+	Object propertyMissing(String name) {
 		return this.container.getProject().property(name);
 	}
 

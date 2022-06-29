@@ -31,7 +31,7 @@ import org.gradle.api.artifacts.Configuration;
  *
  * @author Andy Wilkinson
  */
-public class StandardImportsHandler extends GroovyObjectSupport implements ImportsHandler {
+class StandardImportsHandler extends GroovyObjectSupport implements ImportsHandler {
 
 	private final DependencyManagementContainer container;
 
@@ -82,7 +82,7 @@ public class StandardImportsHandler extends GroovyObjectSupport implements Impor
 	 * @param name the name of the property
 	 * @return the value of the project property
 	 */
-	public Object propertyMissing(String name) {
+	Object propertyMissing(String name) {
 		return this.container.getProject().property(name);
 	}
 
