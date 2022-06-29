@@ -51,8 +51,7 @@ public class GradleBuild implements TestRule {
 			public void evaluate() throws Throwable {
 				GradleBuild.this.runner = GradleRunner.create().withPluginClasspath()
 						.withProjectDir(GradleBuild.this.temporaryFolder.getRoot())
-						.withArguments("-PmavenRepo=" + new File("src/test/resources/maven-repo").getAbsolutePath())
-						.withDebug(true);
+						.withArguments("-PmavenRepo=" + new File("src/test/resources/maven-repo").getAbsolutePath());
 				Class<?> testClass = description.getTestClass();
 				String methodName = description.getMethodName();
 				if (methodName.contains("[")) {
