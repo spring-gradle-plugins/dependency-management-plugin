@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,52 +19,52 @@ package io.spring.gradle.dependencymanagement.internal.dsl;
 import java.util.List;
 
 import groovy.lang.Closure;
-import org.gradle.api.Action;
-
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementConfigurer;
 import io.spring.gradle.dependencymanagement.dsl.ImportsHandler;
+import org.gradle.api.Action;
 
 /**
- * A {@link DependencyManagementConfigurer} that delegates to one or more {@code DependencyManagementConfigurers}
- * allowing the dependency management for multiple configurations to be configured simultaneously.
+ * A {@link DependencyManagementConfigurer} that delegates to one or more
+ * {@code DependencyManagementConfigurers} allowing the dependency management for multiple
+ * configurations to be configured simultaneously.
  *
  * @author Andy Wilkinson
  */
 class CompoundDependencyManagementConfigurer implements DependencyManagementConfigurer {
 
-    private final List<DependencyManagementConfigurer> delegates;
+	private final List<DependencyManagementConfigurer> delegates;
 
-    CompoundDependencyManagementConfigurer(List<DependencyManagementConfigurer> delegates) {
-        this.delegates = delegates;
-    }
+	CompoundDependencyManagementConfigurer(List<DependencyManagementConfigurer> delegates) {
+		this.delegates = delegates;
+	}
 
-    @Override
-    public void imports(Closure closure) {
-        for (DependencyManagementConfigurer delegate: this.delegates) {
-            delegate.imports(closure);
-        }
-    }
+	@Override
+	public void imports(Closure closure) {
+		for (DependencyManagementConfigurer delegate : this.delegates) {
+			delegate.imports(closure);
+		}
+	}
 
-    @Override
-    public void imports(Action<ImportsHandler> action) {
-        for (DependencyManagementConfigurer delegate: this.delegates) {
-            delegate.imports(action);
-        }
-    }
+	@Override
+	public void imports(Action<ImportsHandler> action) {
+		for (DependencyManagementConfigurer delegate : this.delegates) {
+			delegate.imports(action);
+		}
+	}
 
-    @Override
-    public void dependencies(Closure closure) {
-        for (DependencyManagementConfigurer delegate: this.delegates) {
-            delegate.dependencies(closure);
-        }
-    }
+	@Override
+	public void dependencies(Closure closure) {
+		for (DependencyManagementConfigurer delegate : this.delegates) {
+			delegate.dependencies(closure);
+		}
+	}
 
-    @Override
-    public void dependencies(Action<DependenciesHandler> action) {
-        for (DependencyManagementConfigurer delegate: this.delegates) {
-            delegate.dependencies(action);
-        }
-    }
+	@Override
+	public void dependencies(Action<DependenciesHandler> action) {
+		for (DependencyManagementConfigurer delegate : this.delegates) {
+			delegate.dependencies(action);
+		}
+	}
 
 }

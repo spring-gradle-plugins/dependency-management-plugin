@@ -42,100 +42,99 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DependencyManagementReportRendererTests {
 
-    private final StringWriter textOutput = new StringWriter();
+	private final StringWriter textOutput = new StringWriter();
 
-    private final DependencyManagementReportRenderer renderer = new DependencyManagementReportRenderer(new PrintWriter(this.textOutput));
+	private final DependencyManagementReportRenderer renderer = new DependencyManagementReportRenderer(
+			new PrintWriter(this.textOutput));
 
-    @Test
-    public void projectHeaderForRootProject() {
-        Project rootProject = ProjectBuilder.builder().build();
-        this.renderer.startProject(rootProject);
-        assertThat(outputLines()).containsExactly("",
-                    "------------------------------------------------------------",
-                    "Root project",
-                    "------------------------------------------------------------",
-                    "");
-    }
+	@Test
+	public void projectHeaderForRootProject() {
+		Project rootProject = ProjectBuilder.builder().build();
+		this.renderer.startProject(rootProject);
+		assertThat(outputLines()).containsExactly("", "------------------------------------------------------------",
+				"Root project", "------------------------------------------------------------", "");
+	}
 
-    @Test
-    public void projectHeaderForSubproject() {
-        Project subproject = ProjectBuilder.builder().withParent(ProjectBuilder.builder().build()).withName("alpha").build();
-        this.renderer.startProject(subproject);
-        assertThat(outputLines()).containsExactly("",
-                    "------------------------------------------------------------",
-                    "Project :alpha",
-                    "------------------------------------------------------------",
-                    "");
-    }
+	@Test
+	public void projectHeaderForSubproject() {
+		Project subproject = ProjectBuilder.builder().withParent(ProjectBuilder.builder().build()).withName("alpha")
+				.build();
+		this.renderer.startProject(subproject);
+		assertThat(outputLines()).containsExactly("", "------------------------------------------------------------",
+				"Project :alpha", "------------------------------------------------------------", "");
+	}
 
-    @Test
-    public void projectHeaderForSubprojectWithDescription() {
-        Project subproject = ProjectBuilder.builder().withParent(ProjectBuilder.builder().build()).withName("alpha").build();
-        subproject.setDescription("description of alpha project");
-        this.renderer.startProject(subproject);
-        assertThat(outputLines()).containsExactly("",
-                    "------------------------------------------------------------",
-                    "Project :alpha - description of alpha project",
-                    "------------------------------------------------------------",
-                    "");
-    }
+	@Test
+	public void projectHeaderForSubprojectWithDescription() {
+		Project subproject = ProjectBuilder.builder().withParent(ProjectBuilder.builder().build()).withName("alpha")
+				.build();
+		subproject.setDescription("description of alpha project");
+		this.renderer.startProject(subproject);
+		assertThat(outputLines()).containsExactly("", "------------------------------------------------------------",
+				"Project :alpha - description of alpha project",
+				"------------------------------------------------------------", "");
+	}
 
-    @Test
-    public void globalDependencyManagementWithNoManagedVersions() {
-        this.renderer.renderGlobalManagedVersions(Collections.<String, String>emptyMap());
-        assertThat(outputLines()).containsExactly("global - Default dependency management for all configurations",
-                    "No dependency management",
-                    "");
-    }
+	@Test
+	public void globalDependencyManagementWithNoManagedVersions() {
+		this.renderer.renderGlobalManagedVersions(Collections.<String, String>emptyMap());
+		assertThat(outputLines()).containsExactly("global - Default dependency management for all configurations",
+				"No dependency management", "");
+	}
 
-    @Test
-    public void globalDependencyManagementWithManagedVersions() {
-        Map<String, String> managedVersions = new HashMap<String, String>();
-        managedVersions.put("com.example:bravo", "1.0.0");
-        managedVersions.put("com.example:alpha", "1.2.3");
-        this.renderer.renderGlobalManagedVersions(managedVersions);
-        assertThat(outputLines()).containsExactly("global - Default dependency management for all configurations",
-                "    com.example:alpha 1.2.3", "    com.example:bravo 1.0.0", "");
-    }
+	@Test
+	public void globalDependencyManagementWithManagedVersions() {
+		Map<String, String> managedVersions = new HashMap<String, String>();
+		managedVersions.put("com.example:bravo", "1.0.0");
+		managedVersions.put("com.example:alpha", "1.2.3");
+		this.renderer.renderGlobalManagedVersions(managedVersions);
+		assertThat(outputLines()).containsExactly("global - Default dependency management for all configurations",
+				"	com.example:alpha 1.2.3", "	com.example:bravo 1.0.0", "");
+	}
 
-    @Test
-    public void configurationDependencyManagementWitNoManagedVersionsAtAll() {
-        Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
-        this.renderer.renderConfigurationManagedVersions(Collections.<String, String>emptyMap(), configuration, Collections.<String, String>emptyMap());
-        assertThat(outputLines()).containsExactly("test - Dependency management for the test configuration", "No dependency management", "");
-    }
+	@Test
+	public void configurationDependencyManagementWitNoManagedVersionsAtAll() {
+		Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
+		this.renderer.renderConfigurationManagedVersions(Collections.<String, String>emptyMap(), configuration,
+				Collections.<String, String>emptyMap());
+		assertThat(outputLines()).containsExactly("test - Dependency management for the test configuration",
+				"No dependency management", "");
+	}
 
-    @Test
-    public void configurationDependencyManagementWithOnlyGlobalManagedVersions() {
-        Map<String, String> managedVersions = Collections.singletonMap("a:b", "1.0");
-        Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
-        this.renderer.renderConfigurationManagedVersions(managedVersions, configuration, managedVersions);
-        assertThat(outputLines()).containsExactly("test - Dependency management for the test configuration", "No configuration-specific dependency management", "");
-    }
+	@Test
+	public void configurationDependencyManagementWithOnlyGlobalManagedVersions() {
+		Map<String, String> managedVersions = Collections.singletonMap("a:b", "1.0");
+		Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
+		this.renderer.renderConfigurationManagedVersions(managedVersions, configuration, managedVersions);
+		assertThat(outputLines()).containsExactly("test - Dependency management for the test configuration",
+				"No configuration-specific dependency management", "");
+	}
 
-    @Test
-    public void configurationDependencyManagement() {
-        Map<String, String> managedVersions = new HashMap<String, String>();
-        managedVersions.put("com.example:bravo", "1.0.0");
-        managedVersions.put("com.example:alpha", "1.2.3");
-        Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
-        this.renderer.renderConfigurationManagedVersions(managedVersions, configuration, Collections.<String, String>emptyMap());
-        assertThat(outputLines()).containsExactly("test - Dependency management for the test configuration", "    com.example:alpha 1.2.3", "    com.example:bravo 1.0.0", "");
-    }
+	@Test
+	public void configurationDependencyManagement() {
+		Map<String, String> managedVersions = new HashMap<String, String>();
+		managedVersions.put("com.example:bravo", "1.0.0");
+		managedVersions.put("com.example:alpha", "1.2.3");
+		Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
+		this.renderer.renderConfigurationManagedVersions(managedVersions, configuration,
+				Collections.<String, String>emptyMap());
+		assertThat(outputLines()).containsExactly("test - Dependency management for the test configuration",
+				"	com.example:alpha 1.2.3", "	com.example:bravo 1.0.0", "");
+	}
 
-    private List<String> outputLines() {
-        BufferedReader reader = new BufferedReader(new StringReader(this.textOutput.toString()));
-        String line;
-        List<String> lines = new ArrayList<String>();
-        try {
-            while ((line = reader.readLine()) != null) {
-                lines.add(line);
-            }
-        }
-        catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-        return lines;
-    }
+	private List<String> outputLines() {
+		BufferedReader reader = new BufferedReader(new StringReader(this.textOutput.toString()));
+		String line;
+		List<String> lines = new ArrayList<String>();
+		try {
+			while ((line = reader.readLine()) != null) {
+				lines.add(line);
+			}
+		}
+		catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
+		return lines;
+	}
 
 }

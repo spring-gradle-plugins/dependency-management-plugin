@@ -29,33 +29,33 @@ import java.util.Set;
  */
 class Exclusions {
 
-    private final Map<String, Set<Exclusion>> exclusionsByDependency = new HashMap<String, Set<Exclusion>>();
+	private final Map<String, Set<Exclusion>> exclusionsByDependency = new HashMap<String, Set<Exclusion>>();
 
-    void add(String dependency, Collection<Exclusion> exclusionsForDependency) {
-        if (exclusionsForDependency.isEmpty()) {
-            return;
-        }
-        Set<Exclusion> exclusions = this.exclusionsByDependency.get(dependency);
-        if (exclusions == null) {
-            exclusions = new HashSet<Exclusion>();
-            this.exclusionsByDependency.put(dependency, exclusions);
-        }
-        exclusions.addAll(exclusionsForDependency);
-    }
+	void add(String dependency, Collection<Exclusion> exclusionsForDependency) {
+		if (exclusionsForDependency.isEmpty()) {
+			return;
+		}
+		Set<Exclusion> exclusions = this.exclusionsByDependency.get(dependency);
+		if (exclusions == null) {
+			exclusions = new HashSet<Exclusion>();
+			this.exclusionsByDependency.put(dependency, exclusions);
+		}
+		exclusions.addAll(exclusionsForDependency);
+	}
 
-    void addAll(Exclusions exclusions) {
-        for (Map.Entry<String, Set<Exclusion>> entry : exclusions.exclusionsByDependency.entrySet()) {
-            add(entry.getKey(), entry.getValue());
-        }
-    }
+	void addAll(Exclusions exclusions) {
+		for (Map.Entry<String, Set<Exclusion>> entry : exclusions.exclusionsByDependency.entrySet()) {
+			add(entry.getKey(), entry.getValue());
+		}
+	}
 
-    Set<Exclusion> exclusionsForDependency(String dependency) {
-        return this.exclusionsByDependency.get(dependency);
-    }
+	Set<Exclusion> exclusionsForDependency(String dependency) {
+		return this.exclusionsByDependency.get(dependency);
+	}
 
-    @Override
-    public String toString() {
-        return this.exclusionsByDependency.toString();
-    }
+	@Override
+	public String toString() {
+		return this.exclusionsByDependency.toString();
+	}
 
 }

@@ -29,31 +29,31 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ProjectPropertySourceTests {
 
-    private final Project project = ProjectBuilder.builder().build();
+	private final Project project = ProjectBuilder.builder().build();
 
-    private final ProjectPropertySource propertySource = new ProjectPropertySource(this.project);
+	private final ProjectPropertySource propertySource = new ProjectPropertySource(this.project);
 
-    @Test
-    public void nullIsReturnedWhenProjectDoesNotHaveAProperty() {
-        assertThat(propertySource.getProperty("does.not.exist")).isNull();
-    }
+	@Test
+	public void nullIsReturnedWhenProjectDoesNotHaveAProperty() {
+		assertThat(this.propertySource.getProperty("does.not.exist")).isNull();
+	}
 
-    @Test
-    public void propertyIsReturnedWhenProjectHasProperty() {
-        this.project.getExtensions().getExtraProperties().set("alpha", "a");
-        assertThat(this.propertySource.getProperty("alpha")).isEqualTo("a");
-    }
+	@Test
+	public void propertyIsReturnedWhenProjectHasProperty() {
+		this.project.getExtensions().getExtraProperties().set("alpha", "a");
+		assertThat(this.propertySource.getProperty("alpha")).isEqualTo("a");
+	}
 
-    @Test
-    public void nullIsReturnedWhenProjectHasProperty() {
-        this.project.getExtensions().getExtraProperties().set("alpha", null);
-        assertThat(this.propertySource.getProperty("alpha")).isNull();
-    }
+	@Test
+	public void nullIsReturnedWhenProjectHasProperty() {
+		this.project.getExtensions().getExtraProperties().set("alpha", null);
+		assertThat(this.propertySource.getProperty("alpha")).isNull();
+	}
 
-    @Test
-    public void nullIsReturnedWhenVersionPropertyIsRetrieved() {
-        this.project.setVersion("1.2.3");
-        assertThat(this.propertySource.getProperty("version")).isNull();
-    }
+	@Test
+	public void nullIsReturnedWhenVersionPropertyIsRetrieved() {
+		this.project.setVersion("1.2.3");
+		assertThat(this.propertySource.getProperty("version")).isNull();
+	}
 
 }

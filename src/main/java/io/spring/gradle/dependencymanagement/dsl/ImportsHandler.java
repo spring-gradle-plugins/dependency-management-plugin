@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,30 +27,30 @@ import org.gradle.api.Action;
  */
 public interface ImportsHandler {
 
-    /**
-     * Imports the Maven bom with the given {@code coordinates} in the form {@code group:name:version}.
-     *
-     * @param coordinates the bom's coordinates
-     */
-    void mavenBom(String coordinates);
+	/**
+	 * Imports the Maven bom with the given {@code coordinates} in the form
+	 * {@code group:name:version}.
+	 * @param coordinates the bom's coordinates
+	 */
+	void mavenBom(String coordinates);
 
-    /**
-     * Imports the Maven bom with the given {@code coordinates} in the form {@code group:name:version}. The import
-     * is customized using the given {@code closure} which is called with a {@link MavenBomHandler} as its delegate.
-     *
-     * @param coordinates the bom's coordinates
-     * @param closure the closure
-     * @see MavenBomHandler
-     */
-    void mavenBom(String coordinates, Closure closure);
+	/**
+	 * Imports the Maven bom with the given {@code coordinates} in the form
+	 * {@code group:name:version}. The import is customized using the given
+	 * {@code closure} which is called with a {@link MavenBomHandler} as its delegate.
+	 * @param coordinates the bom's coordinates
+	 * @param closure the closure
+	 * @see MavenBomHandler
+	 */
+	void mavenBom(String coordinates, Closure closure);
 
-    /**
-     * Imports the Maven bom with the given {@code coordinates} in the form {@code group:name:version}. The import
-     * is customized using the given {@code action}.
-     *
-     * @param coordinates the bom's coordinates
-     * @param action the action
-     */
-    void mavenBom(String coordinates, Action<MavenBomHandler> action);
+	/**
+	 * Imports the Maven bom with the given {@code coordinates} in the form
+	 * {@code group:name:version}. The import is customized using the given
+	 * {@code action}.
+	 * @param coordinates the bom's coordinates
+	 * @param action the action
+	 */
+	void mavenBom(String coordinates, Action<MavenBomHandler> action);
 
 }

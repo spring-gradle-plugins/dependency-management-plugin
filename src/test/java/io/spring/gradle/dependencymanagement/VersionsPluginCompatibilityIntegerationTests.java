@@ -24,21 +24,21 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests that verify the plugin's compatibility with the
- * <a href="https://github.com/ben-manes/gradle-versions-plugin>Versions plugin</a>.
+ * Tests that verify the plugin's compatibility with the <a
+ * href="https://github.com/ben-manes/gradle-versions-plugin>Versions plugin</a>.
  *
  * @author Andy Wilkinson
  */
 public class VersionsPluginCompatibilityIntegerationTests {
 
-    @Rule
-    public final GradleBuild gradleBuild = new GradleBuild();
+	@Rule
+	public final GradleBuild gradleBuild = new GradleBuild();
 
-    @Test
-    public void versionsPluginReportsUpgradesForDependenciesWithManagedVersions() {
-        BuildResult result = this.gradleBuild.runner().withArguments("dependencyUpdates").build();
-        assertThat(result.task(":dependencyUpdates").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-        assertThat(result.getOutput()).contains("commons-logging:commons-logging [1.1.3 ->");
-    }
+	@Test
+	public void versionsPluginReportsUpgradesForDependenciesWithManagedVersions() {
+		BuildResult result = this.gradleBuild.runner().withArguments("dependencyUpdates").build();
+		assertThat(result.task(":dependencyUpdates").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+		assertThat(result.getOutput()).contains("commons-logging:commons-logging [1.1.3 ->");
+	}
 
 }

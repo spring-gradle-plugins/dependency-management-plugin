@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +25,17 @@ import java.util.Map;
  */
 public interface DependencyHandler {
 
-    /**
-     * Adds the given exclusion in the form {@code group:name}.
-     *
-     * @param exclusion the exclusion
-     */
-    void exclude(String exclusion);
+	/**
+	 * Adds the given exclusion in the form {@code group:name}.
+	 * @param exclusion the exclusion
+	 */
+	void exclude(String exclusion);
 
-    /**
-     * Adds the given exclusion using the {@code group} and {@code name} entries in the map.
-     *
-     * @param exclusion the exclusion
-     */
-    void exclude(Map<String, String> exclusion);
+	/**
+	 * Adds the given exclusion using the {@code group} and {@code name} entries in the
+	 * map.
+	 * @param exclusion the exclusion
+	 */
+	void exclude(Map<String, String> exclusion);
 
 }

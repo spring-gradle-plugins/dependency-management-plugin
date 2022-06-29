@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,12 @@
 
 package io.spring.gradle.dependencymanagement.internal.maven;
 
-import org.gradle.api.Action;
-
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelBuildingRequest;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelProblemCollector;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.validation.DefaultModelValidator;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.validation.ModelValidator;
+import org.gradle.api.Action;
 
 /**
  * A {@link ModelValidator} that is more relaxed than {@link DefaultModelValidator}.
@@ -31,46 +30,46 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.validation.M
  */
 class RelaxedModelValidator extends DefaultModelValidator {
 
-    @Override
-    public void validateRawModel(Model model, final ModelBuildingRequest request,
-            final ModelProblemCollector problems) {
-        withNoDistributionManagementStatus(model, new Action<Model>() {
+	@Override
+	public void validateRawModel(Model model, final ModelBuildingRequest request,
+			final ModelProblemCollector problems) {
+		withNoDistributionManagementStatus(model, new Action<Model>() {
 
-            @Override
-            public void execute(Model modifiedModel) {
-                RelaxedModelValidator.super.validateRawModel(modifiedModel, request, problems);
-            }
+			@Override
+			public void execute(Model modifiedModel) {
+				RelaxedModelValidator.super.validateRawModel(modifiedModel, request, problems);
+			}
 
-        });
-    }
+		});
+	}
 
-    @Override
-    public void validateEffectiveModel(Model model, final ModelBuildingRequest request,
-            final ModelProblemCollector problems) {
-        withNoDistributionManagementStatus(model, new Action<Model>() {
+	@Override
+	public void validateEffectiveModel(Model model, final ModelBuildingRequest request,
+			final ModelProblemCollector problems) {
+		withNoDistributionManagementStatus(model, new Action<Model>() {
 
-            @Override
-            public void execute(Model modifiedModel) {
-                RelaxedModelValidator.super.validateEffectiveModel(modifiedModel, request, problems);
-            }
+			@Override
+			public void execute(Model modifiedModel) {
+				RelaxedModelValidator.super.validateEffectiveModel(modifiedModel, request, problems);
+			}
 
-        });
-    }
+		});
+	}
 
-    private void withNoDistributionManagementStatus(Model model, Action<Model> action) {
-        if (model.getDistributionManagement() != null) {
-            String distributionManagementStatus = model.getDistributionManagement().getStatus();
-            model.getDistributionManagement().setStatus(null);
-            try {
-                action.execute(model);
-            }
-            finally {
-                model.getDistributionManagement().setStatus(distributionManagementStatus);
-            }
-        }
-        else {
-            action.execute(model);
-        }
-    }
+	private void withNoDistributionManagementStatus(Model model, Action<Model> action) {
+		if (model.getDistributionManagement() != null) {
+			String distributionManagementStatus = model.getDistributionManagement().getStatus();
+			model.getDistributionManagement().setStatus(null);
+			try {
+				action.execute(model);
+			}
+			finally {
+				model.getDistributionManagement().setStatus(distributionManagementStatus);
+			}
+		}
+		else {
+			action.execute(model);
+		}
+	}
 
 }

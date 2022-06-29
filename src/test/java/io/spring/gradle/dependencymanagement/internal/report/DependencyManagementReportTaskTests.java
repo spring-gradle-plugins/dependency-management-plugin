@@ -18,14 +18,13 @@ package io.spring.gradle.dependencymanagement.internal.report;
 
 import java.util.Map;
 
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
+import io.spring.gradle.dependencymanagement.internal.maven.MavenPomResolver;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Test;
-
-import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
-import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
-import io.spring.gradle.dependencymanagement.internal.maven.MavenPomResolver;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -39,37 +38,41 @@ import static org.mockito.Mockito.mock;
  */
 public class DependencyManagementReportTaskTests {
 
-    private Project project = ProjectBuilder.builder().build();
+	private Project project = ProjectBuilder.builder().build();
 
-    private DependencyManagementReportTask task = this.project.getTasks().create("dependencyManagement", DependencyManagementReportTask.class);
+	private DependencyManagementReportTask task = this.project.getTasks().create("dependencyManagement",
+			DependencyManagementReportTask.class);
 
-    private DependencyManagementReportRenderer renderer = mock(DependencyManagementReportRenderer.class);
+	private DependencyManagementReportRenderer renderer = mock(DependencyManagementReportRenderer.class);
 
-    public DependencyManagementReportTaskTests() {
-        this.task.setDependencyManagementContainer(new DependencyManagementContainer(this.project, new MavenPomResolver(this.project, new DependencyManagementConfigurationContainer(this.project))));
-        this.task.setRenderer(this.renderer);
-    }
+	public DependencyManagementReportTaskTests() {
+		this.task.setDependencyManagementContainer(new DependencyManagementContainer(this.project,
+				new MavenPomResolver(this.project, new DependencyManagementConfigurationContainer(this.project))));
+		this.task.setRenderer(this.renderer);
+	}
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void basicReport() {
-        this.task.report();
-        then(this.renderer).should().startProject(this.project);
-        then(this.renderer).should().renderGlobalManagedVersions((Map<String, String>) any(Map.class));
-        then(this.renderer).shouldHaveNoMoreInteractions();
-    }
+	@Test
+	@SuppressWarnings("unchecked")
+	public void basicReport() {
+		this.task.report();
+		then(this.renderer).should().startProject(this.project);
+		then(this.renderer).should().renderGlobalManagedVersions(any(Map.class));
+		then(this.renderer).shouldHaveNoMoreInteractions();
+	}
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void reportForProjectWithConfigurations() {
-        Configuration configurationOne = project.getConfigurations().create("second");
-        Configuration configurationTwo = project.getConfigurations().create("first");
-        this.task.report();
-        then(this.renderer).should().startProject(this.project);
-        then(this.renderer).should().renderGlobalManagedVersions((Map<String, String>) any(Map.class));
-        then(this.renderer).should().renderConfigurationManagedVersions((Map<String, String>) any(Map.class), eq(configurationTwo), (Map<String, String>) any(Map.class));
-        then(this.renderer).should().renderConfigurationManagedVersions((Map<String, String>) any(Map.class), eq(configurationOne), (Map<String, String>) any(Map.class));
-        then(this.renderer).shouldHaveNoMoreInteractions();
-    }
+	@Test
+	@SuppressWarnings("unchecked")
+	public void reportForProjectWithConfigurations() {
+		Configuration configurationOne = this.project.getConfigurations().create("second");
+		Configuration configurationTwo = this.project.getConfigurations().create("first");
+		this.task.report();
+		then(this.renderer).should().startProject(this.project);
+		then(this.renderer).should().renderGlobalManagedVersions(any(Map.class));
+		then(this.renderer).should().renderConfigurationManagedVersions(any(Map.class), eq(configurationTwo),
+				any(Map.class));
+		then(this.renderer).should().renderConfigurationManagedVersions(any(Map.class), eq(configurationOne),
+				any(Map.class));
+		then(this.renderer).shouldHaveNoMoreInteractions();
+	}
 
 }

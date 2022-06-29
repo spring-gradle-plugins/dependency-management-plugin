@@ -5,11 +5,11 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencyManagement {
-    imports {
-        mavenBom 'org.springframework.boot:spring-boot-dependencies:1.4.2.RELEASE'
-    }
+	imports {
+		mavenBom 'org.springframework.boot:spring-boot-dependencies:1.4.2.RELEASE'
+	}
 }

@@ -28,29 +28,30 @@ import org.junit.Test;
  */
 public class MavenPluginIntegrationTests {
 
-    @Rule
-    public final GradleBuild gradleBuild = new GradleBuild();
+	@Rule
+	public final GradleBuild gradleBuild = new GradleBuild();
 
-    @Test
-    public void generatedPomsAreCustomized() {
-        this.gradleBuild.runner().withArguments("install").build();
-        assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNotNull();
-    }
+	@Test
+	public void generatedPomsAreCustomized() {
+		this.gradleBuild.runner().withArguments("install").build();
+		assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNotNull();
+	}
 
-    @Test
-    public void customizationOfGeneratedPomsCanBeDisabled() {
-        this.gradleBuild.runner().withArguments("install").build();
-        assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNull();
-    }
+	@Test
+	public void customizationOfGeneratedPomsCanBeDisabled() {
+		this.gradleBuild.runner().withArguments("install").build();
+		assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNull();
+	}
 
-    @Test
-    public void pomCustomizationDoesNotStopCustomConfToScopeMappingsFromWorking() {
-        this.gradleBuild.runner().withArguments("install").build();
-        assertThatGeneratedPom().textAtPath("/project/dependencies/dependency[groupId/text()='commons-logging']/scope").isEqualTo("compile");
-    }
+	@Test
+	public void pomCustomizationDoesNotStopCustomConfToScopeMappingsFromWorking() {
+		this.gradleBuild.runner().withArguments("install").build();
+		assertThatGeneratedPom().textAtPath("/project/dependencies/dependency[groupId/text()='commons-logging']/scope")
+				.isEqualTo("compile");
+	}
 
-    private NodeAssert assertThatGeneratedPom() {
-        return new NodeAssert(new File(this.gradleBuild.runner().getProjectDir(), "build/poms/pom-default.xml"));
-    }
+	private NodeAssert assertThatGeneratedPom() {
+		return new NodeAssert(new File(this.gradleBuild.runner().getProjectDir(), "build/poms/pom-default.xml"));
+	}
 
 }

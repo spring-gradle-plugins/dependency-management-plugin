@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,11 @@
 package io.spring.gradle.dependencymanagement.internal.dsl;
 
 import groovy.lang.Closure;
-import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
-
 import io.spring.gradle.dependencymanagement.dsl.DependencyHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencySetHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
+import org.gradle.api.Action;
+import org.gradle.api.artifacts.Configuration;
 
 /**
  * Standard implementation of {@link DependencySetHandler}.
@@ -31,49 +30,49 @@ import io.spring.gradle.dependencymanagement.internal.DependencyManagementContai
  */
 final class StandardDependencySetHandler implements DependencySetHandler {
 
-    private final String group;
+	private final String group;
 
-    private final String version;
+	private final String version;
 
-    private final DependencyManagementContainer dependencyManagementContainer;
+	private final DependencyManagementContainer dependencyManagementContainer;
 
-    private final Configuration configuration;
+	private final Configuration configuration;
 
-    StandardDependencySetHandler(String group, String version,
-            DependencyManagementContainer dependencyManagementContainer, Configuration configuration) {
-        this.group = group;
-        this.version = version;
-        this.dependencyManagementContainer = dependencyManagementContainer;
-        this.configuration = configuration;
-    }
+	StandardDependencySetHandler(String group, String version,
+			DependencyManagementContainer dependencyManagementContainer, Configuration configuration) {
+		this.group = group;
+		this.version = version;
+		this.dependencyManagementContainer = dependencyManagementContainer;
+		this.configuration = configuration;
+	}
 
-    @Override
-    public void entry(String name) {
-        entry(name, (Action<DependencyHandler>) null);
-    }
+	@Override
+	public void entry(String name) {
+		entry(name, (Action<DependencyHandler>) null);
+	}
 
-    @Override
-    public void entry(String name, final Closure closure) {
-        entry(name, new Action<DependencyHandler>() {
+	@Override
+	public void entry(String name, final Closure closure) {
+		entry(name, new Action<DependencyHandler>() {
 
-            @Override
-            public void execute(DependencyHandler dependencyHandler) {
-                if (closure != null) {
-                    closure.setDelegate(dependencyHandler);
-                    closure.call();
-                }
-            }
-        });
-    }
+			@Override
+			public void execute(DependencyHandler dependencyHandler) {
+				if (closure != null) {
+					closure.setDelegate(dependencyHandler);
+					closure.call();
+				}
+			}
+		});
+	}
 
-    @Override
-    public void entry(String name, Action<DependencyHandler> action) {
-        StandardDependencyHandler dependencyHandler = new StandardDependencyHandler();
-        if (action != null) {
-            action.execute(dependencyHandler);
-        }
-        this.dependencyManagementContainer.addManagedVersion(this.configuration, this.group, name, this.version,
-                dependencyHandler.getExclusions());
-    }
+	@Override
+	public void entry(String name, Action<DependencyHandler> action) {
+		StandardDependencyHandler dependencyHandler = new StandardDependencyHandler();
+		if (action != null) {
+			action.execute(dependencyHandler);
+		}
+		this.dependencyManagementContainer.addManagedVersion(this.configuration, this.group, name, this.version,
+				dependencyHandler.getExclusions());
+	}
 
 }

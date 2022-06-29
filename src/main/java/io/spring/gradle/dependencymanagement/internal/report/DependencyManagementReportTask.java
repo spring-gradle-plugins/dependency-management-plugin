@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.TaskAction;
-
-import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 
 /**
  * Task to display the dependency management for a project.
@@ -34,50 +33,46 @@ import io.spring.gradle.dependencymanagement.internal.DependencyManagementContai
  */
 public class DependencyManagementReportTask extends DefaultTask {
 
-    private DependencyManagementContainer dependencyManagementContainer;
+	private DependencyManagementContainer dependencyManagementContainer;
 
-    private DependencyManagementReportRenderer renderer = new DependencyManagementReportRenderer();
+	private DependencyManagementReportRenderer renderer = new DependencyManagementReportRenderer();
 
-    void setRenderer(DependencyManagementReportRenderer renderer) {
-        this.renderer = renderer;
-    }
+	void setRenderer(DependencyManagementReportRenderer renderer) {
+		this.renderer = renderer;
+	}
 
-    /**
-     * Sets the container for the dependency management that will be reported.
-     *
-     * @param dependencyManagementContainer the container
-     */
-    public void setDependencyManagementContainer(DependencyManagementContainer dependencyManagementContainer) {
-        this.dependencyManagementContainer = dependencyManagementContainer;
-    }
+	/**
+	 * Sets the container for the dependency management that will be reported.
+	 * @param dependencyManagementContainer the container
+	 */
+	public void setDependencyManagementContainer(DependencyManagementContainer dependencyManagementContainer) {
+		this.dependencyManagementContainer = dependencyManagementContainer;
+	}
 
-    /**
-     * {@link TaskAction} that produces the dependency management report.
-     */
-    @TaskAction
-    public void report() {
-        this.renderer.startProject(getProject());
+	/**
+	 * {@link TaskAction} that produces the dependency management report.
+	 */
+	@TaskAction
+	public void report() {
+		this.renderer.startProject(getProject());
 
-        Map<String, String> globalManagedVersions =
-                this.dependencyManagementContainer.getManagedVersionsForConfiguration(null);
+		Map<String, String> globalManagedVersions = this.dependencyManagementContainer
+				.getManagedVersionsForConfiguration(null);
 
-        this.renderer.renderGlobalManagedVersions(globalManagedVersions);
+		this.renderer.renderGlobalManagedVersions(globalManagedVersions);
 
-        Set<Configuration> configurations = new TreeSet<Configuration>(
-                new Comparator<Configuration>() {
-                        @Override
-                        public int compare(Configuration one, Configuration two) {
-                            return one.getName().compareTo(two.getName());
-                        }
-                }
-        );
-        configurations.addAll(getProject().getConfigurations());
-        for (Configuration configuration: configurations) {
-            Map<String, String> managedVersions =
-                    this.dependencyManagementContainer.getManagedVersionsForConfiguration(configuration);
-            this.renderer.renderConfigurationManagedVersions(managedVersions, configuration,
-                    globalManagedVersions);
-        }
-    }
+		Set<Configuration> configurations = new TreeSet<Configuration>(new Comparator<Configuration>() {
+			@Override
+			public int compare(Configuration one, Configuration two) {
+				return one.getName().compareTo(two.getName());
+			}
+		});
+		configurations.addAll(getProject().getConfigurations());
+		for (Configuration configuration : configurations) {
+			Map<String, String> managedVersions = this.dependencyManagementContainer
+					.getManagedVersionsForConfiguration(configuration);
+			this.renderer.renderConfigurationManagedVersions(managedVersions, configuration, globalManagedVersions);
+		}
+	}
 
 }

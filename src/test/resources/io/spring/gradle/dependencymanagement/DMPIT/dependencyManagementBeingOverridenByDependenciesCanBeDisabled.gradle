@@ -10,21 +10,21 @@ repositories {
 dependencyManagement {
 	overriddenByDependencies = false
 	dependencies {
-        dependency('org.springframework:spring-core:4.0.3.RELEASE') {
-            exclude 'commons-logging:commons-logging'
-        }
-    }
+		dependency('org.springframework:spring-core:4.0.3.RELEASE') {
+			exclude 'commons-logging:commons-logging'
+		}
+	}
 }
 
 dependencies {
-    compile 'org.springframework:spring-core:4.0.4.RELEASE'
+	compile 'org.springframework:spring-core:4.0.4.RELEASE'
 }
 
 task resolve {
 	doFirst {
-	    def files = project.configurations.compile.resolve()
-	    def output = new File("${buildDir}/resolved.txt")
-	    output.parentFile.mkdirs()
-	    files.collect { it.name }.each { output << "${it}\n" }
+		def files = project.configurations.compile.resolve()
+		def output = new File("${buildDir}/resolved.txt")
+		output.parentFile.mkdirs()
+		files.collect { it.name }.each { output << "${it}\n" }
 	}
 }

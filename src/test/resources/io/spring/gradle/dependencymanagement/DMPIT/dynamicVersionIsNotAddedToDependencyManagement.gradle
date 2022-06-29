@@ -13,11 +13,11 @@ dependencies {
 
 task managedVersions {
 	doFirst {
-	    def output = new File("${buildDir}/managed-versions.txt")
-	    output.parentFile.mkdirs()
-	    output.createNewFile()
-	    dependencyManagement.managedVersions.each { key, value -> 
-	    	output << "${key} -> ${value}\n"
-	    }
+		def output = new File("${buildDir}/managed-versions.txt")
+		output.parentFile.mkdirs()
+		output.createNewFile()
+		dependencyManagement.managedVersions.each { key, value ->
+			output << "${key} -> ${value}\n"
+		}
 	}
 }

@@ -17,18 +17,18 @@ dependencies {
 
 task resolveCompile {
 	doFirst {
-	    def files = project.configurations.compile.resolve()
-	    def output = new File("${buildDir}/resolved-compile.txt")
-	    output.parentFile.mkdirs()
-	    files.collect { it.name }.each { output << "${it}\n" }
+		def files = project.configurations.compile.resolve()
+		def output = new File("${buildDir}/resolved-compile.txt")
+		output.parentFile.mkdirs()
+		files.collect { it.name }.each { output << "${it}\n" }
 	}
 }
 
 task resolveTestCompile {
 	doFirst {
-	    def files = project.configurations.testCompile.resolve()
-	    def output = new File("${buildDir}/resolved-test-compile.txt")
-	    output.parentFile.mkdirs()
-	    files.collect { it.name }.each { output << "${it}\n" }
+		def files = project.configurations.testCompile.resolve()
+		def output = new File("${buildDir}/resolved-test-compile.txt")
+		output.parentFile.mkdirs()
+		files.collect { it.name }.each { output << "${it}\n" }
 	}
 }

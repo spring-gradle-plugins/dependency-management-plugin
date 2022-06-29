@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,79 +26,77 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
-import org.gradle.api.artifacts.result.ResolvedComponentResult;
-
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
 import io.spring.gradle.dependencymanagement.internal.pom.PomReference;
 import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
+import org.gradle.api.artifacts.result.ResolvedComponentResult;
 
 /**
- * Resolves the {@link Exclusions exclusions} for a {@link ResolvedComponentResult dependency}.
+ * Resolves the {@link Exclusions exclusions} for a {@link ResolvedComponentResult
+ * dependency}.
  *
  * @author Andy Wilkinson
  */
 class ExclusionResolver {
 
-    private static final Set<String> IGNORED_SCOPES = Collections
-            .unmodifiableSet(new HashSet<String>(Arrays.asList("provided", "test")));
+	private static final Set<String> IGNORED_SCOPES = Collections
+			.unmodifiableSet(new HashSet<String>(Arrays.asList("provided", "test")));
 
-    private final Map<String, Exclusions> exclusionsCache = new HashMap<String, Exclusions>();
+	private final Map<String, Exclusions> exclusionsCache = new HashMap<String, Exclusions>();
 
-    private final PomResolver pomResolver;
+	private final PomResolver pomResolver;
 
-    ExclusionResolver(PomResolver pomResolver) {
-        this.pomResolver = pomResolver;
-    }
+	ExclusionResolver(PomResolver pomResolver) {
+		this.pomResolver = pomResolver;
+	}
 
-    Map<String, Exclusions> resolveExclusions(
-            Collection<ResolvedComponentResult> resolvedComponents) {
-        List<PomReference> pomReferences = new ArrayList<PomReference>();
-        Map<String, Exclusions> exclusionsById = new HashMap<String, Exclusions>();
-        for (ResolvedComponentResult resolvedComponent : resolvedComponents) {
-            if (!(resolvedComponent
-                    .getId() instanceof ProjectComponentIdentifier) && resolvedComponent
-                    .getModuleVersion().getGroup() != null && resolvedComponent.getModuleVersion()
-                    .getName() != null) {
-                String id = resolvedComponent.getModuleVersion()
-                        .getGroup() + ":" + resolvedComponent.getModuleVersion().getName();
-                Exclusions exclusions = this.exclusionsCache.get(id);
-                if (exclusions != null) {
-                    exclusionsById.put(id, exclusions);
-                }
-                else {
-                    pomReferences.add(new PomReference(new Coordinates(resolvedComponent.getModuleVersion().getGroup(),
-                            resolvedComponent.getModuleVersion().getName(),
-                            resolvedComponent.getModuleVersion().getVersion())));
-                }
-            }
-        }
-        List<Pom> poms = this.pomResolver.resolvePomsLeniently(pomReferences);
-        for (Pom pom: poms) {
-            String id = pom.getCoordinates().getGroupId() + ":" + pom.getCoordinates().getArtifactId();
-            Exclusions exclusions = collectExclusions(pom);
-            this.exclusionsCache.put(id, exclusions);
-            exclusionsById.put(id, exclusions);
-        }
-        return exclusionsById;
-    }
+	Map<String, Exclusions> resolveExclusions(Collection<ResolvedComponentResult> resolvedComponents) {
+		List<PomReference> pomReferences = new ArrayList<PomReference>();
+		Map<String, Exclusions> exclusionsById = new HashMap<String, Exclusions>();
+		for (ResolvedComponentResult resolvedComponent : resolvedComponents) {
+			if (!(resolvedComponent.getId() instanceof ProjectComponentIdentifier)
+					&& resolvedComponent.getModuleVersion().getGroup() != null
+					&& resolvedComponent.getModuleVersion().getName() != null) {
+				String id = resolvedComponent.getModuleVersion().getGroup() + ":"
+						+ resolvedComponent.getModuleVersion().getName();
+				Exclusions exclusions = this.exclusionsCache.get(id);
+				if (exclusions != null) {
+					exclusionsById.put(id, exclusions);
+				}
+				else {
+					pomReferences.add(new PomReference(new Coordinates(resolvedComponent.getModuleVersion().getGroup(),
+							resolvedComponent.getModuleVersion().getName(),
+							resolvedComponent.getModuleVersion().getVersion())));
+				}
+			}
+		}
+		List<Pom> poms = this.pomResolver.resolvePomsLeniently(pomReferences);
+		for (Pom pom : poms) {
+			String id = pom.getCoordinates().getGroupId() + ":" + pom.getCoordinates().getArtifactId();
+			Exclusions exclusions = collectExclusions(pom);
+			this.exclusionsCache.put(id, exclusions);
+			exclusionsById.put(id, exclusions);
+		}
+		return exclusionsById;
+	}
 
-    private Exclusions collectExclusions(Pom pom) {
-        Exclusions exclusions = new Exclusions();
-        List<Dependency> dependencies = new ArrayList<Dependency>(pom.getManagedDependencies());
-        dependencies.addAll(pom.getDependencies());
-        for (Dependency dependency : dependencies) {
-            if (dependency.getExclusions() != null && !dependency.isOptional() && !IGNORED_SCOPES
-                    .contains(dependency.getScope())) {
-                String dependencyId = dependency.getCoordinates().getGroupId() + ":" +
-                        dependency.getCoordinates().getArtifactId();
-                exclusions.add(dependencyId, new HashSet<Exclusion>(dependency.getExclusions()));
-            }
+	private Exclusions collectExclusions(Pom pom) {
+		Exclusions exclusions = new Exclusions();
+		List<Dependency> dependencies = new ArrayList<Dependency>(pom.getManagedDependencies());
+		dependencies.addAll(pom.getDependencies());
+		for (Dependency dependency : dependencies) {
+			if (dependency.getExclusions() != null && !dependency.isOptional()
+					&& !IGNORED_SCOPES.contains(dependency.getScope())) {
+				String dependencyId = dependency.getCoordinates().getGroupId() + ":"
+						+ dependency.getCoordinates().getArtifactId();
+				exclusions.add(dependencyId, new HashSet<Exclusion>(dependency.getExclusions()));
+			}
 
-        }
-        return exclusions;
-    }
+		}
+		return exclusions;
+	}
 
 }

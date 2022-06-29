@@ -22,10 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.gradle.api.Project;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
 import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Model;
@@ -38,6 +34,9 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.Mod
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelCache;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelProblem;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.ModelResolver;
+import org.gradle.api.Project;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Builds the effective {@link Model} for a Maven pom.
@@ -46,159 +45,155 @@ import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.M
  */
 final class EffectiveModelBuilder {
 
-    private static final Logger logger = LoggerFactory.getLogger(EffectiveModelBuilder.class);
+	private static final Logger logger = LoggerFactory.getLogger(EffectiveModelBuilder.class);
 
-    private final ModelResolver modelResolver;
+	private final ModelResolver modelResolver;
 
-    EffectiveModelBuilder(Project project,
-            DependencyManagementConfigurationContainer configurationContainer, PlatformCategoryAttributeConfigurer attributeConfigurer) {
-        this.modelResolver = new ConfigurationModelResolver(project, configurationContainer, attributeConfigurer);
-    }
+	EffectiveModelBuilder(Project project, DependencyManagementConfigurationContainer configurationContainer,
+			PlatformCategoryAttributeConfigurer attributeConfigurer) {
+		this.modelResolver = new ConfigurationModelResolver(project, configurationContainer, attributeConfigurer);
+	}
 
-    List<Model> buildModels(List<ModelInput> inputs) {
-        List<Model> models = new ArrayList<Model>();
-        InMemoryModelCache cache = new InMemoryModelCache();
-        for (ModelInput input: inputs) {
-            models.add(buildModel(input, cache));
-        }
-        return models;
-    }
+	List<Model> buildModels(List<ModelInput> inputs) {
+		List<Model> models = new ArrayList<Model>();
+		InMemoryModelCache cache = new InMemoryModelCache();
+		for (ModelInput input : inputs) {
+			models.add(buildModel(input, cache));
+		}
+		return models;
+	}
 
-    private Model buildModel(ModelInput input, InMemoryModelCache cache) {
-        DefaultModelBuildingRequest request = new DefaultModelBuildingRequest();
-        request.setSystemProperties(System.getProperties());
-        request.setModelSource(new FileModelSource(input.pom));
-        request.setModelResolver(this.modelResolver);
-        request.setModelCache(cache);
+	private Model buildModel(ModelInput input, InMemoryModelCache cache) {
+		DefaultModelBuildingRequest request = new DefaultModelBuildingRequest();
+		request.setSystemProperties(System.getProperties());
+		request.setModelSource(new FileModelSource(input.pom));
+		request.setModelResolver(this.modelResolver);
+		request.setModelCache(cache);
 
-        try {
-            ModelBuildingResult result = createModelBuilder(input.properties).build(request);
-            List<ModelProblem> errors = extractErrors(result.getProblems());
-            if (!errors.isEmpty()) {
-                reportErrors(errors, input.pom);
-            }
-            return result.getEffectiveModel();
-        }
-        catch (ModelBuildingException ex) {
-            logger.debug("Model building failed", ex);
-            reportErrors(extractErrors(ex.getProblems()), input.pom);
-            return ex.getResult().getEffectiveModel();
-        }
-    }
+		try {
+			ModelBuildingResult result = createModelBuilder(input.properties).build(request);
+			List<ModelProblem> errors = extractErrors(result.getProblems());
+			if (!errors.isEmpty()) {
+				reportErrors(errors, input.pom);
+			}
+			return result.getEffectiveModel();
+		}
+		catch (ModelBuildingException ex) {
+			logger.debug("Model building failed", ex);
+			reportErrors(extractErrors(ex.getProblems()), input.pom);
+			return ex.getResult().getEffectiveModel();
+		}
+	}
 
-    private List<ModelProblem> extractErrors(List<ModelProblem> problems) {
-        List<ModelProblem> errors = new ArrayList<ModelProblem>();
-        for (ModelProblem problem: problems) {
-            if (problem.getSeverity() == ModelProblem.Severity.ERROR) {
-                errors.add(problem);
-            }
-        }
-        return errors;
-    }
+	private List<ModelProblem> extractErrors(List<ModelProblem> problems) {
+		List<ModelProblem> errors = new ArrayList<ModelProblem>();
+		for (ModelProblem problem : problems) {
+			if (problem.getSeverity() == ModelProblem.Severity.ERROR) {
+				errors.add(problem);
+			}
+		}
+		return errors;
+	}
 
-    private void reportErrors(List<ModelProblem> errors, File file) {
-        StringBuilder message = new StringBuilder("Errors occurred while build effective model from " + file + ":");
-        for (ModelProblem error: errors) {
-            message.append("\n    " + error.getMessage() + " in " + error.getModelId());
-        }
-        logger.error(message.toString());
-    }
+	private void reportErrors(List<ModelProblem> errors, File file) {
+		StringBuilder message = new StringBuilder("Errors occurred while build effective model from " + file + ":");
+		for (ModelProblem error : errors) {
+			message.append("\n	" + error.getMessage() + " in " + error.getModelId());
+		}
+		logger.error(message.toString());
+	}
 
-    private DefaultModelBuilder createModelBuilder(PropertySource properties) {
-        DefaultModelBuilder modelBuilder = new DefaultModelBuilderFactory().newInstance();
-        modelBuilder
-                .setModelInterpolator(new PropertiesModelInterpolator(properties));
-        modelBuilder.setModelValidator(new RelaxedModelValidator());
-        return modelBuilder;
-    }
+	private DefaultModelBuilder createModelBuilder(PropertySource properties) {
+		DefaultModelBuilder modelBuilder = new DefaultModelBuilderFactory().newInstance();
+		modelBuilder.setModelInterpolator(new PropertiesModelInterpolator(properties));
+		modelBuilder.setModelValidator(new RelaxedModelValidator());
+		return modelBuilder;
+	}
 
-    /**
-     * Input to a model building request.
-     */
-    static class ModelInput {
+	/**
+	 * Input to a model building request.
+	 */
+	static class ModelInput {
 
-        private final File pom;
+		private final File pom;
 
-        private final PropertySource properties;
+		private final PropertySource properties;
 
-        ModelInput(File pom, PropertySource properties) {
-            this.pom = pom;
-            this.properties = properties;
-        }
+		ModelInput(File pom, PropertySource properties) {
+			this.pom = pom;
+			this.properties = properties;
+		}
 
-    }
+	}
 
-    private static final class InMemoryModelCache implements ModelCache {
+	private static final class InMemoryModelCache implements ModelCache {
 
-        private final Map<Key, Object> cache = new ConcurrentHashMap<Key, Object>();
+		private final Map<Key, Object> cache = new ConcurrentHashMap<Key, Object>();
 
-        @Override
-        public Object get(String groupId, String artifactId, String version, String tag) {
-            return this.cache.get(new Key(groupId, artifactId, version, tag));
-        }
+		@Override
+		public Object get(String groupId, String artifactId, String version, String tag) {
+			return this.cache.get(new Key(groupId, artifactId, version, tag));
+		}
 
-        @Override
-        public void put(String groupId, String artifactId, String version, String tag, Object item) {
-            this.cache.put(new Key(groupId, artifactId, version, tag), item);
-        }
+		@Override
+		public void put(String groupId, String artifactId, String version, String tag, Object item) {
+			this.cache.put(new Key(groupId, artifactId, version, tag), item);
+		}
 
-        private static final class Key {
+		private static final class Key {
 
-            private final String groupId;
+			private final String groupId;
 
-            private final String artifactId;
+			private final String artifactId;
 
-            private final String version;
+			private final String version;
 
-            private final String tag;
+			private final String tag;
 
-            private Key(String groupId, String artifactId, String version, String tag) {
-                this.groupId = groupId;
-                this.artifactId = artifactId;
-                this.version = version;
-                this.tag = tag;
-            }
+			private Key(String groupId, String artifactId, String version, String tag) {
+				this.groupId = groupId;
+				this.artifactId = artifactId;
+				this.version = version;
+				this.tag = tag;
+			}
 
-            @Override
-            public int hashCode() {
-                final int prime = 31;
-                int result = 1;
-                result = prime * result + groupId.hashCode();
-                result = prime * result + artifactId.hashCode();
-                result = prime * result + version.hashCode();
-                result = prime * result + tag.hashCode();
-                return result;
-            }
+			@Override
+			public boolean equals(Object obj) {
+				if (this == obj) {
+					return true;
+				}
+				if ((obj == null) || (getClass() != obj.getClass())) {
+					return false;
+				}
+				Key other = (Key) obj;
+				if (!this.groupId.equals(other.groupId)) {
+					return false;
+				}
+				if (!this.artifactId.equals(other.artifactId)) {
+					return false;
+				}
+				if (!this.version.equals(other.version)) {
+					return false;
+				}
+				if (!this.tag.equals(other.tag)) {
+					return false;
+				}
+				return true;
+			}
 
-            @Override
-            public boolean equals(Object obj) {
-                if (this == obj) {
-                    return true;
-                }
-                if (obj == null) {
-                    return false;
-                }
-                if (getClass() != obj.getClass()) {
-                    return false;
-                }
-                Key other = (Key) obj;
-                if (!groupId.equals(other.groupId)) {
-                    return false;
-                }
-                if (!artifactId.equals(other.artifactId)) {
-                    return false;
-                }
-                if (!version.equals(other.version)) {
-                    return false;
-                }
-                if (!tag.equals(other.tag)) {
-                    return false;
-                }
-                return true;
-            }
+			@Override
+			public int hashCode() {
+				final int prime = 31;
+				int result = 1;
+				result = prime * result + this.groupId.hashCode();
+				result = prime * result + this.artifactId.hashCode();
+				result = prime * result + this.version.hashCode();
+				result = prime * result + this.tag.hashCode();
+				return result;
+			}
 
-        }
+		}
 
-    }
+	}
 
 }

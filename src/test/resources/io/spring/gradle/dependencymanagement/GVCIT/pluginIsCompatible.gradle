@@ -4,13 +4,13 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencyManagement {
-    imports {
-        mavenBom 'org.springframework.boot:spring-boot-dependencies:1.4.2.RELEASE'
-    }
+	imports {
+		mavenBom 'org.springframework.boot:spring-boot-dependencies:1.4.2.RELEASE'
+	}
 }
 
 dependencies {
@@ -18,18 +18,18 @@ dependencies {
 }
 
 task resolve {
-    doFirst {
-    	def configurationName = (project.getProperty("configuration") == "compile") ? "compile" : "runtimeClasspath"
-        def names = configurations.getByName(configurationName).resolve().collect { it.name }
-        if (!names.containsAll("spring-boot-starter-1.4.2.RELEASE.jar", "spring-boot-1.4.2.RELEASE.jar",
-                "spring-boot-autoconfigure-1.4.2.RELEASE.jar",
-                "spring-boot-starter-logging-1.4.2.RELEASE.jar", "spring-core-4.3.4.RELEASE.jar",
-                "snakeyaml-1.17.jar", "spring-context-4.3.4.RELEASE.jar", "logback-classic-1.1.7.jar",
-                "jcl-over-slf4j-1.7.21.jar", "jul-to-slf4j-1.7.21.jar", "log4j-over-slf4j-1.7.21.jar",
-                "spring-aop-4.3.4.RELEASE.jar", "spring-beans-4.3.4.RELEASE.jar",
-                "spring-expression-4.3.4.RELEASE.jar", "logback-core-1.1.7.jar", "slf4j-api-1.7.21.jar")) {
-            throw new RuntimeException("Dependencies were not resolved as expected. Names were $names")
-        }
+	doFirst {
+		def configurationName = (project.getProperty("configuration") == "compile") ? "compile" : "runtimeClasspath"
+		def names = configurations.getByName(configurationName).resolve().collect { it.name }
+		if (!names.containsAll("spring-boot-starter-1.4.2.RELEASE.jar", "spring-boot-1.4.2.RELEASE.jar",
+				"spring-boot-autoconfigure-1.4.2.RELEASE.jar",
+				"spring-boot-starter-logging-1.4.2.RELEASE.jar", "spring-core-4.3.4.RELEASE.jar",
+				"snakeyaml-1.17.jar", "spring-context-4.3.4.RELEASE.jar", "logback-classic-1.1.7.jar",
+				"jcl-over-slf4j-1.7.21.jar", "jul-to-slf4j-1.7.21.jar", "log4j-over-slf4j-1.7.21.jar",
+				"spring-aop-4.3.4.RELEASE.jar", "spring-beans-4.3.4.RELEASE.jar",
+				"spring-expression-4.3.4.RELEASE.jar", "logback-core-1.1.7.jar", "slf4j-api-1.7.21.jar")) {
+			throw new RuntimeException("Dependencies were not resolved as expected. Names were $names")
+		}
 
-    }
+	}
 }

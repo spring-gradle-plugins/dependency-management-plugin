@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,29 +33,29 @@ import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.P
 import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.ValueSource;
 
 /**
- * A {@link ModelInterpolator} that uses properties from various sources as a {@link ValueSource ValueSource}.
+ * A {@link ModelInterpolator} that uses properties from various sources as a
+ * {@link ValueSource ValueSource}.
  *
  * @author Andy Wilkinson
  */
 class PropertiesModelInterpolator extends StringSearchModelInterpolator {
 
-    private final PropertySource properties;
+	private final PropertySource properties;
 
-    PropertiesModelInterpolator(PropertySource properties) {
-        this.properties = properties;
-        setUrlNormalizer(new DefaultUrlNormalizer());
-        setPathTranslator(new DefaultPathTranslator());
-    }
+	PropertiesModelInterpolator(PropertySource properties) {
+		this.properties = properties;
+		setUrlNormalizer(new DefaultUrlNormalizer());
+		setPathTranslator(new DefaultPathTranslator());
+	}
 
-    @Override
-    public List<ValueSource> createValueSources(Model model, File projectDir,
-            ModelBuildingRequest request, ModelProblemCollector collector) {
-        List<ValueSource> valueSources = new ArrayList<ValueSource>(
-                Arrays.asList(new PropertySourceValueSource(this.properties),
-                        new PropertiesBasedValueSource(System.getProperties())));
-        valueSources.addAll(super.createValueSources(model, projectDir, request, collector));
-        return valueSources;
-    }
-
+	@Override
+	public List<ValueSource> createValueSources(Model model, File projectDir, ModelBuildingRequest request,
+			ModelProblemCollector collector) {
+		List<ValueSource> valueSources = new ArrayList<ValueSource>(
+				Arrays.asList(new PropertySourceValueSource(this.properties),
+						new PropertiesBasedValueSource(System.getProperties())));
+		valueSources.addAll(super.createValueSources(model, projectDir, request, collector));
+		return valueSources;
+	}
 
 }

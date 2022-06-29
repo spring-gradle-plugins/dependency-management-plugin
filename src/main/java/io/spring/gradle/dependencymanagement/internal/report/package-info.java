@@ -15,6 +15,6 @@
  */
 
 /**
- * Internal classes that use the Maven API to extract extract information from Maven poms.
+ * Internal classes for reporting a project's dependency management.
  */
-package io.spring.gradle.dependencymanagement.internal.maven;
+package io.spring.gradle.dependencymanagement.internal.report;

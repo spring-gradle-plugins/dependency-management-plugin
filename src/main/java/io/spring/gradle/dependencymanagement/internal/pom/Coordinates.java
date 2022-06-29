@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,47 +23,47 @@ package io.spring.gradle.dependencymanagement.internal.pom;
  */
 public class Coordinates {
 
-    private final String groupId;
+	private final String groupId;
 
-    private final String artifactId;
+	private final String artifactId;
 
-    private final String version;
+	private final String version;
 
-    /**
-     * Creates a new {@code Coordinates} with the given {@code groupId}, {@code artifactId}, and {@code version}.
-     *
-     * @param groupId the group ID
-     * @param artifactId the artifact ID
-     * @param version the version
-     */
-    public Coordinates(String groupId, String artifactId, String version) {
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
-    }
+	/**
+	 * Creates a new {@code Coordinates} with the given {@code groupId},
+	 * {@code artifactId}, and {@code version}.
+	 * @param groupId the group ID
+	 * @param artifactId the artifact ID
+	 * @param version the version
+	 */
+	public Coordinates(String groupId, String artifactId, String version) {
+		this.groupId = groupId;
+		this.artifactId = artifactId;
+		this.version = version;
+	}
 
-    /**
-     * Returns the coordinates' group ID.
-     * @return the group ID
-     */
-    public String getGroupId() {
-        return this.groupId;
-    }
+	/**
+	 * Returns the coordinates' group ID.
+	 * @return the group ID
+	 */
+	public String getGroupId() {
+		return this.groupId;
+	}
 
-    /**
-     * Returns the coordinates' artifact ID.
-     * @return the artifact ID
-     */
-    public String getArtifactId() {
-        return this.artifactId;
-    }
+	/**
+	 * Returns the coordinates' artifact ID.
+	 * @return the artifact ID
+	 */
+	public String getArtifactId() {
+		return this.artifactId;
+	}
 
-    /**
-     * Returns the coordinates' version.
-     * @return the version
-     */
-    public String getVersion() {
-        return this.version;
-    }
+	/**
+	 * Returns the coordinates' version.
+	 * @return the version
+	 */
+	public String getVersion() {
+		return this.version;
+	}
 
 }

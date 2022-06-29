@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,12 @@ package io.spring.gradle.dependencymanagement.internal.properties;
  */
 public interface PropertySource {
 
-    /**
-     * Returns the property with the given {@code name} or {@code null} if the source has no such property.
-     *
-     * @param name The name of the property
-     * @return The property or {@code null}
-     */
-    Object getProperty(String name);
+	/**
+	 * Returns the property with the given {@code name} or {@code null} if the source has
+	 * no such property.
+	 * @param name name of the property
+	 * @return the property or {@code null}
+	 */
+	Object getProperty(String name);
 
 }

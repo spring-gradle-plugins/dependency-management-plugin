@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,79 +35,76 @@ import org.slf4j.LoggerFactory;
  */
 class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 
-    private static final Logger logger = LoggerFactory.getLogger(VersionConfiguringAction.class);
+	private static final Logger logger = LoggerFactory.getLogger(VersionConfiguringAction.class);
 
-    private final Project project;
+	private final Project project;
 
-    private final DependencyManagementContainer dependencyManagementContainer;
+	private final DependencyManagementContainer dependencyManagementContainer;
 
-    private final Configuration configuration;
+	private final Configuration configuration;
 
-    private Set<String> directDependencies;
+	private Set<String> directDependencies;
 
-    private Set<String> localProjectNames;
+	private Set<String> localProjectNames;
 
-    VersionConfiguringAction(Project project,
-                             DependencyManagementContainer dependencyManagementContainer,
-                             Configuration configuration) {
-        this.project = project;
-        this.dependencyManagementContainer = dependencyManagementContainer;
-        this.configuration = configuration;
-    }
+	VersionConfiguringAction(Project project, DependencyManagementContainer dependencyManagementContainer,
+			Configuration configuration) {
+		this.project = project;
+		this.dependencyManagementContainer = dependencyManagementContainer;
+		this.configuration = configuration;
+	}
 
-    @Override
-    public void execute(DependencyResolveDetails details) {
-        logger.debug("Processing dependency '{}'", details.getRequested());
-        if (isDependencyOnLocalProject(this.project, details)) {
-            logger.debug("'{}' is a local project dependency. Dependency management has not " +
-                    "been applied", details.getRequested());
-            return;
-        }
+	@Override
+	public void execute(DependencyResolveDetails details) {
+		logger.debug("Processing dependency '{}'", details.getRequested());
+		if (isDependencyOnLocalProject(this.project, details)) {
+			logger.debug("'{}' is a local project dependency. Dependency management has not " + "been applied",
+					details.getRequested());
+			return;
+		}
 
-        if (isDirectDependency(details) && Versions.isDynamic(details.getRequested().getVersion())) {
-            logger.debug("'{}' is a direct dependency and has a dynamic version. Dependency management has not been "
-                    + "applied", details.getRequested());
-            return;
-        }
+		if (isDirectDependency(details) && Versions.isDynamic(details.getRequested().getVersion())) {
+			logger.debug("'{}' is a direct dependency and has a dynamic version. Dependency management has not been "
+					+ "applied", details.getRequested());
+			return;
+		}
 
-        String version = this.dependencyManagementContainer
-                .getManagedVersion(this.configuration, details.getRequested().getGroup(),
-                        details.getRequested().getName());
+		String version = this.dependencyManagementContainer.getManagedVersion(this.configuration,
+				details.getRequested().getGroup(), details.getRequested().getName());
 
-        if (version != null) {
-            logger.debug("Using version '{}' for dependency '{}'", version,
-                    details.getRequested());
-            details.useVersion(version);
-        }
-        else {
-            logger.debug("No dependency management for dependency '{}'", details.getRequested());
-        }
+		if (version != null) {
+			logger.debug("Using version '{}' for dependency '{}'", version, details.getRequested());
+			details.useVersion(version);
+		}
+		else {
+			logger.debug("No dependency management for dependency '{}'", details.getRequested());
+		}
 
-    }
+	}
 
-    private boolean isDirectDependency(DependencyResolveDetails details) {
-        if (this.directDependencies == null) {
-            Set<String> directDependencies = new HashSet<String>();
-            for (Dependency dependency : this.configuration.getAllDependencies()) {
-                directDependencies.add(dependency.getGroup() + ":" + dependency.getName());
-            }
-            this.directDependencies = directDependencies;
-        }
-        return this.directDependencies.contains(details.getRequested().getGroup() + ":"
-                + details.getRequested().getName());
-    }
+	private boolean isDirectDependency(DependencyResolveDetails details) {
+		if (this.directDependencies == null) {
+			Set<String> directDependencies = new HashSet<String>();
+			for (Dependency dependency : this.configuration.getAllDependencies()) {
+				directDependencies.add(dependency.getGroup() + ":" + dependency.getName());
+			}
+			this.directDependencies = directDependencies;
+		}
+		return this.directDependencies
+				.contains(details.getRequested().getGroup() + ":" + details.getRequested().getName());
+	}
 
-    private boolean isDependencyOnLocalProject(Project project,
-                                               DependencyResolveDetails details) {
-        if (this.localProjectNames == null) {
-            Set<String> names = new HashSet<String>();
-            for (Project localProject : project.getRootProject().getAllprojects()) {
-                names.add(localProject.getGroup() + ":" + localProject.getName());
-            }
-            this.localProjectNames = names;
-        }
+	private boolean isDependencyOnLocalProject(Project project, DependencyResolveDetails details) {
+		if (this.localProjectNames == null) {
+			Set<String> names = new HashSet<String>();
+			for (Project localProject : project.getRootProject().getAllprojects()) {
+				names.add(localProject.getGroup() + ":" + localProject.getName());
+			}
+			this.localProjectNames = names;
+		}
 
-        return localProjectNames
-                .contains(details.getRequested().getGroup() + ":" + details.getRequested().getName());
-    }
+		return this.localProjectNames
+				.contains(details.getRequested().getGroup() + ":" + details.getRequested().getName());
+	}
+
 }

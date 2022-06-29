@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,46 +28,43 @@ import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
  */
 public final class PomReference {
 
-    private final Coordinates coordinates;
+	private final Coordinates coordinates;
 
-    private final PropertySource properties;
+	private final PropertySource properties;
 
-    /**
-     * Creates a new {@code PomReference}.
-     *
-     * @param coordinates the coordinate of the referenced pom
-     */
-    public PomReference(Coordinates coordinates) {
-        this(coordinates, new MapPropertySource(Collections.<String, Object>emptyMap()));
-    }
+	/**
+	 * Creates a new {@code PomReference}.
+	 * @param coordinates the coordinate of the referenced pom
+	 */
+	public PomReference(Coordinates coordinates) {
+		this(coordinates, new MapPropertySource(Collections.<String, Object>emptyMap()));
+	}
 
-    /**
-     * Creates a new {@code PomReference}.
-     *
-     * @param coordinates the coordinates of the referenced pom
-     * @param properties the properties that should be used when resolving the pom's contents
-     */
-    public PomReference(Coordinates coordinates, PropertySource properties) {
-        this.coordinates = coordinates;
-        this.properties = properties;
-    }
+	/**
+	 * Creates a new {@code PomReference}.
+	 * @param coordinates the coordinates of the referenced pom
+	 * @param properties the properties that should be used when resolving the pom's
+	 * contents
+	 */
+	public PomReference(Coordinates coordinates, PropertySource properties) {
+		this.coordinates = coordinates;
+		this.properties = properties;
+	}
 
-    /**
-     * Returns the coordinates of the referenced pom.
-     *
-     * @return the coordinates
-     */
-    public Coordinates getCoordinates() {
-        return this.coordinates;
-    }
+	/**
+	 * Returns the coordinates of the referenced pom.
+	 * @return the coordinates
+	 */
+	public Coordinates getCoordinates() {
+		return this.coordinates;
+	}
 
-    /**
-     * Returns the properties that should be used when resolving the pom's contents.
-     *
-     * @return the properties
-     */
-    public PropertySource getProperties() {
-        return this.properties;
-    }
+	/**
+	 * Returns the properties that should be used when resolving the pom's contents.
+	 * @return the properties
+	 */
+	public PropertySource getProperties() {
+		return this.properties;
+	}
 
 }

@@ -29,29 +29,30 @@ import org.junit.Test;
  */
 public class MavenPublishPluginIntegrationTests {
 
-    @Rule
-    public final GradleBuild gradleBuild = new GradleBuild();
+	@Rule
+	public final GradleBuild gradleBuild = new GradleBuild();
 
-    @Test
-    public void generatedPomsAreCustomized() {
-        this.gradleBuild.runner().withArguments("generatePom").build();
-        assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNotNull();
-    }
+	@Test
+	public void generatedPomsAreCustomized() {
+		this.gradleBuild.runner().withArguments("generatePom").build();
+		assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNotNull();
+	}
 
-    @Test
-    public void customizationOfGeneratedPomsCanBeDisabled() {
-        this.gradleBuild.runner().withArguments("generatePom").build();
-        assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNull();
-    }
+	@Test
+	public void customizationOfGeneratedPomsCanBeDisabled() {
+		this.gradleBuild.runner().withArguments("generatePom").build();
+		assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNull();
+	}
 
-    @Test
-    public void usingImportedPropertiesDoesNotPreventFurtherConfigurationOfThePublishingExtension() {
-        this.gradleBuild.runner().withArguments("generatePom").build();
-        assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNotNull();
-    }
+	@Test
+	public void usingImportedPropertiesDoesNotPreventFurtherConfigurationOfThePublishingExtension() {
+		this.gradleBuild.runner().withArguments("generatePom").build();
+		assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNotNull();
+	}
 
-    private NodeAssert assertThatGeneratedPom() {
-        return new NodeAssert(new File(this.gradleBuild.runner().getProjectDir(), "build/publications/mavenJava/pom-default.xml"));
-    }
+	private NodeAssert assertThatGeneratedPom() {
+		return new NodeAssert(
+				new File(this.gradleBuild.runner().getProjectDir(), "build/publications/mavenJava/pom-default.xml"));
+	}
 
 }

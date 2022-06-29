@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,26 +30,26 @@ import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
  */
 class StandardMavenBomHandler implements MavenBomHandler {
 
-    private final Map<String, String> bomProperties = new HashMap<String, String>();
+	private final Map<String, String> bomProperties = new HashMap<String, String>();
 
-    @Override
-    public void bomProperty(String name, String value) {
-            this.bomProperties.put(name, value);
-        }
+	@Override
+	public void bomProperty(String name, String value) {
+		this.bomProperties.put(name, value);
+	}
 
-    @Override
-    public void bomProperties(Map<String, String> properties) {
-        putAll(properties, this.bomProperties);
-    }
+	@Override
+	public void bomProperties(Map<String, String> properties) {
+		putAll(properties, this.bomProperties);
+	}
 
-    private void putAll(Map<? extends CharSequence, ? extends CharSequence> source, Map<String, String> target) {
-        for (Map.Entry<? extends CharSequence, ? extends CharSequence> entry: source.entrySet()) {
-            target.put(entry.getKey().toString(), entry.getValue().toString());
-        }
-    }
+	private void putAll(Map<? extends CharSequence, ? extends CharSequence> source, Map<String, String> target) {
+		for (Map.Entry<? extends CharSequence, ? extends CharSequence> entry : source.entrySet()) {
+			target.put(entry.getKey().toString(), entry.getValue().toString());
+		}
+	}
 
-    PropertySource getBomProperties() {
-        return new MapPropertySource(this.bomProperties);
-    }
+	PropertySource getBomProperties() {
+		return new MapPropertySource(this.bomProperties);
+	}
 
 }

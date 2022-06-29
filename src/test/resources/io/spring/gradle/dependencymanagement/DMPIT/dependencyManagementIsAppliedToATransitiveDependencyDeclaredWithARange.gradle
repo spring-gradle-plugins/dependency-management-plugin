@@ -8,20 +8,20 @@ repositories {
 }
 
 dependencyManagement {
-    dependencies {
-        dependency 'com.google.guava:guava:18.0'
-    }
+	dependencies {
+		dependency 'com.google.guava:guava:18.0'
+	}
 }
 
 dependencies {
-    compile 'org.assertj:assertj-guava:3.0.0'
+	compile 'org.assertj:assertj-guava:3.0.0'
 }
 
 task resolve {
 	doFirst {
-	    def files = project.configurations.runtime.resolve()
-	    def output = new File("${buildDir}/resolved.txt")
-	    output.parentFile.mkdirs()
-	    files.collect { it.name }.each { output << "${it}\n" }
+		def files = project.configurations.runtime.resolve()
+		def output = new File("${buildDir}/resolved.txt")
+		output.parentFile.mkdirs()
+		files.collect { it.name }.each { output << "${it}\n" }
 	}
 }

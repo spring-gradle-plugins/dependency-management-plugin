@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.gradle.api.InvalidUserDataException;
-
 import io.spring.gradle.dependencymanagement.dsl.DependencyHandler;
 import io.spring.gradle.dependencymanagement.internal.Exclusion;
+import org.gradle.api.InvalidUserDataException;
 
 /**
  * Standard implementation of {@link DependencyHandler}.
@@ -32,34 +31,34 @@ import io.spring.gradle.dependencymanagement.internal.Exclusion;
  */
 final class StandardDependencyHandler implements DependencyHandler {
 
-    private final List<Exclusion> exclusions = new ArrayList<Exclusion>();
+	private final List<Exclusion> exclusions = new ArrayList<Exclusion>();
 
-    @Override
-    public void exclude(String exclusion) {
-        String[] components = exclusion.split(":");
-        if (components.length != 2) {
-            throw new InvalidUserDataException("Exclusion '" + exclusion + "' is malformed. The required"
-                    + " form is 'group:name'");
-        }
-        this.exclusions.add(new Exclusion(components[0], components[1]));
-    }
+	@Override
+	public void exclude(String exclusion) {
+		String[] components = exclusion.split(":");
+		if (components.length != 2) {
+			throw new InvalidUserDataException(
+					"Exclusion '" + exclusion + "' is malformed. The required" + " form is 'group:name'");
+		}
+		this.exclusions.add(new Exclusion(components[0], components[1]));
+	}
 
-    @Override
-    public void exclude(Map<String, String> exclusion) {
-        String group = exclusion.get("group");
-        String name = exclusion.get("name");
-        if (!hasText(group) || !hasText(name)) {
-            throw new InvalidUserDataException("An exclusion requires both a group and a name");
-        }
-        this.exclusions.add(new Exclusion(group, name));
-    }
+	@Override
+	public void exclude(Map<String, String> exclusion) {
+		String group = exclusion.get("group");
+		String name = exclusion.get("name");
+		if (!hasText(group) || !hasText(name)) {
+			throw new InvalidUserDataException("An exclusion requires both a group and a name");
+		}
+		this.exclusions.add(new Exclusion(group, name));
+	}
 
-    List<Exclusion> getExclusions() {
-        return this.exclusions;
-    }
+	List<Exclusion> getExclusions() {
+		return this.exclusions;
+	}
 
-    private boolean hasText(String string) {
-        return string != null && string.trim().length() > 0;
-    }
+	private boolean hasText(String string) {
+		return string != null && string.trim().length() > 0;
+	}
 
 }

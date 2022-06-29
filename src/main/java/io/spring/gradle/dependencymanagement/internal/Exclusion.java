@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,64 +23,61 @@ package io.spring.gradle.dependencymanagement.internal;
  */
 public class Exclusion {
 
-    private final String groupId;
+	private final String groupId;
 
-    private final String artifactId;
+	private final String artifactId;
 
-    /**
-     * Creates a new {@code Exclusion} using the given {@code groupId} and {@code artifactId}.
-     *
-     * @param groupId group ID
-     * @param artifactId artifact ID
-     */
-    public Exclusion(String groupId, String artifactId) {
-        this.groupId = (groupId != null) ? groupId : "";
-        this.artifactId = (artifactId != null) ? artifactId : "";
-    }
+	/**
+	 * Creates a new {@code Exclusion} using the given {@code groupId} and
+	 * {@code artifactId}.
+	 * @param groupId group ID
+	 * @param artifactId artifact ID
+	 */
+	public Exclusion(String groupId, String artifactId) {
+		this.groupId = (groupId != null) ? groupId : "";
+		this.artifactId = (artifactId != null) ? artifactId : "";
+	}
 
-    /**
-     * Returns the group ID that is excluded.
-     * @return the group ID
-     */
-    public String getGroupId() {
-        return groupId;
-    }
+	/**
+	 * Returns the group ID that is excluded.
+	 * @return the group ID
+	 */
+	public String getGroupId() {
+		return this.groupId;
+	}
 
-    /**
-     * Returns the artifact ID that is excluded.
-     * @return the artifact ID
-     */
-    public String getArtifactId() {
-        return artifactId;
-    }
+	/**
+	 * Returns the artifact ID that is excluded.
+	 * @return the artifact ID
+	 */
+	public String getArtifactId() {
+		return this.artifactId;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = 1;
-        result = 31 * result + artifactId.hashCode();
-        result = 31 * result + groupId.hashCode();
-        return result;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if ((obj == null) || (getClass() != obj.getClass())) {
+			return false;
+		}
+		Exclusion other = (Exclusion) obj;
+		if (!this.artifactId.equals(other.artifactId)) {
+			return false;
+		}
+		if (!this.groupId.equals(other.groupId)) {
+			return false;
+		}
+		return true;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Exclusion other = (Exclusion) obj;
-        if (!artifactId.equals(other.artifactId)) {
-            return false;
-        }
-        if (!groupId.equals(other.groupId)) {
-            return false;
-        }
-        return true;
-    }
+	@Override
+	public int hashCode() {
+		int result = 1;
+		result = 31 * result + this.artifactId.hashCode();
+		result = 31 * result + this.groupId.hashCode();
+		return result;
+	}
 
 }

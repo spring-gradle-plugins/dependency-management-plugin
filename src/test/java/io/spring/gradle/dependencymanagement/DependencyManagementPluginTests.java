@@ -16,14 +16,13 @@
 
 package io.spring.gradle.dependencymanagement;
 
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
-import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,32 +33,33 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DependencyManagementPluginTests {
 
-    @Rule
-    public TemporaryFolder temp = new TemporaryFolder();
+	@Rule
+	public TemporaryFolder temp = new TemporaryFolder();
 
-    private Project project;
+	private Project project;
 
-    @Before
-    public void setUp() {
-        this.project = ProjectBuilder.builder().withProjectDir(temp.getRoot()).build();
-    }
+	@Before
+	public void setUp() {
+		this.project = ProjectBuilder.builder().withProjectDir(this.temp.getRoot()).build();
+	}
 
-    @Test
-    public void whenPluginIsAppliedThenDependencyManagementExtensionIsAdded() {
-        this.project.getPlugins().apply(DependencyManagementPlugin.class);
-        assertThat(this.project.getExtensions().findByType(DependencyManagementExtension.class)).isNotNull();
-    }
+	@Test
+	public void whenPluginIsAppliedThenDependencyManagementExtensionIsAdded() {
+		this.project.getPlugins().apply(DependencyManagementPlugin.class);
+		assertThat(this.project.getExtensions().findByType(DependencyManagementExtension.class)).isNotNull();
+	}
 
-    @Test
-    public void whenPluginIsAppliedThenPomConfigurerIsAvailable() {
-        this.project.getPlugins().apply(DependencyManagementPlugin.class);
-        assertThat(this.project.getExtensions().findByType(DependencyManagementExtension.class).getPomConfigurer()).isNotNull();
-    }
+	@Test
+	public void whenPluginIsAppliedThenPomConfigurerIsAvailable() {
+		this.project.getPlugins().apply(DependencyManagementPlugin.class);
+		assertThat(this.project.getExtensions().findByType(DependencyManagementExtension.class).getPomConfigurer())
+				.isNotNull();
+	}
 
-    @Test
-    public void whenPluginIsAppliedThenDependencyManagementReportTaskIsAdded() {
-        this.project.getPlugins().apply(DependencyManagementPlugin.class);
-        assertThat(this.project.getTasks().findByName("dependencyManagement")).isNotNull();
-    }
+	@Test
+	public void whenPluginIsAppliedThenDependencyManagementReportTaskIsAdded() {
+		this.project.getPlugins().apply(DependencyManagementPlugin.class);
+		assertThat(this.project.getTasks().findByName("dependencyManagement")).isNotNull();
+	}
 
 }

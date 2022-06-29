@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,26 +26,26 @@ import java.util.List;
  */
 public class CompositePropertySource implements PropertySource {
 
-    private final List<PropertySource> delegates;
+	private final List<PropertySource> delegates;
 
-    /**
-     * Creates a new {@code CompositePropertySource} that will delegate to the given {@code delegates}.
-     *
-     * @param delegates the delegates
-     */
-    public CompositePropertySource(PropertySource... delegates) {
-        this.delegates = Arrays.asList(delegates);
-    }
+	/**
+	 * Creates a new {@code CompositePropertySource} that will delegate to the given
+	 * {@code delegates}.
+	 * @param delegates the delegates
+	 */
+	public CompositePropertySource(PropertySource... delegates) {
+		this.delegates = Arrays.asList(delegates);
+	}
 
-    @Override
-    public Object getProperty(String name) {
-        for (PropertySource delegate: this.delegates) {
-            Object property = delegate.getProperty(name);
-            if (property != null) {
-                return property;
-            }
-        }
-        return null;
-    }
+	@Override
+	public Object getProperty(String name) {
+		for (PropertySource delegate : this.delegates) {
+			Object property = delegate.getProperty(name);
+			if (property != null) {
+				return property;
+			}
+		}
+		return null;
+	}
 
 }

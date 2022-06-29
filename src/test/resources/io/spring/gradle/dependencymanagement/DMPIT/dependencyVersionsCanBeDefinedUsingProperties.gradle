@@ -11,22 +11,22 @@ ext['springVersion'] = '4.1.1.RELEASE'
 ext['slf4jVersion'] = '1.7.7'
 
 dependencyManagement {
-    dependencies {
-        dependency "org.springframework:spring-core:$springVersion"
-        dependency "org.springframework:spring-beans:$springVersion"
-        dependency "org.springframework:spring-tx:${project.ext['springVersion']}"
-        dependencySet(group: 'org.slf4j', version: slf4jVersion) {
-            entry 'slf4j-api'
-        }
-    }
+	dependencies {
+		dependency "org.springframework:spring-core:$springVersion"
+		dependency "org.springframework:spring-beans:$springVersion"
+		dependency "org.springframework:spring-tx:${project.ext['springVersion']}"
+		dependencySet(group: 'org.slf4j', version: slf4jVersion) {
+			entry 'slf4j-api'
+		}
+	}
 }
 
 task managedVersions {
 	doFirst {
-	    def output = new File("${buildDir}/managed-versions.txt")
-	    output.parentFile.mkdirs()
-	    dependencyManagement.managedVersions.each { key, value -> 
-	    	output << "${key} -> ${value}\n"
-	    }
+		def output = new File("${buildDir}/managed-versions.txt")
+		output.parentFile.mkdirs()
+		dependencyManagement.managedVersions.each { key, value ->
+			output << "${key} -> ${value}\n"
+		}
 	}
 }

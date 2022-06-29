@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,20 +26,20 @@ import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettin
  */
 class StandardGeneratedPomCustomizationHandler implements GeneratedPomCustomizationHandler {
 
-    private final PomCustomizationSettings settings;
+	private final PomCustomizationSettings settings;
 
-    StandardGeneratedPomCustomizationHandler(PomCustomizationSettings settings) {
-        this.settings = settings;
-    }
+	StandardGeneratedPomCustomizationHandler(PomCustomizationSettings settings) {
+		this.settings = settings;
+	}
 
-    @Override
-    public void setEnabled(boolean enabled) {
-        this.settings.setEnabled(enabled);
-    }
+	@Override
+	public void setEnabled(boolean enabled) {
+		this.settings.setEnabled(enabled);
+	}
 
-    @Override
-    public void enabled(boolean enabled) {
-        this.settings.setEnabled(enabled);
-    }
+	@Override
+	public void enabled(boolean enabled) {
+		this.settings.setEnabled(enabled);
+	}
 
 }

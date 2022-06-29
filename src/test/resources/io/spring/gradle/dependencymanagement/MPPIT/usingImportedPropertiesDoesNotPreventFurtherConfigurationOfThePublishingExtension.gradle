@@ -5,7 +5,7 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencyManagement {
@@ -16,8 +16,8 @@ dependencyManagement {
 
 publishing {
    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
 }

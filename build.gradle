@@ -1,158 +1,161 @@
 plugins {
-    id 'java'
-    id 'maven-publish'
-    id 'checkstyle'
-    id 'java-gradle-plugin'
-    id 'org.asciidoctor.jvm.convert' version '3.3.2'
-    id 'io.spring.nohttp' version '0.0.10'
+	id 'java'
+	id 'maven-publish'
+	id 'checkstyle'
+	id 'java-gradle-plugin'
+	id 'org.asciidoctor.jvm.convert' version '3.3.2'
+	id 'io.spring.nohttp' version '0.0.10'
+	id 'io.spring.javaformat' version '0.0.34'
 }
 
 apply from: 'publish-maven.gradle'
 
 checkstyle {
-    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
-    configProperties = [ 'checkstyle.config.dir' : rootProject.file('config/checkstyle') ]
+	configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+	configProperties = [ 'checkstyle.config.dir' : rootProject.file('config/checkstyle') ]
 }
 
 repositories {
-    mavenCentral()
-    maven { url 'https://repo.gradle.org/gradle/libs-releases' }
-    maven { url 'https://repo.spring.io/release' }
+	mavenCentral()
+	maven { url 'https://repo.gradle.org/gradle/libs-releases' }
+	maven { url 'https://repo.spring.io/release' }
 }
 
 group = 'io.spring.gradle'
 description = 'Dependency Management Plugin'
 
 ext {
-    cglibVersion = '3.1'
-    jarjarVersion = '1.2.1'
-    mavenVersion = '3.0.4'
+	cglibVersion = '3.1'
+	jarjarVersion = '1.2.1'
+	mavenVersion = '3.0.4'
 }
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 gradlePlugin {
-    plugins {
-        dependencyManagement {
-            id = 'io.spring.dependency-management'
-            implementationClass = 'io.spring.gradle.dependencymanagement.DependencyManagementPlugin'
-        }
-    }
+	plugins {
+		dependencyManagement {
+			id = 'io.spring.dependency-management'
+			implementationClass = 'io.spring.gradle.dependencymanagement.DependencyManagementPlugin'
+		}
+	}
 }
 
 configurations {
-    asciidoctorExt
-    docs
-    jarjar
-    maven
+	asciidoctorExt
+	docs
+	jarjar
+	maven
 }
 
 task mavenRepackJar(type: Jar) { repackJar ->
-    repackJar.archiveBaseName = "maven-repack"
-    repackJar.archiveVersion = mavenVersion
+	repackJar.archiveBaseName = "maven-repack"
+	repackJar.archiveVersion = mavenVersion
 
-    doLast() {
-        project.ant {
-            taskdef name: "jarjar", classname: "com.tonicsystems.jarjar.JarJarTask", classpath: configurations.jarjar.asPath
-            jarjar(destfile: repackJar.archivePath) {
-                configurations.maven.each { originalJar ->
-                    zipfileset(src: originalJar)
-                }
-                rule(pattern: 'org.**', result: 'io.spring.gradle.dependencymanagement.org.@1')
-            }
-        }
-    }
+	doLast() {
+		project.ant {
+			taskdef name: "jarjar", classname: "com.tonicsystems.jarjar.JarJarTask", classpath: configurations.jarjar.asPath
+			jarjar(destfile: repackJar.archivePath) {
+				configurations.maven.each { originalJar ->
+					zipfileset(src: originalJar)
+				}
+				rule(pattern: 'org.**', result: 'io.spring.gradle.dependencymanagement.org.@1')
+			}
+		}
+	}
 }
 
 dependencies {
-    asciidoctorExt 'io.spring.asciidoctor:spring-asciidoctor-extensions:0.1.2.RELEASE'
+	asciidoctorExt 'io.spring.asciidoctor:spring-asciidoctor-extensions:0.1.2.RELEASE'
 
-    implementation(files(mavenRepackJar))
+	checkstyle 'io.spring.javaformat:spring-javaformat-checkstyle:0.0.34'
 
-    docs 'io.spring.docresources:spring-doc-resources:0.1.0.RELEASE@zip'
+	implementation(files(mavenRepackJar))
 
-    jarjar "org.gradle.jarjar:jarjar:$jarjarVersion"
+	docs 'io.spring.docresources:spring-doc-resources:0.1.0.RELEASE@zip'
 
-    maven "org.apache.maven:maven-model-builder:$mavenVersion"
+	jarjar "org.gradle.jarjar:jarjar:$jarjarVersion"
 
-    testImplementation "cglib:cglib-nodep:$cglibVersion"
-    testImplementation "org.assertj:assertj-core:1.7.1"
-    testImplementation "org.mockito:mockito-core:2.28.2"
-    testImplementation "junit:junit:4.13.2"
+	maven "org.apache.maven:maven-model-builder:$mavenVersion"
+
+	testImplementation "cglib:cglib-nodep:$cglibVersion"
+	testImplementation "org.assertj:assertj-core:1.7.1"
+	testImplementation "org.mockito:mockito-core:2.28.2"
+	testImplementation "junit:junit:4.13.2"
 }
 
 asciidoctor {
-    configurations 'asciidoctorExt'
+	configurations 'asciidoctorExt'
 }
 
 jar {
-    dependsOn mavenRepackJar
-    from(zipTree(mavenRepackJar.archivePath)) {
-        include 'io/spring/gradle/**'
-        include 'META-INF/plexus/**'
-    }
+	dependsOn mavenRepackJar
+	from(zipTree(mavenRepackJar.archivePath)) {
+		include 'io/spring/gradle/**'
+		include 'META-INF/plexus/**'
+	}
 
-    manifest {
-        attributes(
-            'Created-By': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})".toString(),
-            'Implementation-Title': project.description,
-            'Implementation-Version': project.version,
-            'Implementation-Vendor': 'Pivotal Software, Inc.'
-        )
-    }
+	manifest {
+		attributes(
+			'Created-By': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})".toString(),
+			'Implementation-Title': project.description,
+			'Implementation-Version': project.version,
+			'Implementation-Vendor': 'Pivotal Software, Inc.'
+		)
+	}
 }
 
 java {
-    withJavadocJar()
-    withSourcesJar()
+	withJavadocJar()
+	withSourcesJar()
 }
 
 javadoc {
-    title = "$project.description $project.version API"
-    exclude 'io/spring/gradle/dependencymanagement/internal/**'
-    options {
-        links "https://docs.gradle.org/${project.gradle.gradleVersion}/javadoc/",
-              'https://docs.oracle.com/javase/6/docs/api/'
-    }
+	title = "$project.description $project.version API"
+	exclude 'io/spring/gradle/dependencymanagement/internal/**'
+	options {
+		links "https://docs.gradle.org/${project.gradle.gradleVersion}/javadoc/",
+			  'https://docs.oracle.com/javase/6/docs/api/'
+	}
 }
 
 task prepareAsciidocBuild(type: Sync) {
-    from {
-        configurations.docs.collect { zipTree(it) }
-    }
-    from 'src/docs/asciidoc/'
-    from ('src/docs/css/') {
-        into "css"
-    }
-    into "$buildDir/asciidoc/src"
+	from {
+		configurations.docs.collect { zipTree(it) }
+	}
+	from 'src/docs/asciidoc/'
+	from ('src/docs/css/') {
+		into "css"
+	}
+	into "$buildDir/asciidoc/src"
 }
 
 asciidoctor {
-    dependsOn 'prepareAsciidocBuild'
-    sourceDir "$buildDir/asciidoc/src"
-    sources {
-        include 'index.adoc'
-    }
-    resources {
-        from(sourceDir) {
-            include 'css/**', 'js/**'
-        }
-    }
+	dependsOn 'prepareAsciidocBuild'
+	sourceDir "$buildDir/asciidoc/src"
+	sources {
+		include 'index.adoc'
+	}
+	resources {
+		from(sourceDir) {
+			include 'css/**', 'js/**'
+		}
+	}
 }
 
 task docsZip(type: Zip, dependsOn: [':asciidoctor', ':javadoc']) {
-    group = 'Distribution'
-    archiveBaseName = 'dependency-management-plugin'
-    archiveClassifier = 'docs'
-    description = "Builds docs archive containing API and reference documentation"
-    destinationDirectory = file("${project.buildDir}/distributions")
+	group = 'Distribution'
+	archiveBaseName = 'dependency-management-plugin'
+	archiveClassifier = 'docs'
+	description = "Builds docs archive containing API and reference documentation"
+	destinationDirectory = file("${project.buildDir}/distributions")
 
-    from("$asciidoctor.outputDir/html5") {
-        into 'reference/html'
-    }
+	from("$asciidoctor.outputDir/html5") {
+		into 'reference/html'
+	}
 
-    from(javadoc) {
-        into 'api'
-    }
+	from(javadoc) {
+		into 'api'
+	}
 }

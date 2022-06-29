@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,20 +25,19 @@ import java.util.Map;
  */
 public interface DependencyManagementHandler extends DependencyManagementConfigurer {
 
-    /**
-     * Returns the properties from any imported boms.
-     *
-     * @return the imported properties
-     */
-    Map<String, String> getImportedProperties();
+	/**
+	 * Returns the properties from any imported boms.
+	 * @return the imported properties
+	 */
+	Map<String, String> getImportedProperties();
 
-    /**
-     * Returns a map of the managed versions for the configuration associated with this handler. The entire {@link
-     * org.gradle.api.artifacts.Configuration#getHierarchy()} configuration hierarchy} is considered. The key-value
-     * pairs in the map have the form {@code group:name = version}.
-     *
-     * @return the managed versions
-     */
-    Map<String, String> getManagedVersions();
+	/**
+	 * Returns a map of the managed versions for the configuration associated with this
+	 * handler. The entire {@link org.gradle.api.artifacts.Configuration#getHierarchy()}
+	 * configuration hierarchy} is considered. The key-value pairs in the map have the
+	 * form {@code group:name = version}.
+	 * @return the managed versions
+	 */
+	Map<String, String> getManagedVersions();
 
 }

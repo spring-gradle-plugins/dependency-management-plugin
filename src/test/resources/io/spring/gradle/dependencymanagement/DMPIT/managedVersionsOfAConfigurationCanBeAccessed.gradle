@@ -9,9 +9,9 @@ repositories {
 
 dependencyManagement {
 	compile {
-	    imports {
-	        mavenBom 'org.springframework.boot:spring-boot-dependencies:1.2.7.RELEASE'
-	    }
+		imports {
+			mavenBom 'org.springframework.boot:spring-boot-dependencies:1.2.7.RELEASE'
+		}
 	}
 }
 

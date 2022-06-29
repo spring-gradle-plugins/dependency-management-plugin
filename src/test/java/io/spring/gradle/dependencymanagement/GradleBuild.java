@@ -41,109 +41,113 @@ import org.junit.runners.model.Statement;
  */
 public class GradleBuild implements TestRule {
 
-    private final TemporaryFolder temporaryFolder = new TemporaryFolder();
+	private final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private GradleRunner runner = null;
+	private GradleRunner runner = null;
 
-    @Override
-    public Statement apply(final Statement base, final Description description) {
-        return this.temporaryFolder.apply(new Statement() {
+	@Override
+	public Statement apply(final Statement base, final Description description) {
+		return this.temporaryFolder.apply(new Statement() {
 
-            @Override
-            public void evaluate() throws Throwable {
-                List<File> pluginClasspath = Arrays.asList(new File("build/classes/main").getAbsoluteFile(), new File("build/resources/main").getAbsoluteFile(),
-                        new File("build/libs/maven-repack-3.0.4.jar").getAbsoluteFile());
-                runner = GradleRunner.create().withPluginClasspath(pluginClasspath).withProjectDir(temporaryFolder.getRoot());
-                runner.withArguments("-PmavenRepo=" + new File("src/test/resources/maven-repo").getAbsolutePath());
-                Class<?> testClass = description.getTestClass();
-                String methodName = description.getMethodName();
-                if (methodName.contains("[")) {
-                    methodName = methodName.substring(0, methodName.indexOf('['));
-                }
-                InputStream input = testClass.getResourceAsStream(initials(testClass) + "/" + methodName + ".gradle");
-                if (input == null) {
-                    throw new IllegalStateException("No build script found for " + testClass.getName() + " " + methodName);
-                }
-                copy(input, temporaryFolder.newFile("build.gradle"));
-                copyRecursively(new File("src/test/resources/maven-repo"), temporaryFolder.newFolder("maven-repo"));
-                try {
-                    base.evaluate();
-                }
-                finally {
-                    runner = null;
-                }
+			@Override
+			public void evaluate() throws Throwable {
+				List<File> pluginClasspath = Arrays.asList(new File("build/classes/main").getAbsoluteFile(),
+						new File("build/resources/main").getAbsoluteFile(),
+						new File("build/libs/maven-repack-3.0.4.jar").getAbsoluteFile());
+				GradleBuild.this.runner = GradleRunner.create().withPluginClasspath(pluginClasspath)
+						.withProjectDir(GradleBuild.this.temporaryFolder.getRoot());
+				GradleBuild.this.runner
+						.withArguments("-PmavenRepo=" + new File("src/test/resources/maven-repo").getAbsolutePath());
+				Class<?> testClass = description.getTestClass();
+				String methodName = description.getMethodName();
+				if (methodName.contains("[")) {
+					methodName = methodName.substring(0, methodName.indexOf('['));
+				}
+				InputStream input = testClass.getResourceAsStream(initials(testClass) + "/" + methodName + ".gradle");
+				if (input == null) {
+					throw new IllegalStateException(
+							"No build script found for " + testClass.getName() + " " + methodName);
+				}
+				copy(input, GradleBuild.this.temporaryFolder.newFile("build.gradle"));
+				copyRecursively(new File("src/test/resources/maven-repo"),
+						GradleBuild.this.temporaryFolder.newFolder("maven-repo"));
+				try {
+					base.evaluate();
+				}
+				finally {
+					GradleBuild.this.runner = null;
+				}
 
-            }
-        }, description);
-    }
+			}
+		}, description);
+	}
 
-    private String initials(Class<?> type) {
-        String simpleName = type.getName().substring(type.getPackage().getName().length() + 1);
-        StringBuilder initials = new StringBuilder();
-        for (char c: simpleName.toCharArray()) {
-            if (Character.isUpperCase(c)) {
-                initials.append(c);
-            }
-        }
-        return initials.toString();
-    }
+	private String initials(Class<?> type) {
+		String simpleName = type.getName().substring(type.getPackage().getName().length() + 1);
+		StringBuilder initials = new StringBuilder();
+		for (char c : simpleName.toCharArray()) {
+			if (Character.isUpperCase(c)) {
+				initials.append(c);
+			}
+		}
+		return initials.toString();
+	}
 
-    public GradleRunner runner() {
-        return runner;
-    }
+	public GradleRunner runner() {
+		return this.runner;
+	}
 
-    public static void copyRecursively(File src, File dest) throws IOException {
-        doCopyRecursively(src, dest);
-    }
+	public static void copyRecursively(File src, File dest) throws IOException {
+		doCopyRecursively(src, dest);
+	}
 
-    private static void doCopyRecursively(File src, File dest) throws IOException {
-        if (src.isDirectory()) {
-            dest.mkdir();
-            File[] entries = src.listFiles();
-            for (File entry : entries) {
-                doCopyRecursively(entry, new File(dest, entry.getName()));
-            }
-        }
-        else {
-            copy(new FileInputStream(src), dest);
-        }
-    }
+	private static void doCopyRecursively(File src, File dest) throws IOException {
+		if (src.isDirectory()) {
+			dest.mkdir();
+			File[] entries = src.listFiles();
+			for (File entry : entries) {
+				doCopyRecursively(entry, new File(dest, entry.getName()));
+			}
+		}
+		else {
+			copy(new FileInputStream(src), dest);
+		}
+	}
 
+	private static void copy(InputStream input, File target) {
+		try {
+			copy(input, new FileOutputStream(target));
+		}
+		catch (IOException ex) {
+		}
+	}
 
-    private static void copy(InputStream input, File target) {
-        try {
-            copy(input, new FileOutputStream(target));
-        }
-        catch (IOException ex) {
-        }
-    }
+	private static void copy(InputStream input, OutputStream output) {
+		try {
+			byte[] buffer = new byte[4096];
+			int read;
+			while ((read = input.read(buffer)) > 0) {
+				output.write(buffer, 0, read);
+			}
+		}
+		catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
+		finally {
+			closeQuietly(input);
+			closeQuietly(output);
+		}
+	}
 
-    private static void copy(InputStream input, OutputStream output) {
-        try {
-            byte[] buffer = new byte[4096];
-            int read;
-            while ((read = input.read(buffer)) > 0) {
-                output.write(buffer, 0, read);
-            }
-        }
-        catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-        finally {
-            closeQuietly(input);
-            closeQuietly(output);
-        }
-    }
-
-    private static void closeQuietly(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            }
-            catch (IOException ex) {
-                // Swallow
-            }
-        }
-    }
+	private static void closeQuietly(Closeable closeable) {
+		if (closeable != null) {
+			try {
+				closeable.close();
+			}
+			catch (IOException ex) {
+				// Swallow
+			}
+		}
+	}
 
 }

@@ -26,78 +26,73 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
 
 /**
- * A container for {@link Configuration Configurations} created by the dependency management plugin
- * that aren't part of the project's configurations.
+ * A container for {@link Configuration Configurations} created by the dependency
+ * management plugin that aren't part of the project's configurations.
  *
  * @author Andy Wilkinson
  */
 public class DependencyManagementConfigurationContainer {
 
-    private final List<Action<Configuration>> actions = new ArrayList<Action<Configuration>>();
+	private final List<Action<Configuration>> actions = new ArrayList<Action<Configuration>>();
 
-    private final ConfigurationContainer delegate;
+	private final ConfigurationContainer delegate;
 
-    /**
-     * Creates a new {@code DependencyManagementConfigurationContainer} that will manage {@link Configuration
-     * Configurations} for the given {@code project}.
-     *
-     * @param project the project
-     */
-    public DependencyManagementConfigurationContainer(Project project) {
-        this.delegate = project.getConfigurations();
-    }
+	/**
+	 * Creates a new {@code DependencyManagementConfigurationContainer} that will manage
+	 * {@link Configuration Configurations} for the given {@code project}.
+	 * @param project the project
+	 */
+	public DependencyManagementConfigurationContainer(Project project) {
+		this.delegate = project.getConfigurations();
+	}
 
-    /**
-     * Creates a new configuration with the given {@code dependencies}.
-     *
-     * @param dependencies the dependencies to add to the configuration
-     * @return the new configuration
-     */
-    public Configuration newConfiguration(Dependency... dependencies) {
-        return this.newConfiguration(null, dependencies);
-    }
+	/**
+	 * Creates a new configuration with the given {@code dependencies}.
+	 * @param dependencies the dependencies to add to the configuration
+	 * @return the new configuration
+	 */
+	public Configuration newConfiguration(Dependency... dependencies) {
+		return this.newConfiguration(null, dependencies);
+	}
 
-    /**
-     * Creates a new configuration and passes it to the given {@code configurer}. The given {@code dependencies}
-     * are added to the configuration.
-     *
-     * @param configurer the configurer
-     * @param dependencies the dependencies
-     * @return the new configuration
-     */
-    Configuration newConfiguration(ConfigurationConfigurer configurer,
-            Dependency... dependencies) {
-        Configuration configuration = this.delegate.detachedConfiguration(dependencies);
-        if (configurer != null) {
-            configurer.configure(configuration);
-        }
-        for (Action<Configuration> action: this.actions) {
-            action.execute(configuration);
-        }
-        return configuration;
-    }
+	/**
+	 * Creates a new configuration and passes it to the given {@code configurer}. The
+	 * given {@code dependencies} are added to the configuration.
+	 * @param configurer the configurer
+	 * @param dependencies the dependencies
+	 * @return the new configuration
+	 */
+	Configuration newConfiguration(ConfigurationConfigurer configurer, Dependency... dependencies) {
+		Configuration configuration = this.delegate.detachedConfiguration(dependencies);
+		if (configurer != null) {
+			configurer.configure(configuration);
+		}
+		for (Action<Configuration> action : this.actions) {
+			action.execute(configuration);
+		}
+		return configuration;
+	}
 
-    /**
-     * Applies the given {@code action} to all of this container's {@link Configuration Configurations}.
-     *
-     * @param action the action to apply
-     */
-    public void apply(Action<Configuration> action) {
-        this.actions.add(action);
-    }
+	/**
+	 * Applies the given {@code action} to all of this container's {@link Configuration
+	 * Configurations}.
+	 * @param action the action to apply
+	 */
+	public void apply(Action<Configuration> action) {
+		this.actions.add(action);
+	}
 
-    /**
-     * A callback capable of configuring a {@link Configuration}.
-     */
-    public interface ConfigurationConfigurer {
+	/**
+	 * A callback capable of configuring a {@link Configuration}.
+	 */
+	public interface ConfigurationConfigurer {
 
-        /**
-         * Configure the given {@code configuration}.
-         *
-         * @param configuration the {@code Configuration} to configure
-         */
-        void configure(Configuration configuration);
+		/**
+		 * Configure the given {@code configuration}.
+		 * @param configuration the {@code Configuration} to configure
+		 */
+		void configure(Configuration configuration);
 
-    }
+	}
 
 }

@@ -17,10 +17,10 @@ dependencyManagement {
 
 task importedProperties {
 	doFirst {
-	    def output = new File("${buildDir}/imported-properties.txt")
-	    output.parentFile.mkdirs()
-	    project.dependencyManagement.importedProperties.each { key, value ->
-	    	output << "${key} -> ${value}\n"
-	    }
+		def output = new File("${buildDir}/imported-properties.txt")
+		output.parentFile.mkdirs()
+		project.dependencyManagement.importedProperties.each { key, value ->
+			output << "${key} -> ${value}\n"
+		}
 	}
 }

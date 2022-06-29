@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,64 +26,59 @@ import java.util.Map;
  */
 public class Pom {
 
-    private final Coordinates coordinates;
+	private final Coordinates coordinates;
 
-    private final List<Dependency> managedDependencies;
+	private final List<Dependency> managedDependencies;
 
-    private final List<Dependency> dependencies;
+	private final List<Dependency> dependencies;
 
-    private final Map<String, String> properties;
+	private final Map<String, String> properties;
 
-    /**
-     * Creates a new pom.
-     *
-     * @param coordinates the coordinates of the pom
-     * @param managedDependencies the managed dependencies
-     * @param dependencies the dependencies
-     * @param properties the properties
-     */
-    public Pom(Coordinates coordinates, List<Dependency> managedDependencies,
-               List<Dependency> dependencies, Map<String, String> properties) {
-        this.coordinates = coordinates;
-        this.managedDependencies = managedDependencies;
-        this.dependencies = dependencies;
-        this.properties = properties;
-    }
+	/**
+	 * Creates a new pom.
+	 * @param coordinates the coordinates of the pom
+	 * @param managedDependencies the managed dependencies
+	 * @param dependencies the dependencies
+	 * @param properties the properties
+	 */
+	public Pom(Coordinates coordinates, List<Dependency> managedDependencies, List<Dependency> dependencies,
+			Map<String, String> properties) {
+		this.coordinates = coordinates;
+		this.managedDependencies = managedDependencies;
+		this.dependencies = dependencies;
+		this.properties = properties;
+	}
 
-    /**
-     * Returns the pom's managed dependencies.
-     *
-     * @return the managed dependencies
-     */
-    public List<Dependency> getManagedDependencies() {
-        return this.managedDependencies;
-    }
+	/**
+	 * Returns the pom's managed dependencies.
+	 * @return the managed dependencies
+	 */
+	public List<Dependency> getManagedDependencies() {
+		return this.managedDependencies;
+	}
 
-    /**
-     * Returns the pom's properties.
-     *
-     * @return the properties
-     */
-    public Map<String, String> getProperties() {
-        return this.properties;
-    }
+	/**
+	 * Returns the pom's properties.
+	 * @return the properties
+	 */
+	public Map<String, String> getProperties() {
+		return this.properties;
+	}
 
-    /**
-     * Returns the pom's coordinates.
-     *
-     * @return the coordinates
-     */
-    public Coordinates getCoordinates() {
-        return this.coordinates;
-    }
+	/**
+	 * Returns the pom's coordinates.
+	 * @return the coordinates
+	 */
+	public Coordinates getCoordinates() {
+		return this.coordinates;
+	}
 
-    /**
-     * Returns the pom's dependencies.
-     *
-     * @return the dependencies
-     */
-    public List<Dependency> getDependencies() {
-        return this.dependencies;
-    }
+	/**
+	 * Returns the pom's dependencies.
+	 * @return the dependencies
+	 */
+	public List<Dependency> getDependencies() {
+		return this.dependencies;
+	}
 
 }

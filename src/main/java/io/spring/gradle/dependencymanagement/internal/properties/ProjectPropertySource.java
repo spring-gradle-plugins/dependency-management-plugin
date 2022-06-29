@@ -26,29 +26,28 @@ import org.gradle.api.Project;
  */
 public class ProjectPropertySource implements PropertySource {
 
-    private final Project project;
+	private final Project project;
 
-    /**
-     * Creates a new {@link ProjectPropertySource} backed by the given {@code project}.
-     *
-     * @param project the project
-     */
-    public ProjectPropertySource(Project project) {
-        this.project = project;
-    }
+	/**
+	 * Creates a new {@link ProjectPropertySource} backed by the given {@code project}.
+	 * @param project the project
+	 */
+	public ProjectPropertySource(Project project) {
+		this.project = project;
+	}
 
-    @Override
-    public String getProperty(String name) {
-        if ("version".equals(name)) {
-            return null;
-        }
-        if (this.project.hasProperty(name)) {
-            Object property = this.project.property(name);
-            if (property != null) {
-                return property.toString();
-            }
-        }
-        return null;
-    }
+	@Override
+	public String getProperty(String name) {
+		if ("version".equals(name)) {
+			return null;
+		}
+		if (this.project.hasProperty(name)) {
+			Object property = this.project.property(name);
+			if (property != null) {
+				return property.toString();
+			}
+		}
+		return null;
+	}
 
 }

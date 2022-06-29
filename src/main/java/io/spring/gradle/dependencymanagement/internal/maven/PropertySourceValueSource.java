@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,16 +26,16 @@ import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.A
  */
 class PropertySourceValueSource extends AbstractValueSource {
 
-    private final PropertySource propertySource;
+	private final PropertySource propertySource;
 
-    PropertySourceValueSource(PropertySource propertySource) {
-        super(false);
-        this.propertySource = propertySource;
-    }
+	PropertySourceValueSource(PropertySource propertySource) {
+		super(false);
+		this.propertySource = propertySource;
+	}
 
-    @Override
-    public Object getValue(String name) {
-        return this.propertySource.getProperty(name);
-    }
+	@Override
+	public Object getValue(String name) {
+		return this.propertySource.getProperty(name);
+	}
 
 }

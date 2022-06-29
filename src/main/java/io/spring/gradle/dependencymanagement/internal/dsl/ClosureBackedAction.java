@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,22 +27,22 @@ import org.gradle.api.Action;
  */
 class ClosureBackedAction<T> implements Action<T> {
 
-    private final Closure closure;
+	private final Closure closure;
 
-    ClosureBackedAction(Closure closure) {
-        this.closure = closure;
-    }
+	ClosureBackedAction(Closure closure) {
+		this.closure = closure;
+	}
 
-    @Override
-    public void execute(T delegate) {
-        this.closure.setResolveStrategy(Closure.DELEGATE_FIRST);
-        this.closure.setDelegate(delegate);
-        if (this.closure.getMaximumNumberOfParameters() == 0) {
-            this.closure.call();
-        }
-        else {
-            this.closure.call(delegate);
-        }
-    }
+	@Override
+	public void execute(T delegate) {
+		this.closure.setResolveStrategy(Closure.DELEGATE_FIRST);
+		this.closure.setDelegate(delegate);
+		if (this.closure.getMaximumNumberOfParameters() == 0) {
+			this.closure.call();
+		}
+		else {
+			this.closure.call(delegate);
+		}
+	}
 
 }

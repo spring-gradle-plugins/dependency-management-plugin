@@ -9,6 +9,6 @@ repositories {
 
 dependencyManagement {
 	dependencies {
-	    dependency 'a:1.0'
+		dependency 'a:1.0'
 	}
 }

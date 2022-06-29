@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,20 +25,19 @@ import java.util.Map;
  */
 public class MapPropertySource implements PropertySource {
 
-    private final Map<String, ? extends Object> properties;
+	private final Map<String, ? extends Object> properties;
 
-    /**
-     * Creates a new {@code MapPropertySource} backed by the given {@map}.
-     *
-     * @param map the map
-     */
-    public MapPropertySource(Map<String, ? extends Object> map) {
-        this.properties = map;
-    }
+	/**
+	 * Creates a new {@code MapPropertySource} backed by the given {@map}.
+	 * @param map the map
+	 */
+	public MapPropertySource(Map<String, ? extends Object> map) {
+		this.properties = map;
+	}
 
-    @Override
-    public Object getProperty(String name) {
-        return this.properties.get(name);
-    }
+	@Override
+	public Object getProperty(String name) {
+		return this.properties.get(name);
+	}
 
 }

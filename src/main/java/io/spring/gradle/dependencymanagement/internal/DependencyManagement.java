@@ -21,12 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.gradle.api.GradleException;
-import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
@@ -34,166 +28,175 @@ import io.spring.gradle.dependencymanagement.internal.pom.PomReference;
 import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
 import io.spring.gradle.dependencymanagement.internal.properties.ProjectPropertySource;
 import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
+import org.gradle.api.GradleException;
+import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Encapsulates dependency management information for a particular configuration in a Gradle project.
+ * Encapsulates dependency management information for a particular configuration in a
+ * Gradle project.
  *
  * @author Andy Wilkinson
  */
 public class DependencyManagement {
 
-    private static final Logger logger = LoggerFactory.getLogger(DependencyManagement.class);
+	private static final Logger logger = LoggerFactory.getLogger(DependencyManagement.class);
 
-    private final Project project;
+	private final Project project;
 
-    private final Configuration targetConfiguration;
+	private final Configuration targetConfiguration;
 
-    private final PomResolver pomResolver;
+	private final PomResolver pomResolver;
 
-    private boolean resolved;
+	private boolean resolved;
 
-    private final Map<String, String> versions = new HashMap<String, String>();
+	private final Map<String, String> versions = new HashMap<String, String>();
 
-    private final Map<String, String> explicitVersions = new HashMap<String, String>();
+	private final Map<String, String> explicitVersions = new HashMap<String, String>();
 
-    private final Exclusions explicitExclusions = new Exclusions();
+	private final Exclusions explicitExclusions = new Exclusions();
 
-    private final Exclusions allExclusions = new Exclusions();
+	private final Exclusions allExclusions = new Exclusions();
 
-    private final Map<String, String> bomProperties = new HashMap<String, String>();
+	private final Map<String, String> bomProperties = new HashMap<String, String>();
 
-    private final List<PomReference> importedBoms = new ArrayList<PomReference>();
+	private final List<PomReference> importedBoms = new ArrayList<PomReference>();
 
-    DependencyManagement(Project project, PomResolver pomResolver) {
-        this(project, null, pomResolver);
-    }
+	DependencyManagement(Project project, PomResolver pomResolver) {
+		this(project, null, pomResolver);
+	}
 
-    DependencyManagement(Project project, Configuration targetConfiguration, PomResolver pomResolver) {
-        this.project = project;
-        this.pomResolver = pomResolver;
-        this.targetConfiguration = targetConfiguration;
-    }
+	DependencyManagement(Project project, Configuration targetConfiguration, PomResolver pomResolver) {
+		this.project = project;
+		this.pomResolver = pomResolver;
+		this.targetConfiguration = targetConfiguration;
+	}
 
-    void importBom(Coordinates coordinates, PropertySource properties) {
-        this.importedBoms.add(new PomReference(coordinates, properties));
-    }
+	void importBom(Coordinates coordinates, PropertySource properties) {
+		this.importedBoms.add(new PomReference(coordinates, properties));
+	}
 
-    List<PomReference> getImportedBomReferences() {
-        return this.importedBoms;
-    }
+	List<PomReference> getImportedBomReferences() {
+		return this.importedBoms;
+	}
 
-    Map<String, String> getImportedProperties() {
-        resolveIfNecessary();
-        return this.bomProperties;
-    }
+	Map<String, String> getImportedProperties() {
+		resolveIfNecessary();
+		return this.bomProperties;
+	}
 
-    void addImplicitManagedVersion(String group, String name, String version) {
-        this.versions.put(createKey(group, name), version);
-    }
+	void addImplicitManagedVersion(String group, String name, String version) {
+		this.versions.put(createKey(group, name), version);
+	}
 
-    void addExplicitManagedVersion(String group, String name, String version, List<Exclusion>
-            exclusions) {
-        String key = createKey(group, name);
-        this.explicitVersions.put(key, version);
-        this.explicitExclusions.add(key, exclusions);
-        this.allExclusions.add(key, exclusions);
-        addImplicitManagedVersion(group, name, version);
-    }
+	void addExplicitManagedVersion(String group, String name, String version, List<Exclusion> exclusions) {
+		String key = createKey(group, name);
+		this.explicitVersions.put(key, version);
+		this.explicitExclusions.add(key, exclusions);
+		this.allExclusions.add(key, exclusions);
+		addImplicitManagedVersion(group, name, version);
+	}
 
-    String getManagedVersion(String group, String name) {
-        resolveIfNecessary();
-        return this.versions.get(createKey(group, name));
-    }
+	String getManagedVersion(String group, String name) {
+		resolveIfNecessary();
+		return this.versions.get(createKey(group, name));
+	}
 
-    Map<String, String> getManagedVersions() {
-        resolveIfNecessary();
-        return new HashMap<String, String>(this.versions);
-    }
+	Map<String, String> getManagedVersions() {
+		resolveIfNecessary();
+		return new HashMap<String, String>(this.versions);
+	}
 
-    /**
-     * Returns the managed dependencies.
-     *
-     * @return the managed dependencies
-     */
-    public List<Dependency> getManagedDependencies() {
-        List<Dependency> managedDependencies = new ArrayList<Dependency>();
-        for (Map.Entry<String, String> entry: this.explicitVersions.entrySet()) {
-            String[] components = entry.getKey().split(":");
-            managedDependencies.add(new Dependency(new Coordinates(components[0], components[1],
-                    entry.getValue()), this.explicitExclusions.exclusionsForDependency(entry.getKey())));
-        }
-        return managedDependencies;
-    }
+	/**
+	 * Returns the managed dependencies.
+	 * @return the managed dependencies
+	 */
+	public List<Dependency> getManagedDependencies() {
+		List<Dependency> managedDependencies = new ArrayList<Dependency>();
+		for (Map.Entry<String, String> entry : this.explicitVersions.entrySet()) {
+			String[] components = entry.getKey().split(":");
+			managedDependencies.add(new Dependency(new Coordinates(components[0], components[1], entry.getValue()),
+					this.explicitExclusions.exclusionsForDependency(entry.getKey())));
+		}
+		return managedDependencies;
+	}
 
-    private String createKey(String group, String name) {
-        return group + ":" + name;
-    }
+	private String createKey(String group, String name) {
+		return group + ":" + name;
+	}
 
-    Exclusions getExclusions() {
-        resolveIfNecessary();
-        return this.allExclusions;
-    }
+	Exclusions getExclusions() {
+		resolveIfNecessary();
+		return this.allExclusions;
+	}
 
-    private void resolveIfNecessary() {
-        if (!this.importedBoms.isEmpty() && !this.resolved) {
-            try {
-                this.resolved = true;
-                resolve();
-            }
-            catch (Exception ex) {
-                throw new GradleException("Failed to resolve imported Maven boms: " +
-                        getRootCause(ex).getMessage(), ex);
-            }
-        }
-    }
+	private void resolveIfNecessary() {
+		if (!this.importedBoms.isEmpty() && !this.resolved) {
+			try {
+				this.resolved = true;
+				resolve();
+			}
+			catch (Exception ex) {
+				throw new GradleException("Failed to resolve imported Maven boms: " + getRootCause(ex).getMessage(),
+						ex);
+			}
+		}
+	}
 
-    private Throwable getRootCause(Exception ex) {
-        Throwable candidate = ex;
-        while (candidate.getCause() != null) {
-            candidate = candidate.getCause();
-        }
-        return candidate;
-    }
+	private Throwable getRootCause(Exception ex) {
+		Throwable candidate = ex;
+		while (candidate.getCause() != null) {
+			candidate = candidate.getCause();
+		}
+		return candidate;
+	}
 
-    private void resolve() {
-        if (this.targetConfiguration != null) {
-            logger.info("Resolving dependency management for configuration '{}' of project '{}'",
-                    this.targetConfiguration.getName(), this.project.getName());
-        }
-        else {
-            logger.info("Resolving global dependency management for project '{}'", this.project.getName());
-        }
-        Map<String, String> existingVersions = new HashMap<String, String>();
-        existingVersions.putAll(this.versions);
+	private void resolve() {
+		if (this.targetConfiguration != null) {
+			logger.info("Resolving dependency management for configuration '{}' of project '{}'",
+					this.targetConfiguration.getName(), this.project.getName());
+		}
+		else {
+			logger.info("Resolving global dependency management for project '{}'", this.project.getName());
+		}
+		Map<String, String> existingVersions = new HashMap<String, String>();
+		existingVersions.putAll(this.versions);
 
-        logger.debug("Preserving existing versions: {}", existingVersions);
+		logger.debug("Preserving existing versions: {}", existingVersions);
 
-        List<Pom> resolvedBoms = this.pomResolver.resolvePoms(this.importedBoms, new ProjectPropertySource(this.project));
+		List<Pom> resolvedBoms = this.pomResolver.resolvePoms(this.importedBoms,
+				new ProjectPropertySource(this.project));
 
-        for (Pom resolvedBom: resolvedBoms) {
-            for (Dependency dependency : resolvedBom.getManagedDependencies()) {
-                if (isEmpty(dependency.getClassifier())) {
-                    Coordinates coordinates = dependency.getCoordinates();
-                    if (isEmpty(coordinates.getVersion())) {
-                        String bomId = resolvedBom.getCoordinates().getGroupId() + ":" + resolvedBom.getCoordinates().getArtifactId() + ":" + resolvedBom.getCoordinates().getVersion();
-                        logger.warn("Dependency management for " + coordinates.getGroupId() + ":" + coordinates.getArtifactId() + " in bom " + bomId + " has no version and will be ignored.");
-                    }
-                    else {
-                        this.versions.put(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
-                                coordinates.getVersion());
-                        this.allExclusions.add(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
-                                dependency.getExclusions());
-                    }
-                }
-            }
-            this.bomProperties.putAll(resolvedBom.getProperties());
-        }
+		for (Pom resolvedBom : resolvedBoms) {
+			for (Dependency dependency : resolvedBom.getManagedDependencies()) {
+				if (isEmpty(dependency.getClassifier())) {
+					Coordinates coordinates = dependency.getCoordinates();
+					if (isEmpty(coordinates.getVersion())) {
+						String bomId = resolvedBom.getCoordinates().getGroupId() + ":"
+								+ resolvedBom.getCoordinates().getArtifactId() + ":"
+								+ resolvedBom.getCoordinates().getVersion();
+						logger.warn("Dependency management for " + coordinates.getGroupId() + ":"
+								+ coordinates.getArtifactId() + " in bom " + bomId
+								+ " has no version and will be ignored.");
+					}
+					else {
+						this.versions.put(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
+								coordinates.getVersion());
+						this.allExclusions.add(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
+								dependency.getExclusions());
+					}
+				}
+			}
+			this.bomProperties.putAll(resolvedBom.getProperties());
+		}
 
-        this.versions.putAll(existingVersions);
-    }
+		this.versions.putAll(existingVersions);
+	}
 
-    private boolean isEmpty(String string) {
-        return string == null || string.trim().length() == 0;
-    }
+	private boolean isEmpty(String string) {
+		return string == null || string.trim().length() == 0;
+	}
 
 }

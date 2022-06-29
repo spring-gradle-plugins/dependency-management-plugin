@@ -8,20 +8,20 @@ repositories {
 }
 
 dependencyManagement {
-    imports {
-        mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
-    }
+	imports {
+		mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+	}
 }
 dependencies {
-    compile 'org.springframework:spring-core'
-    compile 'org.apache.hive:hive-common:0.14.0'
+	compile 'org.springframework:spring-core'
+	compile 'org.apache.hive:hive-common:0.14.0'
 }
 
 task resolve {
 	doFirst {
-	    def files = project.configurations.compile.resolve()
-	    def output = new File("${buildDir}/resolved.txt")
-	    output.parentFile.mkdirs()
-	    files.collect { it.name }.each { output << "${it}\n" }
+		def files = project.configurations.compile.resolve()
+		def output = new File("${buildDir}/resolved.txt")
+		output.parentFile.mkdirs()
+		files.collect { it.name }.each { output << "${it}\n" }
 	}
 }

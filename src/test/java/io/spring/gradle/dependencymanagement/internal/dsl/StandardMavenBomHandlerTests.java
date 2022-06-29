@@ -32,20 +32,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class StandardMavenBomHandlerTests {
 
-    private final StandardMavenBomHandler handler = new StandardMavenBomHandler();
+	private final StandardMavenBomHandler handler = new StandardMavenBomHandler();
 
-    @Test
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void bomPropertiesCanBeConfiguredUsingAMapContainingGString() {
-        Map properties = new HashMap();
-        properties.put(gstring("example.version"), gstring("1.0"));
-        this.handler.bomProperties(properties);
-        Object version = this.handler.getBomProperties().getProperty("example.version");
-        assertThat(version).isInstanceOf(String.class).isEqualTo("1.0");
-    }
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void bomPropertiesCanBeConfiguredUsingAMapContainingGString() {
+		Map properties = new HashMap();
+		properties.put(gstring("example.version"), gstring("1.0"));
+		this.handler.bomProperties(properties);
+		Object version = this.handler.getBomProperties().getProperty("example.version");
+		assertThat(version).isInstanceOf(String.class).isEqualTo("1.0");
+	}
 
-    private GString gstring(String string) {
-        return new GStringImpl(new Object[0], new String[] {string});
-    }
+	private GString gstring(String string) {
+		return new GStringImpl(new Object[0], new String[] { string });
+	}
 
 }

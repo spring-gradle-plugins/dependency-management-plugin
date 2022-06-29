@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,52 +26,53 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Support class for configuring the {@code org.gradle.category} attribute on a {@link ModuleDependency}
- * with a value of {@code platform}. The configuration is done reflectively as the necessary APIs are not available
- * in the version of Gradle against which the code is compiled.
+ * Support class for configuring the {@code org.gradle.category} attribute on a
+ * {@link ModuleDependency} with a value of {@code platform}. The configuration is done
+ * reflectively as the necessary APIs are not available in the version of Gradle against
+ * which the code is compiled.
  * <p/>
- * Configuring the attribute works around a problem in Gradle 5 that prevents resolution of a pom for which Gradle 5 has
- * been used to publish Gradle module metadata. The problem does not occur with Gradle 6 as it ignores metadata
- * published by Gradle 5.
+ * Configuring the attribute works around a problem in Gradle 5 that prevents resolution
+ * of a pom for which Gradle 5 has been used to publish Gradle module metadata. The
+ * problem does not occur with Gradle 6 as it ignores metadata published by Gradle 5.
  *
  * @author Andy Wilkinson
  */
 class PlatformCategoryAttributeConfigurer {
 
-    private static final Logger logger = LoggerFactory.getLogger(PlatformCategoryAttributeConfigurer.class);
+	private static final Logger logger = LoggerFactory.getLogger(PlatformCategoryAttributeConfigurer.class);
 
-    void configureCategoryAttribute(Dependency dependency) {
-        if (!(dependency instanceof ModuleDependency) || !isGradle5()) {
-            return;
-        }
-        try {
-            Method attributes = dependency.getClass().getMethod("attributes", Action.class);
-            attributes.invoke(dependency, new Action<Object>() {
+	void configureCategoryAttribute(Dependency dependency) {
+		if (!(dependency instanceof ModuleDependency) || !isGradle5()) {
+			return;
+		}
+		try {
+			Method attributes = dependency.getClass().getMethod("attributes", Action.class);
+			attributes.invoke(dependency, new Action<Object>() {
 
-                @Override
-                public void execute(Object container) {
-                    try {
-                        Class<?> attributeClass = Class.forName("org.gradle.api.attributes.Attribute");
-                        Object attribute = attributeClass.getMethod("of", String.class, Class.class)
-                                .invoke(null, "org.gradle.category", String.class);
-                        Class.forName("org.gradle.api.attributes.AttributeContainer")
-                                .getMethod("attribute", attributeClass, Object.class)
-                                .invoke(container, attribute, "platform");
-                    }
-                    catch (Throwable ex) {
-                        logger.debug("Failed to configure platform attribute", ex);
-                    }
-                }
+				@Override
+				public void execute(Object container) {
+					try {
+						Class<?> attributeClass = Class.forName("org.gradle.api.attributes.Attribute");
+						Object attribute = attributeClass.getMethod("of", String.class, Class.class).invoke(null,
+								"org.gradle.category", String.class);
+						Class.forName("org.gradle.api.attributes.AttributeContainer")
+								.getMethod("attribute", attributeClass, Object.class)
+								.invoke(container, attribute, "platform");
+					}
+					catch (Throwable ex) {
+						logger.debug("Failed to configure platform attribute", ex);
+					}
+				}
 
-            });
-        }
-        catch (Throwable ex) {
-            logger.debug("Failed to configure platform attribute", ex);
-        }
-    }
+			});
+		}
+		catch (Throwable ex) {
+			logger.debug("Failed to configure platform attribute", ex);
+		}
+	}
 
-    private boolean isGradle5() {
-        return GradleVersion.current().getNextMajor().getVersion().startsWith("6.");
-    }
+	private boolean isGradle5() {
+		return GradleVersion.current().getNextMajor().getVersion().startsWith("6.");
+	}
 
 }

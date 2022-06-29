@@ -47,95 +47,95 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class NodeAssert extends AbstractAssert<NodeAssert, Node> {
 
-    private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
+	private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
 
-    private final XPathFactory xpathFactory = XPathFactory.newInstance();
+	private final XPathFactory xpathFactory = XPathFactory.newInstance();
 
-    private final XPath xpath = this.xpathFactory.newXPath();
+	private final XPath xpath = this.xpathFactory.newXPath();
 
-    public NodeAssert(String xmlContent) {
-        this(read(xmlContent));
-    }
+	public NodeAssert(String xmlContent) {
+		this(read(xmlContent));
+	}
 
-    private NodeAssert(Node actual) {
-        super(actual, NodeAssert.class);
-    }
+	private NodeAssert(Node actual) {
+		super(actual, NodeAssert.class);
+	}
 
-    public NodeAssert(File file) {
-        this(read(file));
-    }
+	public NodeAssert(File file) {
+		this(read(file));
+	}
 
-    private static String read(File file) {
-        FileReader reader = null;
-        try {
-            reader = new FileReader(file);
-            StringWriter writer = new StringWriter();
-            char[] buffer = new char[4096];
-            int read;
-            while ((read = reader.read(buffer)) > 0) {
-                writer.write(buffer, 0, read);
-            }
-            return writer.toString();
-        }
-        catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-        finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                }
-                catch (IOException ex2) {
-                    // Swallow
-                }
-            }
-        }
-    }
+	private static String read(File file) {
+		FileReader reader = null;
+		try {
+			reader = new FileReader(file);
+			StringWriter writer = new StringWriter();
+			char[] buffer = new char[4096];
+			int read;
+			while ((read = reader.read(buffer)) > 0) {
+				writer.write(buffer, 0, read);
+			}
+			return writer.toString();
+		}
+		catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
+		finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				}
+				catch (IOException ex2) {
+					// Swallow
+				}
+			}
+		}
+	}
 
-    private static Document read(String xmlContent) {
-        try {
-            return FACTORY.newDocumentBuilder()
-                    .parse(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
-        }
-        catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
+	private static Document read(String xmlContent) {
+		try {
+			return FACTORY.newDocumentBuilder()
+					.parse(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
+		}
+		catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
 
-    public NodeAssert nodeAtPath(String xpath) {
-        try {
-            return new NodeAssert((Node) this.xpath.evaluate(xpath, this.actual, XPathConstants.NODE));
-        }
-        catch (XPathExpressionException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
+	public NodeAssert nodeAtPath(String xpath) {
+		try {
+			return new NodeAssert((Node) this.xpath.evaluate(xpath, this.actual, XPathConstants.NODE));
+		}
+		catch (XPathExpressionException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
 
-    public AbstractListAssert<?, ? extends List<? extends Node>, Node> nodesAtPath(String xpath) {
-        try {
-            NodeList nodeList = (NodeList) this.xpath.evaluate(xpath, this.actual, XPathConstants.NODESET);
-            return assertThat(toList(nodeList));
-        }
-        catch (XPathExpressionException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
+	public AbstractListAssert<?, ? extends List<? extends Node>, Node> nodesAtPath(String xpath) {
+		try {
+			NodeList nodeList = (NodeList) this.xpath.evaluate(xpath, this.actual, XPathConstants.NODESET);
+			return assertThat(toList(nodeList));
+		}
+		catch (XPathExpressionException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
 
-    public AbstractCharSequenceAssert<?, String> textAtPath(String xpath) {
-        try {
-            return assertThat((String) this.xpath.evaluate(xpath + "/text()", this.actual, XPathConstants.STRING));
-        }
-        catch (XPathExpressionException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
+	public AbstractCharSequenceAssert<?, String> textAtPath(String xpath) {
+		try {
+			return assertThat((String) this.xpath.evaluate(xpath + "/text()", this.actual, XPathConstants.STRING));
+		}
+		catch (XPathExpressionException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
 
-    private static List<Node> toList(NodeList nodeList) {
-        List<Node> nodes = new ArrayList<Node>();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            nodes.add(nodeList.item(i));
-        }
-        return nodes;
-    }
+	private static List<Node> toList(NodeList nodeList) {
+		List<Node> nodes = new ArrayList<Node>();
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			nodes.add(nodeList.item(i));
+		}
+		return nodes;
+	}
 
 }

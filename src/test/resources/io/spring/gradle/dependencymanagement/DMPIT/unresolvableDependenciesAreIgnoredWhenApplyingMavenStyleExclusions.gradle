@@ -11,15 +11,15 @@ repositories {
 }
 
 dependencyManagement {
-    dependencies {
-        dependency('org.springframework:spring-core:4.0.3.RELEASE') {
-            exclude 'commons-logging:commons-logging'
-        }
-    }
+	dependencies {
+		dependency('org.springframework:spring-core:4.0.3.RELEASE') {
+			exclude 'commons-logging:commons-logging'
+		}
+	}
 }
 dependencies {
-    compile 'org.springframework:spring-core'
-    compile 'test:unresolvable-transitive-dependency:1.0'
+	compile 'org.springframework:spring-core'
+	compile 'test:unresolvable-transitive-dependency:1.0'
 }
 
 configurations {
@@ -28,9 +28,9 @@ configurations {
 
 task resolve {
 	doFirst {
-	    def files = project.configurations.compile.resolve()
-	    def output = new File("${buildDir}/resolved.txt")
-	    output.parentFile.mkdirs()
-	    files.collect { it.name }.each { output << "${it}\n" }
+		def files = project.configurations.compile.resolve()
+		def output = new File("${buildDir}/resolved.txt")
+		output.parentFile.mkdirs()
+		files.collect { it.name }.each { output << "${it}\n" }
 	}
 }

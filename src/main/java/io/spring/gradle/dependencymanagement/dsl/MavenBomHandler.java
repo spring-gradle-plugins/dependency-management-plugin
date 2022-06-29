@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,19 +26,17 @@ import java.util.Map;
  */
 public interface MavenBomHandler {
 
-    /**
-     * Configures a property to be used when resolving the contents of the imported bom.
-     *
-     * @param name the name of the property
-     * @param value the value of the property
-     */
-    void bomProperty(String name, String value);
+	/**
+	 * Configures a property to be used when resolving the contents of the imported bom.
+	 * @param name the name of the property
+	 * @param value the value of the property
+	 */
+	void bomProperty(String name, String value);
 
-    /**
-     * Configures properties to be used when resolving the contents of the imported bom.
-     *
-     * @param properties the properties
-     */
-    void bomProperties(Map<String, String> properties);
+	/**
+	 * Configures properties to be used when resolving the contents of the imported bom.
+	 * @param properties the properties
+	 */
+	void bomProperties(Map<String, String> properties);
 
 }

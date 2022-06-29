@@ -21,16 +21,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import groovy.lang.GString;
-import org.codehaus.groovy.runtime.GStringImpl;
-import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
-import org.junit.Test;
-
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencyHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencySetHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 import io.spring.gradle.dependencymanagement.internal.Exclusion;
+import org.codehaus.groovy.runtime.GStringImpl;
+import org.gradle.api.Action;
+import org.gradle.api.artifacts.Configuration;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -45,131 +44,135 @@ import static org.mockito.Mockito.mock;
  */
 public class StandardDependenciesHandlerTests {
 
-    private final DependencyManagementContainer container = mock(DependencyManagementContainer.class);
+	private final DependencyManagementContainer container = mock(DependencyManagementContainer.class);
 
-    private final Configuration configuration = mock(Configuration.class);
+	private final Configuration configuration = mock(Configuration.class);
 
-    private final DependenciesHandler handler = new StandardDependenciesHandler(container, configuration);
+	private final DependenciesHandler handler = new StandardDependenciesHandler(this.container, this.configuration);
 
-    @Test
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void dependencyCanBeConfiguredUseAMapWithGStringValues() {
-        Map dependencyId = new HashMap();
-        dependencyId.put("group", gstring("com.example"));
-        dependencyId.put("name", gstring("example"));
-        dependencyId.put("version", gstring("1.0"));
-        this.handler.dependency((Map<String, String>) dependencyId);
-        then(this.container).should().addManagedVersion(this.configuration, "com.example", "example", "1.0", Collections.<Exclusion>emptyList());
-    }
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void dependencyCanBeConfiguredUseAMapWithGStringValues() {
+		Map dependencyId = new HashMap();
+		dependencyId.put("group", gstring("com.example"));
+		dependencyId.put("name", gstring("example"));
+		dependencyId.put("version", gstring("1.0"));
+		this.handler.dependency(dependencyId);
+		then(this.container).should().addManagedVersion(this.configuration, "com.example", "example", "1.0",
+				Collections.<Exclusion>emptyList());
+	}
 
-    @Test
-    public void dependencyConfiguredWithAnEmptyArtifactIdIsRejected() {
-        try {
-            this.handler.dependency("com.example::1.0");
-            fail("Exception was not thrown");
-        }
-        catch (Exception ex) {
-            assertThat(ex.getMessage()).isEqualTo("Dependency identifier 'com.example::1.0' is malformed. The required form is 'group:name:version'");
-        }
-    }
+	@Test
+	public void dependencyConfiguredWithAnEmptyArtifactIdIsRejected() {
+		try {
+			this.handler.dependency("com.example::1.0");
+			fail("Exception was not thrown");
+		}
+		catch (Exception ex) {
+			assertThat(ex.getMessage()).isEqualTo(
+					"Dependency identifier 'com.example::1.0' is malformed. The required form is 'group:name:version'");
+		}
+	}
 
-    @Test
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void dependencySetCanBeConfiguredUseAMapWithGStringValues() {
-        Map dependencyId = new HashMap();
-        dependencyId.put("group", gstring("com.example"));
-        dependencyId.put("name", gstring("example"));
-        dependencyId.put("version", gstring("1.0"));
-        this.handler.dependency((Map<String, String>) dependencyId);
-        then(this.container).should().addManagedVersion(this.configuration, "com.example", "example", "1.0", Collections.<Exclusion>emptyList());
-    }
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void dependencySetCanBeConfiguredUseAMapWithGStringValues() {
+		Map dependencyId = new HashMap();
+		dependencyId.put("group", gstring("com.example"));
+		dependencyId.put("name", gstring("example"));
+		dependencyId.put("version", gstring("1.0"));
+		this.handler.dependency(dependencyId);
+		then(this.container).should().addManagedVersion(this.configuration, "com.example", "example", "1.0",
+				Collections.<Exclusion>emptyList());
+	}
 
-    @Test
-    public void aDependencySetConfiguredUsingAMapWithoutAGroupIsRejected() {
-        Map<String, String> setId = new HashMap<String, String>();
-        setId.put("version", "1.7.7");
-        try {
-            this.handler.dependencySet(setId, (Action<DependencySetHandler>) null);
-            fail("Exception was not thrown");
-        }
-        catch (Exception ex) {
-            assertThat(ex.getMessage()).isEqualTo("A dependency set requires both a group and a version");
-        }
-    }
+	@Test
+	public void aDependencySetConfiguredUsingAMapWithoutAGroupIsRejected() {
+		Map<String, String> setId = new HashMap<String, String>();
+		setId.put("version", "1.7.7");
+		try {
+			this.handler.dependencySet(setId, (Action<DependencySetHandler>) null);
+			fail("Exception was not thrown");
+		}
+		catch (Exception ex) {
+			assertThat(ex.getMessage()).isEqualTo("A dependency set requires both a group and a version");
+		}
+	}
 
-    @Test
-    public void aDependencySetConfiguredUsingAMapWithoutAVersionIsRejected() {
-        Map<String, String> setId = new HashMap<String, String>();
-        setId.put("group", "com.example");
-        try {
-            this.handler.dependencySet(setId, (Action<DependencySetHandler>) null);
-            fail("Exception was not thrown");
-        }
-        catch (Exception ex) {
-            assertThat(ex.getMessage()).isEqualTo("A dependency set requires both a group and a version");
-        }
-    }
+	@Test
+	public void aDependencySetConfiguredUsingAMapWithoutAVersionIsRejected() {
+		Map<String, String> setId = new HashMap<String, String>();
+		setId.put("group", "com.example");
+		try {
+			this.handler.dependencySet(setId, (Action<DependencySetHandler>) null);
+			fail("Exception was not thrown");
+		}
+		catch (Exception ex) {
+			assertThat(ex.getMessage()).isEqualTo("A dependency set requires both a group and a version");
+		}
+	}
 
-    @Test
-    public void anExclusionUsingAStringInTheWrongFormatIsRejected() {
-        try {
-            this.handler.dependency("com.example:example:1.0", new Action<DependencyHandler>() {
+	@Test
+	public void anExclusionUsingAStringInTheWrongFormatIsRejected() {
+		try {
+			this.handler.dependency("com.example:example:1.0", new Action<DependencyHandler>() {
 
-                @Override
-                public void execute(DependencyHandler dependencyHandler) {
-                    dependencyHandler.exclude("malformed");
-                }
+				@Override
+				public void execute(DependencyHandler dependencyHandler) {
+					dependencyHandler.exclude("malformed");
+				}
 
-            });
-            fail("Exception was not thrown");
-        }
-        catch (Exception ex) {
-            assertThat(ex.getMessage()).isEqualTo("Exclusion 'malformed' is malformed. The required form is 'group:name'");
-        }
-    }
+			});
+			fail("Exception was not thrown");
+		}
+		catch (Exception ex) {
+			assertThat(ex.getMessage())
+					.isEqualTo("Exclusion 'malformed' is malformed. The required form is 'group:name'");
+		}
+	}
 
-    @Test
-    public void anExclusionConfiguredUsingAMapWithoutANameIsRejected() {
-        try {
-            this.handler.dependency("com.example:example:1.0", new Action<DependencyHandler>() {
+	@Test
+	public void anExclusionConfiguredUsingAMapWithoutANameIsRejected() {
+		try {
+			this.handler.dependency("com.example:example:1.0", new Action<DependencyHandler>() {
 
-                @Override
-                public void execute(DependencyHandler dependencyHandler) {
-                    Map<String, String> exclusion = new HashMap<String, String>();
-                    exclusion.put("group", "com.example");
-                    dependencyHandler.exclude(exclusion);
-                }
+				@Override
+				public void execute(DependencyHandler dependencyHandler) {
+					Map<String, String> exclusion = new HashMap<String, String>();
+					exclusion.put("group", "com.example");
+					dependencyHandler.exclude(exclusion);
+				}
 
-            });
-            fail("Exception was not thrown");
-        }
-        catch (Exception ex) {
-            assertThat(ex.getMessage()).isEqualTo("An exclusion requires both a group and a name");
-        }
-    }
+			});
+			fail("Exception was not thrown");
+		}
+		catch (Exception ex) {
+			assertThat(ex.getMessage()).isEqualTo("An exclusion requires both a group and a name");
+		}
+	}
 
-    @Test
-    public void anExclusionConfiguredUsingAMapWithoutAGroupIsRejected() {
-        try {
-            this.handler.dependency("com.example:example:1.0", new Action<DependencyHandler>() {
+	@Test
+	public void anExclusionConfiguredUsingAMapWithoutAGroupIsRejected() {
+		try {
+			this.handler.dependency("com.example:example:1.0", new Action<DependencyHandler>() {
 
-                @Override
-                public void execute(DependencyHandler dependencyHandler) {
-                    Map<String, String> exclusion = new HashMap<String, String>();
-                    exclusion.put("name", "example-core");
-                    dependencyHandler.exclude(exclusion);
-                }
+				@Override
+				public void execute(DependencyHandler dependencyHandler) {
+					Map<String, String> exclusion = new HashMap<String, String>();
+					exclusion.put("name", "example-core");
+					dependencyHandler.exclude(exclusion);
+				}
 
-            });
-            fail("Exception was not thrown");
-        }
-        catch (Exception ex) {
-            assertThat(ex.getMessage()).isEqualTo("An exclusion requires both a group and a name");
-        }
-    }
+			});
+			fail("Exception was not thrown");
+		}
+		catch (Exception ex) {
+			assertThat(ex.getMessage()).isEqualTo("An exclusion requires both a group and a name");
+		}
+	}
 
-    private GString gstring(String string) {
-        return new GStringImpl(new Object[0], new String[] {string});
-    }
+	private GString gstring(String string) {
+		return new GStringImpl(new Object[0], new String[] { string });
+	}
 
 }

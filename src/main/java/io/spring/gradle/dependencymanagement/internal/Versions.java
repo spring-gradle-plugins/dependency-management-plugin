@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,20 +28,20 @@ import java.util.Set;
  */
 final class Versions {
 
-    private static final Set<String> DYNAMIC_PREFIXES = Collections.unmodifiableSet(
-            new HashSet<String>(Arrays.asList("latest.", "[", "]", "(")));
+	private static final Set<String> DYNAMIC_PREFIXES = Collections
+			.unmodifiableSet(new HashSet<String>(Arrays.asList("latest.", "[", "]", "(")));
 
-    private Versions() {
+	private Versions() {
 
-    }
+	}
 
-    static boolean isDynamic(String version) {
-        for (String dynamicPrefix: DYNAMIC_PREFIXES) {
-            if (version.startsWith(dynamicPrefix)) {
-                return true;
-            }
-        }
-        return version.endsWith("+");
-    }
+	static boolean isDynamic(String version) {
+		for (String dynamicPrefix : DYNAMIC_PREFIXES) {
+			if (version.startsWith(dynamicPrefix)) {
+				return true;
+			}
+		}
+		return version.endsWith("+");
+	}
 
 }

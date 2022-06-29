@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,26 +21,25 @@ import org.gradle.api.Action;
 import org.gradle.api.XmlProvider;
 
 /**
- * A {@code PomDependencyManagementConfigurer} is used to configure the dependency management of a Gradle-generated
- * Maven pom.
+ * A {@code PomDependencyManagementConfigurer} is used to configure the dependency
+ * management of a Gradle-generated Maven pom.
  *
  * @author Andy Wilkinson
  */
 public interface PomDependencyManagementConfigurer extends Action<XmlProvider> {
 
-    /**
-     * Configures the dependency management of the pom that's available from the given {@code xmlProvider}.
-     *
-     * @param xmlProvider the provider of the pom's XML
-     */
-    @Override
-    void execute(XmlProvider xmlProvider);
+	/**
+	 * Configures the dependency management of the pom that's available from the given
+	 * {@code xmlProvider}.
+	 * @param xmlProvider the provider of the pom's XML
+	 */
+	@Override
+	void execute(XmlProvider xmlProvider);
 
-    /**
-     * Configures the dependency management of the given {@code pom}.
-     *
-     * @param pom the pom to configure
-     */
-    void configurePom(Node pom);
+	/**
+	 * Configures the dependency management of the given {@code pom}.
+	 * @param pom the pom to configure
+	 */
+	void configurePom(Node pom);
 
 }
