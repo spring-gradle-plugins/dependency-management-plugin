@@ -1,22 +1,19 @@
 = Dependency Management Plugin
 Andy Wilkinson
 :doctype: book
-:icons: font
-:source-highlighter: highlight.js
-:highlightjsdir: js/highlight
-:highlightjs-theme: atom-one-dark-reasonable
+:idprefix:
+:idseparator: -
 :toc: left
 :toclevels: 4
-:docinfo: shared
-:stylesdir: css
-:stylesheet: style.css
-:linkcss: true
-:sectanchors: true
-:sectlinks:
-
+:tabsize: 4
+:numbered:
+:sectanchors:
+:sectnums:
+:hide-uri-scheme:
+:docinfo: shared,private
+:attribute-missing: warn
 :github: https://github.com/spring-gradle-plugins/dependency-management-plugin
 :platform-docs: https://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle
-:source: {github}/tree/{branch-or-tag}
 
 [[abstract]]
 A Gradle plugin that provides Maven-like dependency management and exclusions

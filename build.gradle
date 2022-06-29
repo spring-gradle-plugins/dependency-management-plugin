@@ -67,7 +67,7 @@ task mavenRepackJar(type: Jar) { repackJar ->
 }
 
 dependencies {
-	asciidoctorExt 'io.spring.asciidoctor:spring-asciidoctor-extensions:0.1.2.RELEASE'
+	asciidoctorExt 'io.spring.asciidoctor.backends:spring-asciidoctor-backends:0.0.3'
 
 	checkstyle 'io.spring.javaformat:spring-javaformat-checkstyle:0.0.34'
 
@@ -83,10 +83,6 @@ dependencies {
 	testImplementation "org.assertj:assertj-core:1.7.1"
 	testImplementation "org.mockito:mockito-core:2.28.2"
 	testImplementation "junit:junit:4.13.2"
-}
-
-asciidoctor {
-	configurations 'asciidoctorExt'
 }
 
 jar {
@@ -131,16 +127,17 @@ task prepareAsciidocBuild(type: Sync) {
 	into "$buildDir/asciidoc/src"
 }
 
+asciidoctorj {
+	fatalWarnings ".*"
+}
+
 asciidoctor {
 	dependsOn 'prepareAsciidocBuild'
 	sourceDir "$buildDir/asciidoc/src"
-	sources {
-		include 'index.adoc'
-	}
-	resources {
-		from(sourceDir) {
-			include 'css/**', 'js/**'
-		}
+	baseDirFollowsSourceDir()
+	configurations 'asciidoctorExt'
+	outputOptions {
+		backends "spring-html"
 	}
 }
 
