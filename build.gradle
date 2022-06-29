@@ -73,8 +73,6 @@ dependencies {
 
 	implementation(files(mavenRepackJar))
 
-	docs 'io.spring.docresources:spring-doc-resources:0.1.0.RELEASE@zip'
-
 	jarjar "org.gradle.jarjar:jarjar:$jarjarVersion"
 
 	maven "org.apache.maven:maven-model-builder:$mavenVersion"
@@ -116,24 +114,11 @@ javadoc {
 	}
 }
 
-task prepareAsciidocBuild(type: Sync) {
-	from {
-		configurations.docs.collect { zipTree(it) }
-	}
-	from 'src/docs/asciidoc/'
-	from ('src/docs/css/') {
-		into "css"
-	}
-	into "$buildDir/asciidoc/src"
-}
-
 asciidoctorj {
 	fatalWarnings ".*"
 }
 
 asciidoctor {
-	dependsOn 'prepareAsciidocBuild'
-	sourceDir "$buildDir/asciidoc/src"
 	baseDirFollowsSourceDir()
 	configurations 'asciidoctorExt'
 	outputOptions {
