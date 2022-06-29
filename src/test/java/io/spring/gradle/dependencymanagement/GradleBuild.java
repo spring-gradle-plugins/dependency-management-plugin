@@ -23,8 +23,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
 
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.rules.TemporaryFolder;
@@ -51,13 +49,10 @@ public class GradleBuild implements TestRule {
 
 			@Override
 			public void evaluate() throws Throwable {
-				List<File> pluginClasspath = Arrays.asList(new File("build/classes/main").getAbsoluteFile(),
-						new File("build/resources/main").getAbsoluteFile(),
-						new File("build/libs/maven-repack-3.0.4.jar").getAbsoluteFile());
-				GradleBuild.this.runner = GradleRunner.create().withPluginClasspath(pluginClasspath)
-						.withProjectDir(GradleBuild.this.temporaryFolder.getRoot());
-				GradleBuild.this.runner
-						.withArguments("-PmavenRepo=" + new File("src/test/resources/maven-repo").getAbsolutePath());
+				GradleBuild.this.runner = GradleRunner.create().withPluginClasspath()
+						.withProjectDir(GradleBuild.this.temporaryFolder.getRoot())
+						.withArguments("-PmavenRepo=" + new File("src/test/resources/maven-repo").getAbsolutePath())
+						.withDebug(true);
 				Class<?> testClass = description.getTestClass();
 				String methodName = description.getMethodName();
 				if (methodName.contains("[")) {
