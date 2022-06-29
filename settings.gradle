@@ -2,7 +2,19 @@ pluginManagement {
 	repositories {
 		gradlePluginPortal()
 		mavenCentral()
+		maven {
+			name "Spring Release"
+			url "https://repo.spring.io/release"
+			content {
+				includeGroup "io.spring.ge.conventions"
+			}
+		}
 	}
+}
+
+plugins {
+	id "com.gradle.enterprise" version "3.10.2"
+	id "io.spring.ge.conventions" version "0.0.10"
 }
 
 rootProject.name = 'dependency-management-plugin'
