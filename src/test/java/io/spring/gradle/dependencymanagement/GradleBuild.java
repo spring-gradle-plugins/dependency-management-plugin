@@ -16,64 +16,52 @@
 
 package io.spring.gradle.dependencymanagement;
 
-import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
 
 import org.gradle.testkit.runner.GradleRunner;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
+import org.junit.jupiter.api.extension.ExtensionContext.Store;
+import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource;
 
 /**
- * JUnit rule to ease running a Gradle build in a test. Creates a {@link GradleRunner}
- * pre-configured with a project directory that contains a build script found by
- * convention using the test's class name and method name.
+ * JUnit Extension to ease running a Gradle build in a test. Creates a
+ * {@link GradleRunner} pre-configured with a project directory that contains a build
+ * script found by convention using the test's class name and method name.
  *
  * @author Andy Wilkinson
  */
-public class GradleBuild implements TestRule {
-
-	private final TemporaryFolder temporaryFolder = new TemporaryFolder();
+public class GradleBuild implements BeforeEachCallback {
 
 	private GradleRunner runner = null;
 
 	@Override
-	public Statement apply(final Statement base, final Description description) {
-		return this.temporaryFolder.apply(new Statement() {
-
-			@Override
-			public void evaluate() throws Throwable {
-				GradleBuild.this.runner = GradleRunner.create().withPluginClasspath()
-						.withProjectDir(GradleBuild.this.temporaryFolder.getRoot())
-						.withArguments("-PmavenRepo=" + new File("src/test/resources/maven-repo").getAbsolutePath());
-				Class<?> testClass = description.getTestClass();
-				String methodName = description.getMethodName();
-				if (methodName.contains("[")) {
-					methodName = methodName.substring(0, methodName.indexOf('['));
-				}
-				InputStream input = testClass.getResourceAsStream(initials(testClass) + "/" + methodName + ".gradle");
-				if (input == null) {
-					throw new IllegalStateException(
-							"No build script found for " + testClass.getName() + " " + methodName);
-				}
-				copy(input, GradleBuild.this.temporaryFolder.newFile("build.gradle"));
-				copyRecursively(new File("src/test/resources/maven-repo"),
-						GradleBuild.this.temporaryFolder.newFolder("maven-repo"));
-				try {
-					base.evaluate();
-				}
-				finally {
-					GradleBuild.this.runner = null;
-				}
-
-			}
-		}, description);
+	public void beforeEach(ExtensionContext context) throws Exception {
+		Store store = context.getStore(Namespace.create(GradleBuild.class));
+		Project project = new Project();
+		store.put("project", project);
+		this.runner = GradleRunner.create().withPluginClasspath().withProjectDir(project.dir.toFile())
+				.withArguments("-PmavenRepo=" + new File("src/test/resources/maven-repo").getAbsolutePath());
+		Class<?> testClass = context.getRequiredTestClass();
+		String methodName = context.getRequiredTestMethod().getName();
+		InputStream input = testClass.getResourceAsStream(initials(testClass) + "/" + methodName + ".gradle");
+		if (input == null) {
+			throw new IllegalStateException("No build script found for " + testClass.getName() + " " + methodName);
+		}
+		Files.copy(input, project.dir.resolve("build.gradle"));
+		copyRecursively(Paths.get("src", "test", "resources", "maven-repo"), project.dir.resolve("maven-repo"));
 	}
 
 	private String initials(Class<?> type) {
@@ -91,57 +79,60 @@ public class GradleBuild implements TestRule {
 		return this.runner;
 	}
 
-	public static void copyRecursively(File src, File dest) throws IOException {
-		doCopyRecursively(src, dest);
-	}
+	public static void copyRecursively(Path src, Path dest) throws IOException {
+		BasicFileAttributes srcAttr = Files.readAttributes(src, BasicFileAttributes.class);
 
-	private static void doCopyRecursively(File src, File dest) throws IOException {
-		if (src.isDirectory()) {
-			dest.mkdir();
-			File[] entries = src.listFiles();
-			for (File entry : entries) {
-				doCopyRecursively(entry, new File(dest, entry.getName()));
-			}
-		}
-		else {
-			copy(new FileInputStream(src), dest);
-		}
-	}
+		if (srcAttr.isDirectory()) {
+			Files.walkFileTree(src, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+					new SimpleFileVisitor<Path>() {
 
-	private static void copy(InputStream input, File target) {
-		try {
-			copy(input, new FileOutputStream(target));
-		}
-		catch (IOException ex) {
-		}
-	}
+						@Override
+						public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+								throws IOException {
+							Files.createDirectories(dest.resolve(src.relativize(dir)));
+							return FileVisitResult.CONTINUE;
+						}
 
-	private static void copy(InputStream input, OutputStream output) {
-		try {
-			byte[] buffer = new byte[4096];
-			int read;
-			while ((read = input.read(buffer)) > 0) {
-				output.write(buffer, 0, read);
-			}
+						@Override
+						public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+							Files.copy(file, dest.resolve(src.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+							return FileVisitResult.CONTINUE;
+						}
+
+					});
 		}
-		catch (IOException ex) {
-			throw new RuntimeException(ex);
-		}
-		finally {
-			closeQuietly(input);
-			closeQuietly(output);
+		else if (srcAttr.isRegularFile()) {
+			Files.copy(src, dest);
 		}
 	}
 
-	private static void closeQuietly(Closeable closeable) {
-		if (closeable != null) {
-			try {
-				closeable.close();
-			}
-			catch (IOException ex) {
-				// Swallow
-			}
+	private static final class Project implements CloseableResource {
+
+		private final Path dir;
+
+		private Project() throws IOException {
+			this.dir = Files.createTempDirectory("gradle-build-");
 		}
+
+		@Override
+		public void close() throws Throwable {
+			Files.walkFileTree(this.dir, new SimpleFileVisitor<Path>() {
+
+				@Override
+				public FileVisitResult postVisitDirectory(Path path, IOException ex) throws IOException {
+					Files.delete(path);
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult visitFile(Path path, BasicFileAttributes ex) throws IOException {
+					Files.delete(path);
+					return FileVisitResult.CONTINUE;
+				}
+
+			});
+		}
+
 	}
 
 }

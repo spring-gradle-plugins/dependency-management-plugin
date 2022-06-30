@@ -1,11 +1,12 @@
 plugins {
-	id 'java'
-	id 'maven-publish'
 	id 'checkstyle'
+	id 'eclipse'
 	id 'java-gradle-plugin'
-	id 'org.asciidoctor.jvm.convert' version '3.3.2'
-	id 'io.spring.nohttp' version '0.0.10'
+	id 'maven-publish'
+
 	id 'io.spring.javaformat' version '0.0.34'
+	id 'io.spring.nohttp' version '0.0.10'
+	id 'org.asciidoctor.jvm.convert' version '3.3.2'
 }
 
 apply from: 'publish-maven.gradle'
@@ -30,8 +31,19 @@ ext {
 	mavenVersion = '3.0.4'
 }
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+compileJava {
+	sourceCompatibility = 1.6
+	targetCompatibility = 1.6
+}
+
+compileTestJava {
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+}
+
+test {
+	useJUnitPlatform()
+}
 
 gradlePlugin {
 	plugins {
@@ -78,9 +90,9 @@ dependencies {
 	maven "org.apache.maven:maven-model-builder:$mavenVersion"
 
 	testImplementation "cglib:cglib-nodep:$cglibVersion"
-	testImplementation "org.assertj:assertj-core:1.7.1"
-	testImplementation "org.mockito:mockito-core:2.28.2"
-	testImplementation "junit:junit:4.13.2"
+	testImplementation "org.assertj:assertj-core:3.23.1"
+	testImplementation "org.mockito:mockito-core:4.6.1"
+	testImplementation "org.junit.jupiter:junit-jupiter:5.8.2"
 }
 
 jar {

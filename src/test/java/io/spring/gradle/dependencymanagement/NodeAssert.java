@@ -17,11 +17,8 @@
 package io.spring.gradle.dependencymanagement;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,20 +29,19 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.api.AbstractCharSequenceAssert;
-import org.assertj.core.api.AbstractListAssert;
+import org.assertj.core.api.AssertProvider;
+import org.assertj.core.api.ListAssert;
+import org.assertj.core.api.StringAssert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * AssertJ {@link AssertProvider} for {@link Node} assertions.
  *
  * @author Andy Wilkinson
  */
-public class NodeAssert extends AbstractAssert<NodeAssert, Node> {
+public class NodeAssert extends AbstractAssert<NodeAssert, Node> implements AssertProvider<NodeAssert> {
 
 	private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
 
@@ -53,42 +49,24 @@ public class NodeAssert extends AbstractAssert<NodeAssert, Node> {
 
 	private final XPath xpath = this.xpathFactory.newXPath();
 
+	public NodeAssert(Path xmlFile) {
+		this(read(xmlFile));
+	}
+
 	public NodeAssert(String xmlContent) {
 		this(read(xmlContent));
 	}
 
-	private NodeAssert(Node actual) {
+	public NodeAssert(Node actual) {
 		super(actual, NodeAssert.class);
 	}
 
-	public NodeAssert(File file) {
-		this(read(file));
-	}
-
-	private static String read(File file) {
-		FileReader reader = null;
+	private static Document read(Path xmlFile) {
 		try {
-			reader = new FileReader(file);
-			StringWriter writer = new StringWriter();
-			char[] buffer = new char[4096];
-			int read;
-			while ((read = reader.read(buffer)) > 0) {
-				writer.write(buffer, 0, read);
-			}
-			return writer.toString();
+			return FACTORY.newDocumentBuilder().parse(xmlFile.toFile());
 		}
-		catch (IOException ex) {
+		catch (Exception ex) {
 			throw new RuntimeException(ex);
-		}
-		finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				}
-				catch (IOException ex2) {
-					// Swallow
-				}
-			}
 		}
 	}
 
@@ -111,27 +89,33 @@ public class NodeAssert extends AbstractAssert<NodeAssert, Node> {
 		}
 	}
 
-	public AbstractListAssert<?, ? extends List<? extends Node>, Node> nodesAtPath(String xpath) {
+	public ListAssert<Node> nodesAtPath(String xpath) {
 		try {
 			NodeList nodeList = (NodeList) this.xpath.evaluate(xpath, this.actual, XPathConstants.NODESET);
-			return assertThat(toList(nodeList));
+			return new ListAssert<>(toList(nodeList));
 		}
 		catch (XPathExpressionException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
 
-	public AbstractCharSequenceAssert<?, String> textAtPath(String xpath) {
+	public StringAssert textAtPath(String xpath) {
 		try {
-			return assertThat((String) this.xpath.evaluate(xpath + "/text()", this.actual, XPathConstants.STRING));
+			return new StringAssert(
+					(String) this.xpath.evaluate(xpath + "/text()", this.actual, XPathConstants.STRING));
 		}
 		catch (XPathExpressionException ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	@Override
+	public NodeAssert assertThat() {
+		return this;
 	}
 
 	private static List<Node> toList(NodeList nodeList) {
-		List<Node> nodes = new ArrayList<Node>();
+		List<Node> nodes = new ArrayList<>();
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			nodes.add(nodeList.item(i));
 		}

@@ -22,14 +22,13 @@ import java.util.Map;
 
 import groovy.lang.GString;
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
-import io.spring.gradle.dependencymanagement.dsl.DependencyHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencySetHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 import io.spring.gradle.dependencymanagement.internal.Exclusion;
 import org.codehaus.groovy.runtime.GStringImpl;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -42,7 +41,7 @@ import static org.mockito.Mockito.mock;
  * @author Andy Wilkinson
  *
  */
-public class StandardDependenciesHandlerTests {
+class StandardDependenciesHandlerTests {
 
 	private final DependencyManagementContainer container = mock(DependencyManagementContainer.class);
 
@@ -52,7 +51,7 @@ public class StandardDependenciesHandlerTests {
 
 	@Test
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void dependencyCanBeConfiguredUseAMapWithGStringValues() {
+	void dependencyCanBeConfiguredUseAMapWithGStringValues() {
 		Map dependencyId = new HashMap();
 		dependencyId.put("group", gstring("com.example"));
 		dependencyId.put("name", gstring("example"));
@@ -63,7 +62,7 @@ public class StandardDependenciesHandlerTests {
 	}
 
 	@Test
-	public void dependencyConfiguredWithAnEmptyArtifactIdIsRejected() {
+	void dependencyConfiguredWithAnEmptyArtifactIdIsRejected() {
 		try {
 			this.handler.dependency("com.example::1.0");
 			fail("Exception was not thrown");
@@ -76,7 +75,7 @@ public class StandardDependenciesHandlerTests {
 
 	@Test
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void dependencySetCanBeConfiguredUseAMapWithGStringValues() {
+	void dependencySetCanBeConfiguredUseAMapWithGStringValues() {
 		Map dependencyId = new HashMap();
 		dependencyId.put("group", gstring("com.example"));
 		dependencyId.put("name", gstring("example"));
@@ -87,8 +86,8 @@ public class StandardDependenciesHandlerTests {
 	}
 
 	@Test
-	public void aDependencySetConfiguredUsingAMapWithoutAGroupIsRejected() {
-		Map<String, String> setId = new HashMap<String, String>();
+	void aDependencySetConfiguredUsingAMapWithoutAGroupIsRejected() {
+		Map<String, String> setId = new HashMap<>();
 		setId.put("version", "1.7.7");
 		try {
 			this.handler.dependencySet(setId, (Action<DependencySetHandler>) null);
@@ -100,8 +99,8 @@ public class StandardDependenciesHandlerTests {
 	}
 
 	@Test
-	public void aDependencySetConfiguredUsingAMapWithoutAVersionIsRejected() {
-		Map<String, String> setId = new HashMap<String, String>();
+	void aDependencySetConfiguredUsingAMapWithoutAVersionIsRejected() {
+		Map<String, String> setId = new HashMap<>();
 		setId.put("group", "com.example");
 		try {
 			this.handler.dependencySet(setId, (Action<DependencySetHandler>) null);
@@ -113,16 +112,10 @@ public class StandardDependenciesHandlerTests {
 	}
 
 	@Test
-	public void anExclusionUsingAStringInTheWrongFormatIsRejected() {
+	void anExclusionUsingAStringInTheWrongFormatIsRejected() {
 		try {
-			this.handler.dependency("com.example:example:1.0", new Action<DependencyHandler>() {
-
-				@Override
-				public void execute(DependencyHandler dependencyHandler) {
-					dependencyHandler.exclude("malformed");
-				}
-
-			});
+			this.handler.dependency("com.example:example:1.0",
+					(dependencyHandler) -> dependencyHandler.exclude("malformed"));
 			fail("Exception was not thrown");
 		}
 		catch (Exception ex) {
@@ -132,17 +125,12 @@ public class StandardDependenciesHandlerTests {
 	}
 
 	@Test
-	public void anExclusionConfiguredUsingAMapWithoutANameIsRejected() {
+	void anExclusionConfiguredUsingAMapWithoutANameIsRejected() {
 		try {
-			this.handler.dependency("com.example:example:1.0", new Action<DependencyHandler>() {
-
-				@Override
-				public void execute(DependencyHandler dependencyHandler) {
-					Map<String, String> exclusion = new HashMap<String, String>();
-					exclusion.put("group", "com.example");
-					dependencyHandler.exclude(exclusion);
-				}
-
+			this.handler.dependency("com.example:example:1.0", (dependencyHandler) -> {
+				Map<String, String> exclusion = new HashMap<>();
+				exclusion.put("group", "com.example");
+				dependencyHandler.exclude(exclusion);
 			});
 			fail("Exception was not thrown");
 		}
@@ -152,17 +140,12 @@ public class StandardDependenciesHandlerTests {
 	}
 
 	@Test
-	public void anExclusionConfiguredUsingAMapWithoutAGroupIsRejected() {
+	void anExclusionConfiguredUsingAMapWithoutAGroupIsRejected() {
 		try {
-			this.handler.dependency("com.example:example:1.0", new Action<DependencyHandler>() {
-
-				@Override
-				public void execute(DependencyHandler dependencyHandler) {
-					Map<String, String> exclusion = new HashMap<String, String>();
-					exclusion.put("name", "example-core");
-					dependencyHandler.exclude(exclusion);
-				}
-
+			this.handler.dependency("com.example:example:1.0", (dependencyHandler) -> {
+				Map<String, String> exclusion = new HashMap<>();
+				exclusion.put("name", "example-core");
+				dependencyHandler.exclude(exclusion);
 			});
 			fail("Exception was not thrown");
 		}

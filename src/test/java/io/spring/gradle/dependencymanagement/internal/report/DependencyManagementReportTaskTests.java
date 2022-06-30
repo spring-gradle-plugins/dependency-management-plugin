@@ -24,7 +24,7 @@ import io.spring.gradle.dependencymanagement.internal.maven.MavenPomResolver;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.testfixtures.ProjectBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -36,16 +36,16 @@ import static org.mockito.Mockito.mock;
  *
  * @author Andy Wilkinson
  */
-public class DependencyManagementReportTaskTests {
+class DependencyManagementReportTaskTests {
 
-	private Project project = ProjectBuilder.builder().build();
+	private final Project project = ProjectBuilder.builder().build();
 
-	private DependencyManagementReportTask task = this.project.getTasks().create("dependencyManagement",
+	private final DependencyManagementReportTask task = this.project.getTasks().create("dependencyManagement",
 			DependencyManagementReportTask.class);
 
-	private DependencyManagementReportRenderer renderer = mock(DependencyManagementReportRenderer.class);
+	private final DependencyManagementReportRenderer renderer = mock(DependencyManagementReportRenderer.class);
 
-	public DependencyManagementReportTaskTests() {
+	DependencyManagementReportTaskTests() {
 		this.task.setDependencyManagementContainer(new DependencyManagementContainer(this.project,
 				new MavenPomResolver(this.project, new DependencyManagementConfigurationContainer(this.project))));
 		this.task.setRenderer(this.renderer);
@@ -53,7 +53,7 @@ public class DependencyManagementReportTaskTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void basicReport() {
+	void basicReport() {
 		this.task.report();
 		then(this.renderer).should().startProject(this.project);
 		then(this.renderer).should().renderGlobalManagedVersions(any(Map.class));
@@ -62,7 +62,7 @@ public class DependencyManagementReportTaskTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void reportForProjectWithConfigurations() {
+	void reportForProjectWithConfigurations() {
 		Configuration configurationOne = this.project.getConfigurations().create("second");
 		Configuration configurationTwo = this.project.getConfigurations().create("first");
 		this.task.report();

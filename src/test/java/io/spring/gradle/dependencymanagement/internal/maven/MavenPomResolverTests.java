@@ -26,11 +26,9 @@ import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
 import io.spring.gradle.dependencymanagement.internal.pom.PomReference;
 import io.spring.gradle.dependencymanagement.internal.properties.MapPropertySource;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.testfixtures.ProjectBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,34 +38,28 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Wilkinson
  *
  */
-public class MavenPomResolverTests {
+class MavenPomResolverTests {
 
 	private final Project project = ProjectBuilder.builder().build();
 
 	private final MavenPomResolver resolver = new MavenPomResolver(this.project,
 			new DependencyManagementConfigurationContainer(this.project));
 
-	public MavenPomResolverTests() {
+	MavenPomResolverTests() {
 		this.project.getRepositories().mavenCentral();
-		this.project.getRepositories().maven(new Action<MavenArtifactRepository>() {
-
-			@Override
-			public void execute(MavenArtifactRepository repository) {
-				repository.setUrl(new File("src/test/resources/maven-repo").getAbsoluteFile());
-			}
-
-		});
+		this.project.getRepositories()
+				.maven((repository) -> repository.setUrl(new File("src/test/resources/maven-repo").getAbsoluteFile()));
 	}
 
 	@Test
-	public void pomCanBeResolvedLenientlyWhenItIsOnlyMaven20Compatibile() {
+	void pomCanBeResolvedLenientlyWhenItIsOnlyMaven20Compatibile() {
 		PomReference reference = new PomReference(new Coordinates("log4j", "log4j", "1.2.16"));
 		List<Pom> result = this.resolver.resolvePomsLeniently(Arrays.asList(reference));
 		assertThat(result).hasSize(1);
 	}
 
 	@Test
-	public void pomCanBeResolvedWhenItIsOnlyMaven20Compatibile() {
+	void pomCanBeResolvedWhenItIsOnlyMaven20Compatibile() {
 		PomReference reference = new PomReference(new Coordinates("log4j", "log4j", "1.2.16"));
 		List<Pom> result = this.resolver.resolvePoms(Arrays.asList(reference),
 				new MapPropertySource(Collections.<String, String>emptyMap()));
@@ -75,7 +67,7 @@ public class MavenPomResolverTests {
 	}
 
 	@Test
-	public void pomThatResultsInAModelBuildingExceptionCanStillBeResolved() {
+	void pomThatResultsInAModelBuildingExceptionCanStillBeResolved() {
 		PomReference reference = new PomReference(new Coordinates("test", "illegal-system-path", "1.0"));
 		List<Pom> result = this.resolver.resolvePoms(Arrays.asList(reference),
 				new MapPropertySource(Collections.<String, String>emptyMap()));

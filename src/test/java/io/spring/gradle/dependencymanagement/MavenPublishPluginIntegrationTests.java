@@ -16,43 +16,45 @@
 
 package io.spring.gradle.dependencymanagement;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for interacting with the {@link MavenPublishPlugin}.
  *
  * @author Andy Wilkinson
  */
-public class MavenPublishPluginIntegrationTests {
+class MavenPublishPluginIntegrationTests {
 
-	@Rule
-	public final GradleBuild gradleBuild = new GradleBuild();
+	@RegisterExtension
+	private final GradleBuild gradleBuild = new GradleBuild();
 
 	@Test
-	public void generatedPomsAreCustomized() {
+	void generatedPomsAreCustomized() {
 		this.gradleBuild.runner().withArguments("generatePom").build();
-		assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNotNull();
+		assertThat(generatedPom()).nodeAtPath("//dependencyManagement").isNotNull();
 	}
 
 	@Test
-	public void customizationOfGeneratedPomsCanBeDisabled() {
+	void customizationOfGeneratedPomsCanBeDisabled() {
 		this.gradleBuild.runner().withArguments("generatePom").build();
-		assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNull();
+		assertThat(generatedPom()).nodeAtPath("//dependencyManagement").isNull();
 	}
 
 	@Test
-	public void usingImportedPropertiesDoesNotPreventFurtherConfigurationOfThePublishingExtension() {
+	void usingImportedPropertiesDoesNotPreventFurtherConfigurationOfThePublishingExtension() {
 		this.gradleBuild.runner().withArguments("generatePom").build();
-		assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNotNull();
+		assertThat(generatedPom()).nodeAtPath("//dependencyManagement").isNotNull();
 	}
 
-	private NodeAssert assertThatGeneratedPom() {
-		return new NodeAssert(
-				new File(this.gradleBuild.runner().getProjectDir(), "build/publications/mavenJava/pom-default.xml"));
+	private NodeAssert generatedPom() {
+		return new NodeAssert(this.gradleBuild.runner().getProjectDir().toPath()
+				.resolve(Paths.get("build", "publications", "mavenJava", "pom-default.xml")));
 	}
 
 }

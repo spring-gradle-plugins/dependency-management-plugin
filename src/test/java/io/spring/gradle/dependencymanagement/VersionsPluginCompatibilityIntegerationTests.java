@@ -18,8 +18,8 @@ package io.spring.gradle.dependencymanagement;
 
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.TaskOutcome;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,13 +29,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-public class VersionsPluginCompatibilityIntegerationTests {
+class VersionsPluginCompatibilityIntegerationTests {
 
-	@Rule
-	public final GradleBuild gradleBuild = new GradleBuild();
+	@RegisterExtension
+	private final GradleBuild gradleBuild = new GradleBuild();
 
 	@Test
-	public void versionsPluginReportsUpgradesForDependenciesWithManagedVersions() {
+	void versionsPluginReportsUpgradesForDependenciesWithManagedVersions() {
 		BuildResult result = this.gradleBuild.runner().withArguments("dependencyUpdates").build();
 		assertThat(result.task(":dependencyUpdates").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
 		assertThat(result.getOutput()).contains("commons-logging:commons-logging [1.1.3 ->");

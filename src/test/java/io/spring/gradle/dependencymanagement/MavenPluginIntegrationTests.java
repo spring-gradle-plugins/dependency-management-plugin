@@ -16,42 +16,46 @@
 
 package io.spring.gradle.dependencymanagement;
 
-import java.io.File;
+import java.nio.file.Paths;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for interacting with the {@link org.gradle.api.plugins.MavenPlugin}.
  *
  * @author Andy Wilkinson
  */
-public class MavenPluginIntegrationTests {
+class MavenPluginIntegrationTests {
 
-	@Rule
-	public final GradleBuild gradleBuild = new GradleBuild();
+	@RegisterExtension
+	private final GradleBuild gradleBuild = new GradleBuild();
 
 	@Test
-	public void generatedPomsAreCustomized() {
+	void generatedPomsAreCustomized() {
 		this.gradleBuild.runner().withArguments("install").build();
-		assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNotNull();
+		assertThat(generatedPom()).nodeAtPath("//dependencyManagement").isNotNull();
 	}
 
 	@Test
-	public void customizationOfGeneratedPomsCanBeDisabled() {
+	void customizationOfGeneratedPomsCanBeDisabled() {
 		this.gradleBuild.runner().withArguments("install").build();
-		assertThatGeneratedPom().nodeAtPath("//dependencyManagement").isNull();
+		assertThat(generatedPom()).nodeAtPath("//dependencyManagement").isNull();
 	}
 
 	@Test
-	public void pomCustomizationDoesNotStopCustomConfToScopeMappingsFromWorking() {
+	void pomCustomizationDoesNotStopCustomConfToScopeMappingsFromWorking() {
 		this.gradleBuild.runner().withArguments("install").build();
-		assertThatGeneratedPom().textAtPath("/project/dependencies/dependency[groupId/text()='commons-logging']/scope")
+		assertThat(generatedPom())
+				.textAtPath("/project/dependencies/dependency[groupId/text()='commons-logging']/scope")
 				.isEqualTo("compile");
 	}
 
-	private NodeAssert assertThatGeneratedPom() {
-		return new NodeAssert(new File(this.gradleBuild.runner().getProjectDir(), "build/poms/pom-default.xml"));
+	private NodeAssert generatedPom() {
+		return new NodeAssert(this.gradleBuild.runner().getProjectDir().toPath()
+				.resolve(Paths.get("build", "poms", "pom-default.xml")));
 	}
 
 }

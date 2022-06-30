@@ -16,13 +16,14 @@
 
 package io.spring.gradle.dependencymanagement;
 
+import java.io.File;
+
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,33 +32,33 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-public class DependencyManagementPluginTests {
+class DependencyManagementPluginTests {
 
-	@Rule
-	public TemporaryFolder temp = new TemporaryFolder();
+	@TempDir
+	private File projectDir;
 
 	private Project project;
 
-	@Before
-	public void setUp() {
-		this.project = ProjectBuilder.builder().withProjectDir(this.temp.getRoot()).build();
+	@BeforeEach
+	void setUp() {
+		this.project = ProjectBuilder.builder().withProjectDir(this.projectDir).build();
 	}
 
 	@Test
-	public void whenPluginIsAppliedThenDependencyManagementExtensionIsAdded() {
+	void whenPluginIsAppliedThenDependencyManagementExtensionIsAdded() {
 		this.project.getPlugins().apply(DependencyManagementPlugin.class);
 		assertThat(this.project.getExtensions().findByType(DependencyManagementExtension.class)).isNotNull();
 	}
 
 	@Test
-	public void whenPluginIsAppliedThenPomConfigurerIsAvailable() {
+	void whenPluginIsAppliedThenPomConfigurerIsAvailable() {
 		this.project.getPlugins().apply(DependencyManagementPlugin.class);
 		assertThat(this.project.getExtensions().findByType(DependencyManagementExtension.class).getPomConfigurer())
 				.isNotNull();
 	}
 
 	@Test
-	public void whenPluginIsAppliedThenDependencyManagementReportTaskIsAdded() {
+	void whenPluginIsAppliedThenDependencyManagementReportTaskIsAdded() {
 		this.project.getPlugins().apply(DependencyManagementPlugin.class);
 		assertThat(this.project.getTasks().findByName("dependencyManagement")).isNotNull();
 	}

@@ -18,7 +18,7 @@ package io.spring.gradle.dependencymanagement.internal.properties;
 
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,31 +27,31 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-public class ProjectPropertySourceTests {
+class ProjectPropertySourceTests {
 
 	private final Project project = ProjectBuilder.builder().build();
 
 	private final ProjectPropertySource propertySource = new ProjectPropertySource(this.project);
 
 	@Test
-	public void nullIsReturnedWhenProjectDoesNotHaveAProperty() {
+	void nullIsReturnedWhenProjectDoesNotHaveAProperty() {
 		assertThat(this.propertySource.getProperty("does.not.exist")).isNull();
 	}
 
 	@Test
-	public void propertyIsReturnedWhenProjectHasProperty() {
+	void propertyIsReturnedWhenProjectHasProperty() {
 		this.project.getExtensions().getExtraProperties().set("alpha", "a");
 		assertThat(this.propertySource.getProperty("alpha")).isEqualTo("a");
 	}
 
 	@Test
-	public void nullIsReturnedWhenProjectHasProperty() {
+	void nullIsReturnedWhenProjectHasProperty() {
 		this.project.getExtensions().getExtraProperties().set("alpha", null);
 		assertThat(this.propertySource.getProperty("alpha")).isNull();
 	}
 
 	@Test
-	public void nullIsReturnedWhenVersionPropertyIsRetrieved() {
+	void nullIsReturnedWhenVersionPropertyIsRetrieved() {
 		this.project.setVersion("1.2.3");
 		assertThat(this.propertySource.getProperty("version")).isNull();
 	}

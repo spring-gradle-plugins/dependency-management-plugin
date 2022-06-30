@@ -30,7 +30,7 @@ import java.util.Map;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.testfixtures.ProjectBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Wilkinson
  *
  */
-public class DependencyManagementReportRendererTests {
+class DependencyManagementReportRendererTests {
 
 	private final StringWriter textOutput = new StringWriter();
 
@@ -48,7 +48,7 @@ public class DependencyManagementReportRendererTests {
 			new PrintWriter(this.textOutput));
 
 	@Test
-	public void projectHeaderForRootProject() {
+	void projectHeaderForRootProject() {
 		Project rootProject = ProjectBuilder.builder().build();
 		this.renderer.startProject(rootProject);
 		assertThat(outputLines()).containsExactly("", "------------------------------------------------------------",
@@ -56,7 +56,7 @@ public class DependencyManagementReportRendererTests {
 	}
 
 	@Test
-	public void projectHeaderForSubproject() {
+	void projectHeaderForSubproject() {
 		Project subproject = ProjectBuilder.builder().withParent(ProjectBuilder.builder().build()).withName("alpha")
 				.build();
 		this.renderer.startProject(subproject);
@@ -65,7 +65,7 @@ public class DependencyManagementReportRendererTests {
 	}
 
 	@Test
-	public void projectHeaderForSubprojectWithDescription() {
+	void projectHeaderForSubprojectWithDescription() {
 		Project subproject = ProjectBuilder.builder().withParent(ProjectBuilder.builder().build()).withName("alpha")
 				.build();
 		subproject.setDescription("description of alpha project");
@@ -76,15 +76,15 @@ public class DependencyManagementReportRendererTests {
 	}
 
 	@Test
-	public void globalDependencyManagementWithNoManagedVersions() {
+	void globalDependencyManagementWithNoManagedVersions() {
 		this.renderer.renderGlobalManagedVersions(Collections.<String, String>emptyMap());
 		assertThat(outputLines()).containsExactly("global - Default dependency management for all configurations",
 				"No dependency management", "");
 	}
 
 	@Test
-	public void globalDependencyManagementWithManagedVersions() {
-		Map<String, String> managedVersions = new HashMap<String, String>();
+	void globalDependencyManagementWithManagedVersions() {
+		Map<String, String> managedVersions = new HashMap<>();
 		managedVersions.put("com.example:bravo", "1.0.0");
 		managedVersions.put("com.example:alpha", "1.2.3");
 		this.renderer.renderGlobalManagedVersions(managedVersions);
@@ -93,7 +93,7 @@ public class DependencyManagementReportRendererTests {
 	}
 
 	@Test
-	public void configurationDependencyManagementWitNoManagedVersionsAtAll() {
+	void configurationDependencyManagementWitNoManagedVersionsAtAll() {
 		Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
 		this.renderer.renderConfigurationManagedVersions(Collections.<String, String>emptyMap(), configuration,
 				Collections.<String, String>emptyMap());
@@ -102,7 +102,7 @@ public class DependencyManagementReportRendererTests {
 	}
 
 	@Test
-	public void configurationDependencyManagementWithOnlyGlobalManagedVersions() {
+	void configurationDependencyManagementWithOnlyGlobalManagedVersions() {
 		Map<String, String> managedVersions = Collections.singletonMap("a:b", "1.0");
 		Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
 		this.renderer.renderConfigurationManagedVersions(managedVersions, configuration, managedVersions);
@@ -111,8 +111,8 @@ public class DependencyManagementReportRendererTests {
 	}
 
 	@Test
-	public void configurationDependencyManagement() {
-		Map<String, String> managedVersions = new HashMap<String, String>();
+	void configurationDependencyManagement() {
+		Map<String, String> managedVersions = new HashMap<>();
 		managedVersions.put("com.example:bravo", "1.0.0");
 		managedVersions.put("com.example:alpha", "1.2.3");
 		Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
@@ -125,7 +125,7 @@ public class DependencyManagementReportRendererTests {
 	private List<String> outputLines() {
 		BufferedReader reader = new BufferedReader(new StringReader(this.textOutput.toString()));
 		String line;
-		List<String> lines = new ArrayList<String>();
+		List<String> lines = new ArrayList<>();
 		try {
 			while ((line = reader.readLine()) != null) {
 				lines.add(line);

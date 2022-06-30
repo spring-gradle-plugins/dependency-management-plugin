@@ -21,7 +21,7 @@ import java.util.Map;
 
 import groovy.lang.GString;
 import org.codehaus.groovy.runtime.GStringImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,13 +30,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
-public class StandardMavenBomHandlerTests {
+class StandardMavenBomHandlerTests {
 
 	private final StandardMavenBomHandler handler = new StandardMavenBomHandler();
 
 	@Test
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void bomPropertiesCanBeConfiguredUsingAMapContainingGString() {
+	void bomPropertiesCanBeConfiguredUsingAMapContainingGString() {
 		Map properties = new HashMap();
 		properties.put(gstring("example.version"), gstring("1.0"));
 		this.handler.bomProperties(properties);
