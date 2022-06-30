@@ -9,19 +9,6 @@ plugins {
 	id 'org.asciidoctor.jvm.convert' version '3.3.2'
 }
 
-apply from: 'publish-maven.gradle'
-
-checkstyle {
-	configFile = rootProject.file('config/checkstyle/checkstyle.xml')
-	configProperties = [ 'checkstyle.config.dir' : rootProject.file('config/checkstyle') ]
-}
-
-repositories {
-	mavenCentral()
-	maven { url 'https://repo.gradle.org/gradle/libs-releases' }
-	maven { url 'https://repo.spring.io/release' }
-}
-
 group = 'io.spring.gradle'
 description = 'Dependency Management Plugin'
 
@@ -31,18 +18,10 @@ ext {
 	mavenVersion = '3.0.4'
 }
 
-compileJava {
-	sourceCompatibility = 1.6
-	targetCompatibility = 1.6
-}
-
-compileTestJava {
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
-}
-
-test {
-	useJUnitPlatform()
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.gradle.org/gradle/libs-releases' }
+	maven { url 'https://repo.spring.io/release' }
 }
 
 gradlePlugin {
@@ -54,14 +33,18 @@ gradlePlugin {
 	}
 }
 
+checkstyle {
+	configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+	configProperties = [ 'checkstyle.config.dir' : rootProject.file('config/checkstyle') ]
+}
+
 configurations {
 	asciidoctorExt
-	docs
 	jarjar
 	maven
 }
 
-task mavenRepackJar(type: Jar) { repackJar ->
+def mavenRepackJar = tasks.register("mavenRepackJar", Jar) { repackJar ->
 	repackJar.archiveBaseName = "maven-repack"
 	repackJar.archiveVersion = mavenVersion
 
@@ -95,9 +78,27 @@ dependencies {
 	testImplementation "org.junit.jupiter:junit-jupiter:5.8.2"
 }
 
-jar {
-	dependsOn mavenRepackJar
-	from(zipTree(mavenRepackJar.archivePath)) {
+java {
+	withJavadocJar()
+	withSourcesJar()
+}
+
+tasks.named("compileJava").configure {
+	sourceCompatibility = 1.6
+	targetCompatibility = 1.6
+}
+
+tasks.named("compileTestJava").configure {
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+}
+
+tasks.named("test").configure {
+	useJUnitPlatform()
+}
+
+tasks.named("jar").configure {
+	from(zipTree(mavenRepackJar.map { it.archivePath })) {
 		include 'io/spring/gradle/**'
 		include 'META-INF/plexus/**'
 	}
@@ -112,12 +113,7 @@ jar {
 	}
 }
 
-java {
-	withJavadocJar()
-	withSourcesJar()
-}
-
-javadoc {
+tasks.named("javadoc").configure {
 	title = "$project.description $project.version API"
 	exclude 'io/spring/gradle/dependencymanagement/internal/**'
 	options {
@@ -130,7 +126,7 @@ asciidoctorj {
 	fatalWarnings ".*"
 }
 
-asciidoctor {
+tasks.named("asciidoctor").configure {
 	baseDirFollowsSourceDir()
 	configurations 'asciidoctorExt'
 	outputOptions {
@@ -138,18 +134,60 @@ asciidoctor {
 	}
 }
 
-task docsZip(type: Zip, dependsOn: [':asciidoctor', ':javadoc']) {
+tasks.register("docsZip", Zip) {
 	group = 'Distribution'
 	archiveBaseName = 'dependency-management-plugin'
 	archiveClassifier = 'docs'
 	description = "Builds docs archive containing API and reference documentation"
 	destinationDirectory = file("${project.buildDir}/distributions")
 
-	from("$asciidoctor.outputDir") {
+	from(tasks.named("asciidoctor")) {
 		into 'reference/html'
 	}
-
-	from(javadoc) {
+	from(tasks.named("javadoc")) {
 		into 'api'
 	}
 }
+
+publishing {
+	publications.all {
+		pom {
+			name = 'Dependency management plugin'
+			description = 'A Gradle plugin that provides Maven-like dependency management functionality'
+			url = 'https://github.com/spring-gradle-plugins/dependency-management-plugin'
+			organization {
+				name = 'Pivotal Software, Inc.'
+				url = 'https://spring.io'
+			}
+			licenses {
+				license {
+					name = 'The Apache Software License, Version 2.0'
+					url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+				}
+			}
+			scm {
+				url = 'https://github.com/spring-gradle-plugins/dependency-management-plugin'
+				connection = 'scm:git:https://github.com/spring-gradle-plugins/dependency-management-plugin'
+			}
+			developers {
+				developer {
+					id = 'wilkinsona'
+					name = 'Andy Wilkinson'
+					email = 'awilkinson@pivotal.io'
+					roles = ["Project lead"]
+				}
+			}
+		}
+		if (name == "pluginMaven") {
+			artifact tasks.named("docsZip")
+		}
+
+	}
+	if (project.hasProperty("deploymentRepository")) {
+		repositories.maven {
+			url = "$deploymentRepository"
+			name = "deployment"
+		}
+	}
+}
+
