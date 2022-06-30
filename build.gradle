@@ -27,6 +27,8 @@ repositories {
 gradlePlugin {
 	plugins {
 		dependencyManagement {
+			displayName = 'Dependency management plugin'
+			description = 'A Gradle plugin that provides Maven-like dependency management functionality'
 			id = 'io.spring.dependency-management'
 			implementationClass = 'io.spring.gradle.dependencymanagement.DependencyManagementPlugin'
 		}
