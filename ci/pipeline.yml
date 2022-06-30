@@ -8,6 +8,10 @@ anchors:
     username: ((docker-hub-username))
     password: ((docker-hub-password))
     tag: ((milestone))
+  gradle-enterprise-task-params: &gradle-enterprise-task-params
+    GRADLE_ENTERPRISE_ACCESS_KEY: ((gradle_enterprise_secret_access_key))
+    GRADLE_ENTERPRISE_CACHE_USERNAME: ((gradle_enterprise_cache_user.username))
+    GRADLE_ENTERPRISE_CACHE_PASSWORD: ((gradle_enterprise_cache_user.password))
   docker-hub-task-params: &docker-hub-task-params
     DOCKER_HUB_USERNAME: ((docker-hub-username))
     DOCKER_HUB_PASSWORD: ((docker-hub-password))
@@ -32,6 +36,7 @@ anchors:
     file: git-repo/ci/tasks/build-project.yml
     params:
       BRANCH: ((branch))
+      <<: *gradle-enterprise-task-params
       <<: *docker-hub-task-params
   artifactory-repo-put-params: &artifactory-repo-put-params
     signing_key: ((signing-key))
@@ -210,6 +215,7 @@ jobs:
     params:
       RELEASE_TYPE: M
       <<: *docker-hub-task-params
+      <<: *gradle-enterprise-task-params
   - put: artifactory-repo
     params:
       <<: *artifactory-repo-put-params
@@ -229,6 +235,7 @@ jobs:
     params:
       RELEASE_TYPE: RC
       <<: *docker-hub-task-params
+      <<: *gradle-enterprise-task-params
   - put: artifactory-repo
     params:
       <<: *artifactory-repo-put-params
@@ -248,6 +255,7 @@ jobs:
     params:
       RELEASE_TYPE: RELEASE
       <<: *docker-hub-task-params
+      <<: *gradle-enterprise-task-params
   - put: artifactory-repo
     params:
       <<: *artifactory-repo-put-params
