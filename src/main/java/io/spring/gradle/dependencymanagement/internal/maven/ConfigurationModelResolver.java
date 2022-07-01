@@ -43,13 +43,9 @@ class ConfigurationModelResolver implements ModelResolver {
 
 	private final DependencyManagementConfigurationContainer configurationContainer;
 
-	private final PlatformCategoryAttributeConfigurer attributeConfigurer;
-
-	ConfigurationModelResolver(Project project, DependencyManagementConfigurationContainer configurationContainer,
-			PlatformCategoryAttributeConfigurer attributeConfigurer) {
+	ConfigurationModelResolver(Project project, DependencyManagementConfigurationContainer configurationContainer) {
 		this.project = project;
 		this.configurationContainer = configurationContainer;
-		this.attributeConfigurer = attributeConfigurer;
 	}
 
 	@Override
@@ -66,7 +62,6 @@ class ConfigurationModelResolver implements ModelResolver {
 
 	private FileModelSource resolveModel(String coordinates) {
 		Dependency dependency = this.project.getDependencies().create(coordinates);
-		this.attributeConfigurer.configureCategoryAttribute(dependency);
 		Configuration configuration = this.configurationContainer.newConfiguration(dependency);
 		return new FileModelSource(configuration.resolve().iterator().next());
 	}

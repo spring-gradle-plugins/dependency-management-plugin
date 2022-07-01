@@ -49,9 +49,8 @@ final class EffectiveModelBuilder {
 
 	private final ModelResolver modelResolver;
 
-	EffectiveModelBuilder(Project project, DependencyManagementConfigurationContainer configurationContainer,
-			PlatformCategoryAttributeConfigurer attributeConfigurer) {
-		this.modelResolver = new ConfigurationModelResolver(project, configurationContainer, attributeConfigurer);
+	EffectiveModelBuilder(Project project, DependencyManagementConfigurationContainer configurationContainer) {
+		this.modelResolver = new ConfigurationModelResolver(project, configurationContainer);
 	}
 
 	List<Model> buildModels(List<ModelInput> inputs) {

@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import groovy.util.Node;
-import groovy.util.XmlParser;
+import groovy.xml.XmlParser;
 import groovy.xml.XmlUtil;
 import io.spring.gradle.dependencymanagement.NodeAssert;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;

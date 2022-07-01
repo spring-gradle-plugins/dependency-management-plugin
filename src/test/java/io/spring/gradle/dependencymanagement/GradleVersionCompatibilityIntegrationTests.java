@@ -40,25 +40,17 @@ class GradleVersionCompatibilityIntegrationTests {
 
 	@ParameterizedTest(name = "Gradle {0}")
 	@MethodSource("gradleVersions")
-	void pluginIsCompatible(String gradleVersion, String configuration) {
-		BuildResult result = this.gradleBuild.runner().withGradleVersion(gradleVersion)
-				.withArguments("-Pconfiguration=" + configuration, "resolve").build();
+	void pluginIsCompatible(String gradleVersion) {
+		BuildResult result = this.gradleBuild.runner().withGradleVersion(gradleVersion).withArguments("resolve")
+				.build();
 		assertThat(result.task(":resolve").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
 	}
 
 	static List<String[]> gradleVersions() {
-		List<String> compileVersions = Arrays.asList("2.9", "2.10", "2.11", "2.12", "2.13", "2.14.1", "3.0", "3.1",
-				"3.2", "3.3", "3.4.1", "3.5.1", "4.0", "4.1", "4.2.1", "4.3.1", "4.4.1", "4.5.1", "4.6", "4.7", "4.8",
-				"4.9", "4.10.3");
-		List<String> implementationVersions = Arrays.asList("5.0", "5.1.1", "5.2.1", "5.3.1", "5.4.1", "5.5.1", "5.6.4",
-				"6.0.1", "6.1.1", "6.2.2", "6.3", "6.4.1", "6.5.1", "6.6.1", "6.7.1", "6.8.3", "7.0.2", "7.1.1", "7.2",
-				"7.3.3", "7.4.2");
+		List<String> versions = Arrays.asList("6.8.3", "7.0.2", "7.1.1", "7.2", "7.3.3");
 		List<String[]> result = new ArrayList<>();
-		for (String version : compileVersions) {
-			result.add(new String[] { version, "compile" });
-		}
-		for (String version : implementationVersions) {
-			result.add(new String[] { version, "implementation" });
+		for (String version : versions) {
+			result.add(new String[] { version });
 		}
 		return result;
 	}

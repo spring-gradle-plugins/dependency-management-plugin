@@ -14,13 +14,12 @@ dependencyManagement {
 }
 
 dependencies {
-	add(project.getProperty("configuration"), 'org.springframework.boot:spring-boot-starter')
+	implementation('org.springframework.boot:spring-boot-starter')
 }
 
 task resolve {
 	doFirst {
-		def configurationName = (project.getProperty("configuration") == "compile") ? "compile" : "runtimeClasspath"
-		def names = configurations.getByName(configurationName).resolve().collect { it.name }
+		def names = configurations.runtimeClasspath.resolve().collect { it.name }
 		if (!names.containsAll("spring-boot-starter-1.4.2.RELEASE.jar", "spring-boot-1.4.2.RELEASE.jar",
 				"spring-boot-autoconfigure-1.4.2.RELEASE.jar",
 				"spring-boot-starter-logging-1.4.2.RELEASE.jar", "spring-core-4.3.4.RELEASE.jar",

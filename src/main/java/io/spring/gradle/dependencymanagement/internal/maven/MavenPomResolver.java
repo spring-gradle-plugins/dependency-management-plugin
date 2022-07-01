@@ -52,8 +52,6 @@ import org.gradle.api.specs.Specs;
  */
 public class MavenPomResolver implements PomResolver {
 
-	private final PlatformCategoryAttributeConfigurer attributeConfigurer = new PlatformCategoryAttributeConfigurer();
-
 	private final DependencyManagementConfigurationContainer configurationContainer;
 
 	private final EffectiveModelBuilder effectiveModelBuilder;
@@ -69,8 +67,7 @@ public class MavenPomResolver implements PomResolver {
 	 */
 	public MavenPomResolver(Project project, DependencyManagementConfigurationContainer configurationContainer) {
 		this.configurationContainer = configurationContainer;
-		this.effectiveModelBuilder = new EffectiveModelBuilder(project, configurationContainer,
-				this.attributeConfigurer);
+		this.effectiveModelBuilder = new EffectiveModelBuilder(project, configurationContainer);
 		this.dependencyHandler = project.getDependencies();
 	}
 
@@ -108,7 +105,6 @@ public class MavenPomResolver implements PomResolver {
 			Coordinates coordinates = pomReference.getCoordinates();
 			org.gradle.api.artifacts.Dependency dependency = this.dependencyHandler.create(coordinates.getGroupId()
 					+ ":" + coordinates.getArtifactId() + ":" + coordinates.getVersion() + "@pom");
-			this.attributeConfigurer.configureCategoryAttribute(dependency);
 			configuration.getDependencies().add(dependency);
 		}
 		return configuration;
