@@ -77,7 +77,7 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport
 	}
 
 	@Override
-	public void imports(Closure closure) {
+	public void imports(Closure<?> closure) {
 		new StandardDependencyManagementHandler(this.dependencyManagementContainer).imports(closure);
 	}
 
@@ -87,7 +87,7 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport
 	}
 
 	@Override
-	public void dependencies(Closure closure) {
+	public void dependencies(Closure<?> closure) {
 		new StandardDependencyManagementHandler(this.dependencyManagementContainer).dependencies(closure);
 	}
 
@@ -117,25 +117,18 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport
 	}
 
 	@Override
-	public void resolutionStrategy(Closure closure) {
-		resolutionStrategy(new ClosureBackedAction<ResolutionStrategy>(closure));
+	public void resolutionStrategy(Closure<?> closure) {
+		resolutionStrategy(new ClosureBackedAction<>(closure));
 	}
 
 	@Override
-	public void resolutionStrategy(final Action<ResolutionStrategy> action) {
-		this.configurationContainer.apply(new Action<Configuration>() {
-
-			@Override
-			public void execute(Configuration configuration) {
-				action.execute(configuration.getResolutionStrategy());
-			}
-
-		});
+	public void resolutionStrategy(Action<ResolutionStrategy> action) {
+		this.configurationContainer.apply((configuration) -> action.execute(configuration.getResolutionStrategy()));
 	}
 
 	@Override
-	public void generatedPomCustomization(Closure closure) {
-		generatedPomCustomization(new ClosureBackedAction<GeneratedPomCustomizationHandler>(closure));
+	public void generatedPomCustomization(Closure<?> closure) {
+		generatedPomCustomization(new ClosureBackedAction<>(closure));
 	}
 
 	@Override
@@ -161,9 +154,9 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport
 	 */
 	public Object methodMissing(String name, Object args) {
 		Object[] argsArray = (Object[]) args;
-		Closure closure;
+		Closure<?> closure;
 		if ("configurations".equals(name)) {
-			closure = (Closure) argsArray[argsArray.length - 1];
+			closure = (Closure<?>) argsArray[argsArray.length - 1];
 			closure.setDelegate(new CompoundDependencyManagementConfigurer(extractConfigurers(argsArray)));
 		}
 		else {
@@ -171,7 +164,7 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport
 			if (configuration == null) {
 				return ReflectionMethodInvoker.invoke(this.project, name, argsArray);
 			}
-			closure = (Closure) argsArray[0];
+			closure = (Closure<?>) argsArray[0];
 			closure.setDelegate(
 					new StandardDependencyManagementHandler(this.dependencyManagementContainer, configuration));
 		}
@@ -180,7 +173,7 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport
 	}
 
 	private List<DependencyManagementConfigurer> extractConfigurers(Object[] objects) {
-		List<DependencyManagementConfigurer> configurers = new ArrayList<DependencyManagementConfigurer>();
+		List<DependencyManagementConfigurer> configurers = new ArrayList<>();
 		for (Object object : objects) {
 			if (object instanceof DependencyManagementConfigurer) {
 				configurers.add((DependencyManagementConfigurer) object);

@@ -132,7 +132,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 				new EmptyPropertySource());
 		Map<String, Dependency> withPropertiesManagedDependencies = getManagedDependenciesById(bomReferences,
 				new ProjectPropertySource(this.project));
-		List<Dependency> overrides = new ArrayList<Dependency>();
+		List<Dependency> overrides = new ArrayList<>();
 		for (Map.Entry<String, Dependency> withPropertyEntry : withPropertiesManagedDependencies.entrySet()) {
 			Dependency withoutPropertyDependency = withoutPropertiesManagedDependencies.get(withPropertyEntry.getKey());
 			if (differentVersions(withoutPropertyDependency, withPropertyEntry.getValue())) {
@@ -151,7 +151,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 
 	private Map<String, Dependency> getManagedDependenciesById(List<PomReference> bomReferences,
 			PropertySource propertySource) {
-		Map<String, Dependency> managedDependencies = new HashMap<String, Dependency>();
+		Map<String, Dependency> managedDependencies = new HashMap<>();
 		for (Pom pom : this.pomResolver.resolvePoms(bomReferences, propertySource)) {
 			for (Dependency dependency : pom.getManagedDependencies()) {
 				managedDependencies.put(createId(dependency), dependency);
@@ -222,7 +222,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 	}
 
 	private List<String> findClassifiers(Node dependencies, Dependency managedDependency) {
-		List<String> classifiers = new ArrayList<String>();
+		List<String> classifiers = new ArrayList<>();
 		for (Object child : dependencies.children()) {
 			if (child instanceof Node && ((Node) child).name().equals(NODE_NAME_DEPENDENCY)) {
 				Node dependency = (Node) child;

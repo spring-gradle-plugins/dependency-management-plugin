@@ -52,7 +52,7 @@ public interface DependenciesHandler {
 	 * @param closure the closure used to further configure the dependency management
 	 * @see DependencyHandler
 	 */
-	void dependency(String id, Closure closure);
+	void dependency(String id, Closure<?> closure);
 
 	/**
 	 * Configures dependency management for the dependency identified by the given
@@ -74,7 +74,7 @@ public interface DependenciesHandler {
 	 * @param closure the closure used to further configure the dependency management
 	 * @see DependencyHandler
 	 */
-	void dependency(Map<String, String> id, Closure closure);
+	void dependency(Map<String, String> id, Closure<?> closure);
 
 	/**
 	 * Configures dependency management for the dependency identified by the given
@@ -97,7 +97,7 @@ public interface DependenciesHandler {
 	 * @param closure the closure used to configure the entries
 	 * @see DependencySetHandler
 	 */
-	void dependencySet(String setId, Closure closure);
+	void dependencySet(String setId, Closure<?> closure);
 
 	/**
 	 * Configures dependency management for a set of dependencies with the same
@@ -121,7 +121,7 @@ public interface DependenciesHandler {
 	 * @param closure the closure used to configure the entries
 	 * @see DependencySetHandler
 	 */
-	void dependencySet(Map<String, String> setId, Closure closure);
+	void dependencySet(Map<String, String> setId, Closure<?> closure);
 
 	/**
 	 * Configures dependency management for a set of dependencies with the same

@@ -27,9 +27,9 @@ import org.gradle.api.Action;
  */
 class ClosureBackedAction<T> implements Action<T> {
 
-	private final Closure closure;
+	private final Closure<?> closure;
 
-	ClosureBackedAction(Closure closure) {
+	ClosureBackedAction(Closure<?> closure) {
 		this.closure = closure;
 	}
 

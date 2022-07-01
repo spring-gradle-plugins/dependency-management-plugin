@@ -36,7 +36,7 @@ public interface DependencyManagementExtension extends DependencyManagementHandl
 	 * {@link Configuration Configurations} using the given {@code closure}.
 	 * @param closure the closure that will configure the resolution strategies
 	 */
-	void resolutionStrategy(Closure closure);
+	void resolutionStrategy(Closure<?> closure);
 
 	/**
 	 * Configures the resolution strategy of all dependency management-related
@@ -52,7 +52,7 @@ public interface DependencyManagementExtension extends DependencyManagementHandl
 	 * @param closure the closure
 	 * @see GeneratedPomCustomizationHandler
 	 */
-	void generatedPomCustomization(Closure closure);
+	void generatedPomCustomization(Closure<?> closure);
 
 	/**
 	 * Uses the given {@code action} to configure the customization of generated poms.

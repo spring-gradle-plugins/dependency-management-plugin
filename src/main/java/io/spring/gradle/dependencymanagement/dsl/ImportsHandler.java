@@ -42,7 +42,7 @@ public interface ImportsHandler {
 	 * @param closure the closure
 	 * @see MavenBomHandler
 	 */
-	void mavenBom(String coordinates, Closure closure);
+	void mavenBom(String coordinates, Closure<?> closure);
 
 	/**
 	 * Imports the Maven bom with the given {@code coordinates} in the form

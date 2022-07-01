@@ -37,7 +37,7 @@ public final class PomReference {
 	 * @param coordinates the coordinate of the referenced pom
 	 */
 	public PomReference(Coordinates coordinates) {
-		this(coordinates, new MapPropertySource(Collections.<String, Object>emptyMap()));
+		this(coordinates, new MapPropertySource(Collections.emptyMap()));
 	}
 
 	/**

@@ -65,7 +65,7 @@ public final class Dependency {
 		this.type = (type != null) ? type : "jar";
 		this.classifier = classifier;
 		this.scope = scope;
-		this.exclusions = (exclusions != null) ? exclusions : Collections.<Exclusion>emptySet();
+		this.exclusions = (exclusions != null) ? exclusions : Collections.emptySet();
 	}
 
 	/**

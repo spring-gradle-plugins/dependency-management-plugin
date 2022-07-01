@@ -48,16 +48,12 @@ class StandardImportsHandler extends GroovyObjectSupport implements ImportsHandl
 	}
 
 	@Override
-	public void mavenBom(String coordinates, final Closure closure) {
-		mavenBom(coordinates, new Action<MavenBomHandler>() {
-
-			@Override
-			public void execute(MavenBomHandler mavenBomHandler) {
-				if (closure != null) {
-					closure.setDelegate(mavenBomHandler);
-					closure.setResolveStrategy(Closure.DELEGATE_FIRST);
-					closure.call();
-				}
+	public void mavenBom(String coordinates, Closure<?> closure) {
+		mavenBom(coordinates, (mavenBomHandler) -> {
+			if (closure != null) {
+				closure.setDelegate(mavenBomHandler);
+				closure.setResolveStrategy(Closure.DELEGATE_FIRST);
+				closure.call();
 			}
 		});
 	}

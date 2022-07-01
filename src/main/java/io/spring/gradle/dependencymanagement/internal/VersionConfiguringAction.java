@@ -84,7 +84,7 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 
 	private boolean isDirectDependency(DependencyResolveDetails details) {
 		if (this.directDependencies == null) {
-			Set<String> directDependencies = new HashSet<String>();
+			Set<String> directDependencies = new HashSet<>();
 			for (Dependency dependency : this.configuration.getAllDependencies()) {
 				directDependencies.add(dependency.getGroup() + ":" + dependency.getName());
 			}
@@ -96,7 +96,7 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 
 	private boolean isDependencyOnLocalProject(Project project, DependencyResolveDetails details) {
 		if (this.localProjectNames == null) {
-			Set<String> names = new HashSet<String>();
+			Set<String> names = new HashSet<>();
 			for (Project localProject : project.getRootProject().getAllprojects()) {
 				names.add(localProject.getGroup() + ":" + localProject.getName());
 			}

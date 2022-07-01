@@ -40,7 +40,7 @@ class CompoundDependencyManagementConfigurer implements DependencyManagementConf
 	}
 
 	@Override
-	public void imports(Closure closure) {
+	public void imports(Closure<?> closure) {
 		for (DependencyManagementConfigurer delegate : this.delegates) {
 			delegate.imports(closure);
 		}
@@ -54,7 +54,7 @@ class CompoundDependencyManagementConfigurer implements DependencyManagementConf
 	}
 
 	@Override
-	public void dependencies(Closure closure) {
+	public void dependencies(Closure<?> closure) {
 		for (DependencyManagementConfigurer delegate : this.delegates) {
 			delegate.dependencies(closure);
 		}

@@ -19,7 +19,6 @@ package io.spring.gradle.dependencymanagement;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import io.spring.gradle.dependencymanagement.internal.bridge.InternalComponents;
 import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfigurer;
-import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.publish.PublishingExtension;
@@ -34,10 +33,10 @@ import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 public class DependencyManagementPlugin implements Plugin<Project> {
 
 	@Override
-	public void apply(final Project project) {
+	public void apply(Project project) {
 		InternalComponents internalComponents = new InternalComponents(project);
 
-		final DependencyManagementExtension dependencyManagementExtension = internalComponents
+		DependencyManagementExtension dependencyManagementExtension = internalComponents
 				.getDependencyManagementExtension();
 
 		project.getExtensions().add("dependencyManagement", dependencyManagementExtension);
@@ -49,40 +48,22 @@ public class DependencyManagementPlugin implements Plugin<Project> {
 		configurePomCustomization(project, dependencyManagementExtension);
 	}
 
-	private void configurePomCustomization(final Project project,
+	private void configurePomCustomization(Project project,
 			DependencyManagementExtension dependencyManagementExtension) {
-		final PomDependencyManagementConfigurer pomConfigurer = dependencyManagementExtension.getPomConfigurer();
-		project.getPlugins().withType(MavenPublishPlugin.class, new Action<MavenPublishPlugin>() {
-
-			@Override
-			public void execute(MavenPublishPlugin mavenPublishPlugin) {
-				configurePublishingExtension(project, pomConfigurer);
-			}
-
-		});
+		PomDependencyManagementConfigurer pomConfigurer = dependencyManagementExtension.getPomConfigurer();
+		project.getPlugins().withType(MavenPublishPlugin.class,
+				(mavenPublishPlugin) -> configurePublishingExtension(project, pomConfigurer));
 	}
 
-	private void configurePublishingExtension(Project project, final PomDependencyManagementConfigurer extension) {
-		project.getExtensions().configure(PublishingExtension.class, new Action<PublishingExtension>() {
-
-			@Override
-			public void execute(PublishingExtension publishingExtension) {
-				configurePublications(publishingExtension, extension);
-			}
-
-		});
+	private void configurePublishingExtension(Project project, PomDependencyManagementConfigurer extension) {
+		project.getExtensions().configure(PublishingExtension.class,
+				(publishingExtension) -> configurePublications(publishingExtension, extension));
 	}
 
 	private void configurePublications(PublishingExtension publishingExtension,
 			final PomDependencyManagementConfigurer extension) {
-		publishingExtension.getPublications().withType(MavenPublication.class, new Action<MavenPublication>() {
-
-			@Override
-			public void execute(MavenPublication mavenPublication) {
-				mavenPublication.getPom().withXml(extension);
-			}
-
-		});
+		publishingExtension.getPublications().withType(MavenPublication.class,
+				(mavenPublication) -> mavenPublication.getPom().withXml(extension));
 	}
 
 }

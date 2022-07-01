@@ -42,7 +42,7 @@ public interface DependencySetHandler {
 	 * @param closure used to further configure the dependency management
 	 * @see DependencyHandler
 	 */
-	void entry(String name, Closure closure);
+	void entry(String name, Closure<?> closure);
 
 	/**
 	 * Adds an entry to the set for the dependency with the given {@code name}. The

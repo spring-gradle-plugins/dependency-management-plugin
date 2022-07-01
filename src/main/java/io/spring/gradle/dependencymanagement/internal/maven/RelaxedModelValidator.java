@@ -31,29 +31,16 @@ import org.gradle.api.Action;
 class RelaxedModelValidator extends DefaultModelValidator {
 
 	@Override
-	public void validateRawModel(Model model, final ModelBuildingRequest request,
-			final ModelProblemCollector problems) {
-		withNoDistributionManagementStatus(model, new Action<Model>() {
-
-			@Override
-			public void execute(Model modifiedModel) {
-				RelaxedModelValidator.super.validateRawModel(modifiedModel, request, problems);
-			}
-
-		});
+	public void validateRawModel(Model model, ModelBuildingRequest request, ModelProblemCollector problems) {
+		withNoDistributionManagementStatus(model,
+				(modifiedModel) -> RelaxedModelValidator.super.validateRawModel(modifiedModel, request, problems));
 	}
 
 	@Override
-	public void validateEffectiveModel(Model model, final ModelBuildingRequest request,
-			final ModelProblemCollector problems) {
-		withNoDistributionManagementStatus(model, new Action<Model>() {
-
-			@Override
-			public void execute(Model modifiedModel) {
-				RelaxedModelValidator.super.validateEffectiveModel(modifiedModel, request, problems);
-			}
-
-		});
+	public void validateEffectiveModel(Model model, ModelBuildingRequest request, ModelProblemCollector problems) {
+		withNoDistributionManagementStatus(model,
+				(modifiedModel) -> RelaxedModelValidator.super.validateEffectiveModel(modifiedModel, request,
+						problems));
 	}
 
 	private void withNoDistributionManagementStatus(Model model, Action<Model> action) {

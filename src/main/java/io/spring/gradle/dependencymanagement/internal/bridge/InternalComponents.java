@@ -100,17 +100,12 @@ public class InternalComponents {
 	 */
 	public void createDependencyManagementReportTask(String taskName) {
 		this.project.getTasks().create(taskName, DependencyManagementReportTask.class,
-				new Action<DependencyManagementReportTask>() {
-
-					@Override
-					public void execute(DependencyManagementReportTask dependencyManagementReportTask) {
-						dependencyManagementReportTask.setDependencyManagementContainer(
-								InternalComponents.this.dependencyManagementContainer);
-						dependencyManagementReportTask.setGroup(HelpTasksPlugin.HELP_GROUP);
-						dependencyManagementReportTask.setDescription("Displays the dependency management declared in "
-								+ dependencyManagementReportTask.getProject() + ".");
-					}
-
+				(dependencyManagementReportTask) -> {
+					dependencyManagementReportTask
+							.setDependencyManagementContainer(InternalComponents.this.dependencyManagementContainer);
+					dependencyManagementReportTask.setGroup(HelpTasksPlugin.HELP_GROUP);
+					dependencyManagementReportTask.setDescription("Displays the dependency management declared in "
+							+ dependencyManagementReportTask.getProject() + ".");
 				});
 	}
 

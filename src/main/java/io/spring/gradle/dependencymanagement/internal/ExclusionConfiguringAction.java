@@ -87,9 +87,9 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 			logger.info("Excluding " + excludedDependencies);
 		}
 
-		List<Map<String, String>> exclusions = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> exclusions = new ArrayList<>();
 		for (DependencyCandidate excludedDependency : excludedDependencies) {
-			Map<String, String> exclusion = new HashMap<String, String>();
+			Map<String, String> exclusion = new HashMap<>();
 			exclusion.put("group", excludedDependency.groupId);
 			exclusion.put("module", excludedDependency.artifactId);
 			exclusions.add(exclusion);
@@ -111,22 +111,18 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 				allDependencies.toArray(new org.gradle.api.artifacts.Dependency[allDependencies.size()]));
 		ResolutionResult resolutionResult = configurationCopy.getIncoming().getResolutionResult();
 		ResolvedComponentResult root = resolutionResult.getRoot();
-		final Set<DependencyCandidate> excludedDependencies = new HashSet<DependencyCandidate>();
-		resolutionResult.allDependencies(new Action<DependencyResult>() {
-			@Override
-			public void execute(DependencyResult dependencyResult) {
-				if (dependencyResult instanceof ResolvedDependencyResult) {
-					ResolvedDependencyResult resolved = (ResolvedDependencyResult) dependencyResult;
-					excludedDependencies
-							.add(new DependencyCandidate(resolved.getSelected().getModuleVersion().getGroup(),
-									resolved.getSelected().getModuleVersion().getName()));
-				}
-				else if (dependencyResult instanceof UnresolvedDependencyResult) {
-					DependencyCandidate dependencyCandidate = toDependencyCandidate(
-							(UnresolvedDependencyResult) dependencyResult);
-					if (dependencyCandidate != null) {
-						excludedDependencies.add(dependencyCandidate);
-					}
+		Set<DependencyCandidate> excludedDependencies = new HashSet<>();
+		resolutionResult.allDependencies((dependencyResult) -> {
+			if (dependencyResult instanceof ResolvedDependencyResult) {
+				ResolvedDependencyResult resolved = (ResolvedDependencyResult) dependencyResult;
+				excludedDependencies.add(new DependencyCandidate(resolved.getSelected().getModuleVersion().getGroup(),
+						resolved.getSelected().getModuleVersion().getName()));
+			}
+			else if (dependencyResult instanceof UnresolvedDependencyResult) {
+				DependencyCandidate dependencyCandidate = toDependencyCandidate(
+						(UnresolvedDependencyResult) dependencyResult);
+				if (dependencyCandidate != null) {
+					excludedDependencies.add(dependencyCandidate);
 				}
 			}
 		});
@@ -138,10 +134,10 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
 	private Set<DependencyCandidate> determineIncludedComponents(ResolvedComponentResult root,
 			Map<String, Exclusions> pomExclusionsById) {
-		LinkedList<Node> queue = new LinkedList<Node>();
-		queue.add(new Node(root, getId(root), new HashSet<Exclusion>()));
-		Set<ResolvedComponentResult> seen = new HashSet<ResolvedComponentResult>();
-		Set<DependencyCandidate> includedComponents = new HashSet<DependencyCandidate>();
+		LinkedList<Node> queue = new LinkedList<>();
+		queue.add(new Node(root, getId(root), new HashSet<>()));
+		Set<ResolvedComponentResult> seen = new HashSet<>();
+		Set<DependencyCandidate> includedComponents = new HashSet<>();
 		while (!queue.isEmpty()) {
 			Node node = queue.remove();
 			includedComponents.add(new DependencyCandidate(node.component.getModuleVersion().getGroup(),
@@ -187,7 +183,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 	}
 
 	private Set<Exclusion> getChildExclusions(Node parent, String childId, Map<String, Exclusions> pomExclusionsById) {
-		Set<Exclusion> childExclusions = new HashSet<Exclusion>(parent.exclusions);
+		Set<Exclusion> childExclusions = new HashSet<>(parent.exclusions);
 		addAllIfPossible(childExclusions,
 				this.dependencyManagementContainer.getExclusions(this.configuration).exclusionsForDependency(childId));
 		Exclusions exclusionsInPom = pomExclusionsById.get(parent.id);

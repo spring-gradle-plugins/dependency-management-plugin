@@ -66,8 +66,8 @@ class StandardDependenciesHandler implements DependenciesHandler {
 	}
 
 	@Override
-	public void dependency(String id, Closure closure) {
-		dependency(id, new ClosureBackedAction<DependencyHandler>(closure));
+	public void dependency(String id, Closure<?> closure) {
+		dependency(id, new ClosureBackedAction<>(closure));
 	}
 
 	@Override
@@ -82,13 +82,13 @@ class StandardDependenciesHandler implements DependenciesHandler {
 	}
 
 	@Override
-	public void dependency(Map<String, String> id, Closure closure) {
-		dependency(id, new ClosureBackedAction<DependencyHandler>(closure));
+	public void dependency(Map<String, String> id, Closure<?> closure) {
+		dependency(id, new ClosureBackedAction<>(closure));
 	}
 
 	@Override
 	public void dependency(Map<String, String> id, Action<DependencyHandler> action) {
-		Set<String> missingAttributes = new LinkedHashSet<String>(Arrays.asList(KEY_GROUP, KEY_NAME, KEY_VERSION));
+		Set<String> missingAttributes = new LinkedHashSet<>(Arrays.asList(KEY_GROUP, KEY_NAME, KEY_VERSION));
 		missingAttributes.removeAll(id.keySet());
 		if (!missingAttributes.isEmpty()) {
 			throw new InvalidUserDataException(
@@ -99,8 +99,8 @@ class StandardDependenciesHandler implements DependenciesHandler {
 	}
 
 	@Override
-	public void dependencySet(String setId, Closure closure) {
-		dependencySet(setId, new ClosureBackedAction<DependencySetHandler>(closure));
+	public void dependencySet(String setId, Closure<?> closure) {
+		dependencySet(setId, new ClosureBackedAction<>(closure));
 	}
 
 	@Override
@@ -114,8 +114,8 @@ class StandardDependenciesHandler implements DependenciesHandler {
 	}
 
 	@Override
-	public void dependencySet(Map<String, String> setSpecification, Closure closure) {
-		dependencySet(setSpecification, new ClosureBackedAction<DependencySetHandler>(closure));
+	public void dependencySet(Map<String, String> setSpecification, Closure<?> closure) {
+		dependencySet(setSpecification, new ClosureBackedAction<>(closure));
 	}
 
 	@Override

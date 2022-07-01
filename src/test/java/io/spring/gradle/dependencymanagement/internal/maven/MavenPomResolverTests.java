@@ -62,7 +62,7 @@ class MavenPomResolverTests {
 	void pomCanBeResolvedWhenItIsOnlyMaven20Compatibile() {
 		PomReference reference = new PomReference(new Coordinates("log4j", "log4j", "1.2.16"));
 		List<Pom> result = this.resolver.resolvePoms(Arrays.asList(reference),
-				new MapPropertySource(Collections.<String, String>emptyMap()));
+				new MapPropertySource(Collections.emptyMap()));
 		assertThat(result).hasSize(1);
 	}
 
@@ -70,7 +70,7 @@ class MavenPomResolverTests {
 	void pomThatResultsInAModelBuildingExceptionCanStillBeResolved() {
 		PomReference reference = new PomReference(new Coordinates("test", "illegal-system-path", "1.0"));
 		List<Pom> result = this.resolver.resolvePoms(Arrays.asList(reference),
-				new MapPropertySource(Collections.<String, String>emptyMap()));
+				new MapPropertySource(Collections.emptyMap()));
 		assertThat(result).hasSize(1);
 	}
 

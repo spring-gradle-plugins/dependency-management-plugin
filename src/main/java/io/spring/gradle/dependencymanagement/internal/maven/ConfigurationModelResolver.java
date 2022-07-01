@@ -37,7 +37,7 @@ import org.gradle.api.artifacts.Dependency;
  */
 class ConfigurationModelResolver implements ModelResolver {
 
-	private final Map<String, FileModelSource> pomCache = new HashMap<String, FileModelSource>();
+	private final Map<String, FileModelSource> pomCache = new HashMap<>();
 
 	private final Project project;
 
@@ -64,7 +64,7 @@ class ConfigurationModelResolver implements ModelResolver {
 		return pom;
 	}
 
-	private FileModelSource resolveModel(final String coordinates) {
+	private FileModelSource resolveModel(String coordinates) {
 		Dependency dependency = this.project.getDependencies().create(coordinates);
 		this.attributeConfigurer.configureCategoryAttribute(dependency);
 		Configuration configuration = this.configurationContainer.newConfiguration(dependency);

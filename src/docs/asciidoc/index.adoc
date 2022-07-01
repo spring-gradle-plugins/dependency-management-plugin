@@ -32,7 +32,7 @@ honour any exclusions declared in the poms of your project's dependencies.
 The Plugin has the following requirements:
 
  - Gradle 2.x (2.9 or later), 3.x, 4.x, 5.x, 6.x, or 7.x. Gradle 2.8 and earlier are not supported.
- - Java 6 or later
+ - Java 8 or later
 
 [[getting-started]]
 == Getting Started

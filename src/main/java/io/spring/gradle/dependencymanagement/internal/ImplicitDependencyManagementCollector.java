@@ -23,7 +23,6 @@ import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleDependency;
-import org.gradle.api.artifacts.ResolvableDependencies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,19 +55,13 @@ public class ImplicitDependencyManagementCollector implements Action<Configurati
 	}
 
 	@Override
-	public void execute(final Configuration root) {
-		root.getIncoming().beforeResolve(new Action<ResolvableDependencies>() {
-
-			@Override
-			public void execute(ResolvableDependencies resolvableDependencies) {
-				if (ImplicitDependencyManagementCollector.this.dependencyManagementSettings
-						.isOverriddenByDependencies()) {
-					for (Configuration configuration : root.getHierarchy()) {
-						processConfiguration(configuration);
-					}
+	public void execute(Configuration root) {
+		root.getIncoming().beforeResolve((resolvableDependencies) -> {
+			if (ImplicitDependencyManagementCollector.this.dependencyManagementSettings.isOverriddenByDependencies()) {
+				for (Configuration configuration : root.getHierarchy()) {
+					processConfiguration(configuration);
 				}
 			}
-
 		});
 	}
 
@@ -88,7 +81,7 @@ public class ImplicitDependencyManagementCollector implements Action<Configurati
 	}
 
 	private List<ModuleDependency> getVersionedModuleDependencies(Configuration configuration) {
-		List<ModuleDependency> versionedModuleDependencies = new ArrayList<ModuleDependency>();
+		List<ModuleDependency> versionedModuleDependencies = new ArrayList<>();
 		for (Dependency dependency : configuration.getIncoming().getDependencies()) {
 			if (dependency instanceof ModuleDependency && dependency.getVersion() != null) {
 				versionedModuleDependencies.add((ModuleDependency) dependency);

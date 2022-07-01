@@ -43,9 +43,9 @@ import org.gradle.api.artifacts.result.ResolvedComponentResult;
 class ExclusionResolver {
 
 	private static final Set<String> IGNORED_SCOPES = Collections
-			.unmodifiableSet(new HashSet<String>(Arrays.asList("provided", "test")));
+			.unmodifiableSet(new HashSet<>(Arrays.asList("provided", "test")));
 
-	private final Map<String, Exclusions> exclusionsCache = new HashMap<String, Exclusions>();
+	private final Map<String, Exclusions> exclusionsCache = new HashMap<>();
 
 	private final PomResolver pomResolver;
 
@@ -54,8 +54,8 @@ class ExclusionResolver {
 	}
 
 	Map<String, Exclusions> resolveExclusions(Collection<ResolvedComponentResult> resolvedComponents) {
-		List<PomReference> pomReferences = new ArrayList<PomReference>();
-		Map<String, Exclusions> exclusionsById = new HashMap<String, Exclusions>();
+		List<PomReference> pomReferences = new ArrayList<>();
+		Map<String, Exclusions> exclusionsById = new HashMap<>();
 		for (ResolvedComponentResult resolvedComponent : resolvedComponents) {
 			if (!(resolvedComponent.getId() instanceof ProjectComponentIdentifier)
 					&& resolvedComponent.getModuleVersion().getGroup() != null
@@ -85,14 +85,14 @@ class ExclusionResolver {
 
 	private Exclusions collectExclusions(Pom pom) {
 		Exclusions exclusions = new Exclusions();
-		List<Dependency> dependencies = new ArrayList<Dependency>(pom.getManagedDependencies());
+		List<Dependency> dependencies = new ArrayList<>(pom.getManagedDependencies());
 		dependencies.addAll(pom.getDependencies());
 		for (Dependency dependency : dependencies) {
 			if (dependency.getExclusions() != null && !dependency.isOptional()
 					&& !IGNORED_SCOPES.contains(dependency.getScope())) {
 				String dependencyId = dependency.getCoordinates().getGroupId() + ":"
 						+ dependency.getCoordinates().getArtifactId();
-				exclusions.add(dependencyId, new HashSet<Exclusion>(dependency.getExclusions()));
+				exclusions.add(dependencyId, new HashSet<>(dependency.getExclusions()));
 			}
 
 		}

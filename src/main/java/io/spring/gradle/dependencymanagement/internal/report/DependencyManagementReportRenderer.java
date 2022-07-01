@@ -17,7 +17,6 @@
 package io.spring.gradle.dependencymanagement.internal.report;
 
 import java.io.PrintWriter;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -42,7 +41,7 @@ class DependencyManagementReportRenderer {
 		this.output = writer;
 	}
 
-	void startProject(final Project project) {
+	void startProject(Project project) {
 		this.output.println();
 		this.output.println("------------------------------------------------------------");
 		String heading;
@@ -81,17 +80,14 @@ class DependencyManagementReportRenderer {
 	}
 
 	private void renderManagedVersions(Map<String, String> managedVersions) {
-		Map<String, String> sortedVersions = new TreeMap<String, String>(new Comparator<String>() {
-			@Override
-			public int compare(String one, String two) {
-				String[] oneComponents = one.split(":");
-				String[] twoComponents = two.split(":");
-				int result = oneComponents[0].compareTo(twoComponents[0]);
-				if (result == 0) {
-					result = oneComponents[1].compareTo(twoComponents[1]);
-				}
-				return result;
+		Map<String, String> sortedVersions = new TreeMap<>((one, two) -> {
+			String[] oneComponents = one.split(":");
+			String[] twoComponents = two.split(":");
+			int result = oneComponents[0].compareTo(twoComponents[0]);
+			if (result == 0) {
+				result = oneComponents[1].compareTo(twoComponents[1]);
 			}
+			return result;
 		});
 		sortedVersions.putAll(managedVersions);
 		for (Map.Entry<String, String> entry : sortedVersions.entrySet()) {
@@ -100,7 +96,7 @@ class DependencyManagementReportRenderer {
 		this.output.println();
 	}
 
-	void renderConfigurationManagedVersions(Map<String, String> managedVersions, final Configuration configuration,
+	void renderConfigurationManagedVersions(Map<String, String> managedVersions, Configuration configuration,
 			Map<String, String> globalManagedVersions) {
 		renderDependencyManagementHeader(configuration.getName(),
 				"Dependency management for the " + configuration.getName() + " configuration");

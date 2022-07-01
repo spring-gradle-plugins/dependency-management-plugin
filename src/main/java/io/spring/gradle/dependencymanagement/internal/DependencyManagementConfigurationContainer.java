@@ -33,7 +33,7 @@ import org.gradle.api.artifacts.Dependency;
  */
 public class DependencyManagementConfigurationContainer {
 
-	private final List<Action<Configuration>> actions = new ArrayList<Action<Configuration>>();
+	private final List<Action<Configuration>> actions = new ArrayList<>();
 
 	private final ConfigurationContainer delegate;
 
@@ -85,6 +85,7 @@ public class DependencyManagementConfigurationContainer {
 	/**
 	 * A callback capable of configuring a {@link Configuration}.
 	 */
+	@FunctionalInterface
 	public interface ConfigurationConfigurer {
 
 		/**

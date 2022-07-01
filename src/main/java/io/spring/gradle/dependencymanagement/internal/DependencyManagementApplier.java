@@ -20,7 +20,6 @@ import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ResolvableDependencies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,33 +66,20 @@ public class DependencyManagementApplier implements Action<Configuration> {
 	}
 
 	@Override
-	public void execute(final Configuration configuration) {
+	public void execute(Configuration configuration) {
 		logger.info("Applying dependency management to configuration '{}' in project '{}'", configuration.getName(),
 				this.project.getName());
 
-		configuration.getIncoming().beforeResolve(new Action<ResolvableDependencies>() {
+		configuration.getIncoming().beforeResolve(
+				(resolvableDependencies) -> DependencyManagementApplier.this.dependencyManagementContainer
+						.getManagedVersionsForConfiguration(configuration));
 
-			@Override
-			public void execute(ResolvableDependencies resolvableDependencies) {
-				DependencyManagementApplier.this.dependencyManagementContainer
-						.getManagedVersionsForConfiguration(configuration);
-			}
-
-		});
-
-		final VersionConfiguringAction versionConfiguringAction = new VersionConfiguringAction(this.project,
+		VersionConfiguringAction versionConfiguringAction = new VersionConfiguringAction(this.project,
 				this.dependencyManagementContainer, configuration);
 
 		configuration.getIncoming().beforeResolve(new ExclusionConfiguringAction(this.dependencyManagementSettings,
 				this.dependencyManagementContainer, this.configurationContainer, configuration, this.exclusionResolver,
-				new DependencyManagementConfigurationContainer.ConfigurationConfigurer() {
-
-					@Override
-					public void configure(Configuration configuration) {
-						configuration.getResolutionStrategy().eachDependency(versionConfiguringAction);
-					}
-
-				}));
+				(c) -> c.getResolutionStrategy().eachDependency(versionConfiguringAction)));
 
 		configuration.getResolutionStrategy().eachDependency(versionConfiguringAction);
 	}

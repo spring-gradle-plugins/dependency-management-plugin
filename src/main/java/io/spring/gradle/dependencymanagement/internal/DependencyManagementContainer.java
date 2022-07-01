@@ -47,7 +47,7 @@ public class DependencyManagementContainer {
 
 	private final Project project;
 
-	private final Map<Configuration, DependencyManagement> configurationDependencyManagement = new LinkedHashMap<Configuration, DependencyManagement>();
+	private final Map<Configuration, DependencyManagement> configurationDependencyManagement = new LinkedHashMap<>();
 
 	/**
 	 * Creates a new {@code DependencyManagementContainer} that will hold dependency
@@ -153,7 +153,7 @@ public class DependencyManagementContainer {
 	 * @return the properties
 	 */
 	public Map<String, String> importedPropertiesForConfiguration(Configuration configuration) {
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.putAll(this.globalDependencyManagement.getImportedProperties());
 		if (configuration != null) {
 			for (Configuration inHierarchy : getReversedHierarchy(configuration)) {
@@ -200,7 +200,7 @@ public class DependencyManagementContainer {
 	}
 
 	private List<Configuration> getReversedHierarchy(Configuration configuration) {
-		List<Configuration> hierarchy = new ArrayList<Configuration>(configuration.getHierarchy());
+		List<Configuration> hierarchy = new ArrayList<>(configuration.getHierarchy());
 		Collections.reverse(hierarchy);
 		return hierarchy;
 	}

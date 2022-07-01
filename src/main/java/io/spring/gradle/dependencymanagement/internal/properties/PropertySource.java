@@ -21,6 +21,7 @@ package io.spring.gradle.dependencymanagement.internal.properties;
  *
  * @author Andy Wilkinson
  */
+@FunctionalInterface
 public interface PropertySource {
 
 	/**

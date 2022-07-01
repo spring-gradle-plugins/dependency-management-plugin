@@ -24,7 +24,6 @@ import groovy.lang.GString;
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
 import io.spring.gradle.dependencymanagement.dsl.DependencySetHandler;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
-import io.spring.gradle.dependencymanagement.internal.Exclusion;
 import org.codehaus.groovy.runtime.GStringImpl;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
@@ -58,7 +57,7 @@ class StandardDependenciesHandlerTests {
 		dependencyId.put("version", gstring("1.0"));
 		this.handler.dependency(dependencyId);
 		then(this.container).should().addManagedVersion(this.configuration, "com.example", "example", "1.0",
-				Collections.<Exclusion>emptyList());
+				Collections.emptyList());
 	}
 
 	@Test
@@ -82,7 +81,7 @@ class StandardDependenciesHandlerTests {
 		dependencyId.put("version", gstring("1.0"));
 		this.handler.dependency(dependencyId);
 		then(this.container).should().addManagedVersion(this.configuration, "com.example", "example", "1.0",
-				Collections.<Exclusion>emptyList());
+				Collections.emptyList());
 	}
 
 	@Test

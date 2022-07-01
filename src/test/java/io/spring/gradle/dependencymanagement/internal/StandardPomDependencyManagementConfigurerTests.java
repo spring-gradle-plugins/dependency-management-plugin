@@ -60,7 +60,7 @@ class StandardPomDependencyManagementConfigurerTests {
 	void anImportedBomIsImportedInThePom() throws Exception {
 		this.dependencyManagement.importBom(null,
 				new Coordinates("io.spring.platform", "platform-bom", "1.0.3.RELEASE"),
-				new MapPropertySource(Collections.<String, String>emptyMap()));
+				new MapPropertySource(Collections.emptyMap()));
 		NodeAssert pom = configuredPom();
 		assertThat(pom).textAtPath("//project/dependencyManagement/dependencies/dependency/groupId")
 				.isEqualTo("io.spring.platform");
@@ -77,9 +77,9 @@ class StandardPomDependencyManagementConfigurerTests {
 		this.project.getRepositories()
 				.maven((repository) -> repository.setUrl(new File("src/test/resources/maven-repo").getAbsoluteFile()));
 		this.dependencyManagement.importBom(null, new Coordinates("test", "bravo-pom-customization-bom", "1.0"),
-				new MapPropertySource(Collections.<String, String>emptyMap()));
+				new MapPropertySource(Collections.emptyMap()));
 		this.dependencyManagement.importBom(null, new Coordinates("test", "alpha-pom-customization-bom", "1.0"),
-				new MapPropertySource(Collections.<String, String>emptyMap()));
+				new MapPropertySource(Collections.emptyMap()));
 		NodeAssert pom = configuredPom();
 		assertThat(pom).textAtPath("//project/dependencyManagement/dependencies/dependency[1]/groupId")
 				.isEqualTo("test");
@@ -105,7 +105,7 @@ class StandardPomDependencyManagementConfigurerTests {
 	void customizationOfPublishedPomsCanBeDisabled() throws Exception {
 		this.dependencyManagement.importBom(null,
 				new Coordinates("io.spring.platform", "platform-bom", "1.0.3.RELEASE"),
-				new MapPropertySource(Collections.<String, String>emptyMap()));
+				new MapPropertySource(Collections.emptyMap()));
 		PomCustomizationSettings settings = new PomCustomizationSettings();
 		settings.setEnabled(false);
 		NodeAssert pom = configuredPom(settings);
@@ -115,7 +115,7 @@ class StandardPomDependencyManagementConfigurerTests {
 	@Test
 	void individualDependencyManagementIsAddedToThePom() throws Exception {
 		this.dependencyManagement.addManagedVersion(null, "org.springframework", "spring-core", "4.1.3.RELEASE",
-				Collections.<Exclusion>emptyList());
+				Collections.emptyList());
 		NodeAssert pom = configuredPom();
 		assertThat(pom).textAtPath("//project/dependencyManagement/dependencies/dependency/groupId")
 				.isEqualTo("org.springframework");
@@ -131,7 +131,7 @@ class StandardPomDependencyManagementConfigurerTests {
 	void dependencyManagementCanBeAddedToAPomWithExistingDependencyManagement() throws Exception {
 		this.dependencyManagement.importBom(null,
 				new Coordinates("io.spring.platform", "platform-bom", "1.0.3.RELEASE"),
-				new MapPropertySource(Collections.<String, String>emptyMap()));
+				new MapPropertySource(Collections.emptyMap()));
 		NodeAssert pom = configuredPom(
 				"<project><dependencyManagement><dependencies></dependencies></dependencyManagement></project>");
 		assertThat(pom).nodesAtPath("//project/dependencyManagement/dependencies/dependency").hasSize(1);
@@ -170,7 +170,7 @@ class StandardPomDependencyManagementConfigurerTests {
 	void overridingAVersionPropertyResultsInDependencyOverridesInPom() throws Exception {
 		this.dependencyManagement.importBom(null,
 				new Coordinates("org.springframework.boot", "spring-boot-dependencies", "1.5.9.RELEASE"),
-				new MapPropertySource(Collections.<String, String>emptyMap()));
+				new MapPropertySource(Collections.emptyMap()));
 		this.project.getExtensions().getExtraProperties().set("spring.version", "4.3.5.RELEASE");
 		NodeAssert pom = configuredPom();
 		assertThat(pom).nodesAtPath("//project/dependencyManagement/dependencies/dependency").hasSize(21);
@@ -196,7 +196,7 @@ class StandardPomDependencyManagementConfigurerTests {
 			throws Exception {
 		this.dependencyManagement.importBom(null,
 				new Coordinates("org.springframework.boot", "spring-boot-dependencies", "1.5.9.RELEASE"),
-				new MapPropertySource(Collections.<String, String>emptyMap()));
+				new MapPropertySource(Collections.emptyMap()));
 		this.project.getExtensions().getExtraProperties().set("spring.version", "5.0.2.RELEASE");
 		NodeAssert pom = configuredPom();
 		assertThat(pom).nodesAtPath("//project/dependencyManagement/dependencies/dependency").hasSize(22);
@@ -226,9 +226,9 @@ class StandardPomDependencyManagementConfigurerTests {
 		this.project.getRepositories()
 				.maven((repository) -> repository.setUrl(new File("src/test/resources/maven-repo").getAbsoluteFile()));
 		this.dependencyManagement.importBom(null, new Coordinates("test", "first-alpha-dependency-management", "1.0"),
-				new MapPropertySource(Collections.<String, String>emptyMap()));
+				new MapPropertySource(Collections.emptyMap()));
 		this.dependencyManagement.importBom(null, new Coordinates("test", "second-alpha-dependency-management", "1.0"),
-				new MapPropertySource(Collections.<String, String>emptyMap()));
+				new MapPropertySource(Collections.emptyMap()));
 		NodeAssert pom = configuredPom();
 		assertThat(pom).nodesAtPath("//project/dependencyManagement/dependencies/dependency").hasSize(2);
 	}
@@ -236,7 +236,7 @@ class StandardPomDependencyManagementConfigurerTests {
 	@Test
 	void dependencyManagementIsExpandedToCoverDependenciesWithAClassifier() throws Exception {
 		this.dependencyManagement.addManagedVersion(null, "org.apache.logging.log4j", "log4j-core", "2.6",
-				Collections.<Exclusion>emptyList());
+				Collections.emptyList());
 		NodeAssert pom = configuredPom(
 				"<project><dependencies><dependency><groupId>org.apache.logging.log4j</groupId><artifactId>log4j-core</artifactId><classifier>test</classifier></dependency></dependencies></project>");
 		assertThat(pom).nodesAtPath("//project/dependencyManagement/dependencies/dependency").hasSize(2);

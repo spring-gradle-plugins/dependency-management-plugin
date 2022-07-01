@@ -77,7 +77,7 @@ class DependencyManagementReportRendererTests {
 
 	@Test
 	void globalDependencyManagementWithNoManagedVersions() {
-		this.renderer.renderGlobalManagedVersions(Collections.<String, String>emptyMap());
+		this.renderer.renderGlobalManagedVersions(Collections.emptyMap());
 		assertThat(outputLines()).containsExactly("global - Default dependency management for all configurations",
 				"No dependency management", "");
 	}
@@ -95,8 +95,7 @@ class DependencyManagementReportRendererTests {
 	@Test
 	void configurationDependencyManagementWitNoManagedVersionsAtAll() {
 		Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
-		this.renderer.renderConfigurationManagedVersions(Collections.<String, String>emptyMap(), configuration,
-				Collections.<String, String>emptyMap());
+		this.renderer.renderConfigurationManagedVersions(Collections.emptyMap(), configuration, Collections.emptyMap());
 		assertThat(outputLines()).containsExactly("test - Dependency management for the test configuration",
 				"No dependency management", "");
 	}
@@ -116,8 +115,7 @@ class DependencyManagementReportRendererTests {
 		managedVersions.put("com.example:bravo", "1.0.0");
 		managedVersions.put("com.example:alpha", "1.2.3");
 		Configuration configuration = ProjectBuilder.builder().build().getConfigurations().create("test");
-		this.renderer.renderConfigurationManagedVersions(managedVersions, configuration,
-				Collections.<String, String>emptyMap());
+		this.renderer.renderConfigurationManagedVersions(managedVersions, configuration, Collections.emptyMap());
 		assertThat(outputLines()).containsExactly("test - Dependency management for the test configuration",
 				"	com.example:alpha 1.2.3", "	com.example:bravo 1.0.0", "");
 	}

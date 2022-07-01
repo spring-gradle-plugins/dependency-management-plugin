@@ -47,23 +47,18 @@ class PlatformCategoryAttributeConfigurer {
 		}
 		try {
 			Method attributes = dependency.getClass().getMethod("attributes", Action.class);
-			attributes.invoke(dependency, new Action<Object>() {
-
-				@Override
-				public void execute(Object container) {
-					try {
-						Class<?> attributeClass = Class.forName("org.gradle.api.attributes.Attribute");
-						Object attribute = attributeClass.getMethod("of", String.class, Class.class).invoke(null,
-								"org.gradle.category", String.class);
-						Class.forName("org.gradle.api.attributes.AttributeContainer")
-								.getMethod("attribute", attributeClass, Object.class)
-								.invoke(container, attribute, "platform");
-					}
-					catch (Throwable ex) {
-						logger.debug("Failed to configure platform attribute", ex);
-					}
+			attributes.invoke(dependency, (Action<Object>) (container) -> {
+				try {
+					Class<?> attributeClass = Class.forName("org.gradle.api.attributes.Attribute");
+					Object attribute = attributeClass.getMethod("of", String.class, Class.class).invoke(null,
+							"org.gradle.category", String.class);
+					Class.forName("org.gradle.api.attributes.AttributeContainer")
+							.getMethod("attribute", attributeClass, Object.class)
+							.invoke(container, attribute, "platform");
 				}
-
+				catch (Throwable ex) {
+					logger.debug("Failed to configure platform attribute", ex);
+				}
 			});
 		}
 		catch (Throwable ex) {

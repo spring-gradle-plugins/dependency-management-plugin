@@ -80,19 +80,12 @@ dependencies {
 	testImplementation "org.junit.jupiter:junit-jupiter:5.8.2"
 }
 
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
 java {
 	withJavadocJar()
 	withSourcesJar()
-}
-
-tasks.named("compileJava").configure {
-	sourceCompatibility = 1.6
-	targetCompatibility = 1.6
-}
-
-tasks.named("compileTestJava").configure {
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
 }
 
 tasks.named("test").configure {

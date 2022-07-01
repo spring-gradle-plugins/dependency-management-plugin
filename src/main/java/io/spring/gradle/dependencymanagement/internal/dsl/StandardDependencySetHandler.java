@@ -52,7 +52,7 @@ final class StandardDependencySetHandler implements DependencySetHandler {
 	}
 
 	@Override
-	public void entry(String name, final Closure closure) {
+	public void entry(String name, final Closure<?> closure) {
 		entry(name, new Action<DependencyHandler>() {
 
 			@Override

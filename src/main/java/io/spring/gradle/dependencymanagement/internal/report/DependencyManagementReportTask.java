@@ -16,7 +16,6 @@
 
 package io.spring.gradle.dependencymanagement.internal.report;
 
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -61,12 +60,7 @@ public class DependencyManagementReportTask extends DefaultTask {
 
 		this.renderer.renderGlobalManagedVersions(globalManagedVersions);
 
-		Set<Configuration> configurations = new TreeSet<Configuration>(new Comparator<Configuration>() {
-			@Override
-			public int compare(Configuration one, Configuration two) {
-				return one.getName().compareTo(two.getName());
-			}
-		});
+		Set<Configuration> configurations = new TreeSet<>((one, two) -> one.getName().compareTo(two.getName()));
 		configurations.addAll(getProject().getConfigurations());
 		for (Configuration configuration : configurations) {
 			Map<String, String> managedVersions = this.dependencyManagementContainer

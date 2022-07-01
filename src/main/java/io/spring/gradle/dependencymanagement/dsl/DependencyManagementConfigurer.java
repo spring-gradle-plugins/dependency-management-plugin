@@ -33,7 +33,7 @@ public interface DependencyManagementConfigurer {
 	 * @param closure the closure to execute to configure the imports
 	 * @see ImportsHandler
 	 */
-	void imports(Closure closure);
+	void imports(Closure<?> closure);
 
 	/**
 	 * Configures the dependency management imports using the given {@code action}.
@@ -47,7 +47,7 @@ public interface DependencyManagementConfigurer {
 	 * @param closure the closure to execute to configure the dependencies
 	 * @see DependenciesHandler
 	 */
-	void dependencies(Closure closure);
+	void dependencies(Closure<?> closure);
 
 	/**
 	 * Configures the managed dependencies using the given {@code action}.

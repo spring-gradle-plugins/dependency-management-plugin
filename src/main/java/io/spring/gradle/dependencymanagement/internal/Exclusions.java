@@ -29,7 +29,7 @@ import java.util.Set;
  */
 class Exclusions {
 
-	private final Map<String, Set<Exclusion>> exclusionsByDependency = new HashMap<String, Set<Exclusion>>();
+	private final Map<String, Set<Exclusion>> exclusionsByDependency = new HashMap<>();
 
 	void add(String dependency, Collection<Exclusion> exclusionsForDependency) {
 		if (exclusionsForDependency.isEmpty()) {
@@ -37,7 +37,7 @@ class Exclusions {
 		}
 		Set<Exclusion> exclusions = this.exclusionsByDependency.get(dependency);
 		if (exclusions == null) {
-			exclusions = new HashSet<Exclusion>();
+			exclusions = new HashSet<>();
 			this.exclusionsByDependency.put(dependency, exclusions);
 		}
 		exclusions.addAll(exclusionsForDependency);

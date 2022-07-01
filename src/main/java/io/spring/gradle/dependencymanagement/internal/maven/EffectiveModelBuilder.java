@@ -55,7 +55,7 @@ final class EffectiveModelBuilder {
 	}
 
 	List<Model> buildModels(List<ModelInput> inputs) {
-		List<Model> models = new ArrayList<Model>();
+		List<Model> models = new ArrayList<>();
 		InMemoryModelCache cache = new InMemoryModelCache();
 		for (ModelInput input : inputs) {
 			models.add(buildModel(input, cache));
@@ -86,7 +86,7 @@ final class EffectiveModelBuilder {
 	}
 
 	private List<ModelProblem> extractErrors(List<ModelProblem> problems) {
-		List<ModelProblem> errors = new ArrayList<ModelProblem>();
+		List<ModelProblem> errors = new ArrayList<>();
 		for (ModelProblem problem : problems) {
 			if (problem.getSeverity() == ModelProblem.Severity.ERROR) {
 				errors.add(problem);
@@ -128,7 +128,7 @@ final class EffectiveModelBuilder {
 
 	private static final class InMemoryModelCache implements ModelCache {
 
-		private final Map<Key, Object> cache = new ConcurrentHashMap<Key, Object>();
+		private final Map<Key, Object> cache = new ConcurrentHashMap<>();
 
 		@Override
 		public Object get(String groupId, String artifactId, String version, String tag) {
@@ -166,16 +166,8 @@ final class EffectiveModelBuilder {
 					return false;
 				}
 				Key other = (Key) obj;
-				if (!this.groupId.equals(other.groupId)) {
-					return false;
-				}
-				if (!this.artifactId.equals(other.artifactId)) {
-					return false;
-				}
-				if (!this.version.equals(other.version)) {
-					return false;
-				}
-				if (!this.tag.equals(other.tag)) {
+				if (!this.groupId.equals(other.groupId) || !this.artifactId.equals(other.artifactId)
+						|| !this.version.equals(other.version) || !this.tag.equals(other.tag)) {
 					return false;
 				}
 				return true;

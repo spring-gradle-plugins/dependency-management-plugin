@@ -30,7 +30,7 @@ import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
  */
 class StandardMavenBomHandler implements MavenBomHandler {
 
-	private final Map<String, String> bomProperties = new HashMap<String, String>();
+	private final Map<String, String> bomProperties = new HashMap<>();
 
 	@Override
 	public void bomProperty(String name, String value) {

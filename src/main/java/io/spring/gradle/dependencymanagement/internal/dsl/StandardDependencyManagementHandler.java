@@ -47,7 +47,7 @@ class StandardDependencyManagementHandler implements DependencyManagementHandler
 	}
 
 	@Override
-	public void imports(Closure closure) {
+	public void imports(Closure<?> closure) {
 		closure.setResolveStrategy(Closure.DELEGATE_FIRST);
 		closure.setDelegate(new StandardImportsHandler(this.container, this.configuration));
 		closure.call();
@@ -59,7 +59,7 @@ class StandardDependencyManagementHandler implements DependencyManagementHandler
 	}
 
 	@Override
-	public void dependencies(Closure closure) {
+	public void dependencies(Closure<?> closure) {
 		closure.setResolveStrategy(Closure.DELEGATE_FIRST);
 		closure.setDelegate(new StandardDependenciesHandler(this.container, this.configuration));
 		closure.call();

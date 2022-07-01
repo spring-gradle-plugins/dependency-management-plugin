@@ -52,17 +52,17 @@ public class DependencyManagement {
 
 	private boolean resolved;
 
-	private final Map<String, String> versions = new HashMap<String, String>();
+	private final Map<String, String> versions = new HashMap<>();
 
-	private final Map<String, String> explicitVersions = new HashMap<String, String>();
+	private final Map<String, String> explicitVersions = new HashMap<>();
 
 	private final Exclusions explicitExclusions = new Exclusions();
 
 	private final Exclusions allExclusions = new Exclusions();
 
-	private final Map<String, String> bomProperties = new HashMap<String, String>();
+	private final Map<String, String> bomProperties = new HashMap<>();
 
-	private final List<PomReference> importedBoms = new ArrayList<PomReference>();
+	private final List<PomReference> importedBoms = new ArrayList<>();
 
 	DependencyManagement(Project project, PomResolver pomResolver) {
 		this(project, null, pomResolver);
@@ -106,7 +106,7 @@ public class DependencyManagement {
 
 	Map<String, String> getManagedVersions() {
 		resolveIfNecessary();
-		return new HashMap<String, String>(this.versions);
+		return new HashMap<>(this.versions);
 	}
 
 	/**
@@ -114,7 +114,7 @@ public class DependencyManagement {
 	 * @return the managed dependencies
 	 */
 	public List<Dependency> getManagedDependencies() {
-		List<Dependency> managedDependencies = new ArrayList<Dependency>();
+		List<Dependency> managedDependencies = new ArrayList<>();
 		for (Map.Entry<String, String> entry : this.explicitVersions.entrySet()) {
 			String[] components = entry.getKey().split(":");
 			managedDependencies.add(new Dependency(new Coordinates(components[0], components[1], entry.getValue()),
@@ -161,7 +161,7 @@ public class DependencyManagement {
 		else {
 			logger.info("Resolving global dependency management for project '{}'", this.project.getName());
 		}
-		Map<String, String> existingVersions = new HashMap<String, String>();
+		Map<String, String> existingVersions = new HashMap<>();
 		existingVersions.putAll(this.versions);
 
 		logger.debug("Preserving existing versions: {}", existingVersions);

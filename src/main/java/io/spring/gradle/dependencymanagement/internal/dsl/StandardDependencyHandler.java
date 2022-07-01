@@ -31,7 +31,7 @@ import org.gradle.api.InvalidUserDataException;
  */
 final class StandardDependencyHandler implements DependencyHandler {
 
-	private final List<Exclusion> exclusions = new ArrayList<Exclusion>();
+	private final List<Exclusion> exclusions = new ArrayList<>();
 
 	@Override
 	public void exclude(String exclusion) {
