@@ -15,14 +15,16 @@ Andy Wilkinson
 :github: https://github.com/spring-gradle-plugins/dependency-management-plugin
 :platform-docs: https://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle
 
+
+
 [[abstract]]
 A Gradle plugin that provides Maven-like dependency management and exclusions
 
+
+
 [[introduction]]
 == Introduction
-Based on the configured dependency management metadata, the Dependency Management Plugin
-will control the versions of your project's direct and transitive dependencies and will
-honour any exclusions declared in the poms of your project's dependencies.
+Based on the configured dependency management metadata, the Dependency Management Plugin will control the versions of your project's direct and transitive dependencies and will honour any exclusions declared in the poms of your project's dependencies.
 
 
 
@@ -31,14 +33,16 @@ honour any exclusions declared in the poms of your project's dependencies.
 
 The Plugin has the following requirements:
 
- - Gradle 2.x (2.9 or later), 3.x, 4.x, 5.x, 6.x, or 7.x. Gradle 2.8 and earlier are not supported.
+ - Gradle 2.x (2.9 or later), 3.x, 4.x, 5.x, 6.x, or 7.x.
+   Gradle 2.8 and earlier are not supported.
  - Java 6 or later
+
+
 
 [[getting-started]]
 == Getting Started
 
-The plugin is https://plugins.gradle.org/plugin/io.spring.dependency-management[available
-in the Gradle Plugin Portal] and can be applied like this:
+The plugin is https://plugins.gradle.org/plugin/io.spring.dependency-management[available in the Gradle Plugin Portal] and can be applied like this:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -58,8 +62,7 @@ plugins {
 
 If you prefer, the plugin is also available from Maven Central and JCenter.
 
-Snapshots are available from https://repo.spring.io/plugins-snapshot and can be used as
-shown in the following example:
+Snapshots are available from https://repo.spring.io/plugins-snapshot and can be used as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -94,8 +97,7 @@ apply(plugin = "io.spring.dependency-management")
 ----
 
 
-With this basic configuration in place, you're ready to configure the project's dependency
-management and declare its dependencies.
+With this basic configuration in place, you're ready to configure the project's dependency management and declare its dependencies.
 
 
 
@@ -107,16 +109,14 @@ You have two options for configuring the plugin's dependency management:
 1. Use the plugin's DSL to configure dependency management directly
 2. Import one or more existing Maven boms.
 
-Dependency management can be applied to every configuration (the default) or to one or
-more specific configurations.
+Dependency management can be applied to every configuration (the default) or to one or more specific configurations.
 
 
 
 [[dependency-management-configuration-dsl]]
 === Dependency Management DSL
 
-The DSL allows you to declare dependency management using a `:` separated string
-to configure the coordinates of the managed dependency, as shown in the following example:
+The DSL allows you to declare dependency management using a `:` separated string to configure the coordinates of the managed dependency, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -138,8 +138,7 @@ dependencyManagement {
 }
 ----
 
-Alternatively, you can use a map with `group`, `name`, and `version` entries, as shown
-in the following example:
+Alternatively, you can use a map with `group`, `name`, and `version` entries, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -165,9 +164,8 @@ dependencyManagement {
 }
 ----
 
-With either syntax, this configuration will cause all dependencies (direct or transitive)
-on `spring-core` to have the version `4.0.3.RELEASE`. When dependency management is in
-place, you can declare a dependency without a version, as shown in the following example:
+With either syntax, this configuration will cause all dependencies (direct or transitive) on `spring-core` to have the version `4.0.3.RELEASE`.
+When dependency management is in place, you can declare a dependency without a version, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -190,9 +188,8 @@ dependencies {
 [[dependency-management-configuration-dsl-dependency-sets]]
 ==== Dependency Sets
 
-When you want to provide dependency management for multiple modules with the same group
-and version you should use a dependency set. Using a dependency set removes the need to
-specify the same group and version multiple times, as shown in the following example:
+When you want to provide dependency management for multiple modules with the same group and version you should use a dependency set.
+Using a dependency set removes the need to specify the same group and version multiple times, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -225,13 +222,10 @@ dependencyManagement {
 [[dependency-management-configuration-dsl-exclusions]]
 ==== Exclusions
 
-You can also use the DSL to declare exclusions. The two main advantages of using this mechanism
-are that they will be included in the `<dependencyManagement>` of your project's
-<<pom-generation,generated pom>> and that they will be applied using <<maven-exclusions,
-Maven's exclusion semantics>>.
+You can also use the DSL to declare exclusions.
+The two main advantages of using this mechanism are that they will be included in the `<dependencyManagement>` of your project's <<pom-generation,generated pom>> and that they will be applied using <<maven-exclusions, Maven's exclusion semantics>>.
 
-An exclusion can be declared on individual dependencies, as shown in the following
-example:
+An exclusion can be declared on individual dependencies, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -257,8 +251,7 @@ dependencyManagement {
 }
 ----
 
-An exclusion can also be declared on an entry in a dependency set, as shown in the
-following example:
+An exclusion can also be declared on an entry in a dependency set, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -288,20 +281,17 @@ dependencyManagement {
 }
 ----
 
-As shown in the two examples above, an exclusion can be identified using a string in the
-form `'group:name'` or a map with `group` and `name` entries.
+As shown in the two examples above, an exclusion can be identified using a string in the form `'group:name'` or a map with `group` and `name` entries.
 
-NOTE: Gradle does not provide an API for accessing a dependency's classifier during
-resolution. Unfortunately, this means that dependency management-based exclusions will not
-work when a classifier is involved.
+NOTE: Gradle does not provide an API for accessing a dependency's classifier during resolution.
+Unfortunately, this means that dependency management-based exclusions will not work when a classifier is involved.
 
 
 
 [[dependency-management-configuration-bom-import]]
 === Importing a Maven Bom
 
-The plugin also allows you to import an existing Maven bom to utilise its dependency
-management, as shown in the following example:
+The plugin also allows you to import an existing Maven bom to utilise its dependency management, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -331,8 +321,7 @@ dependencies {
 }
 ----
 
-This configuration will apply the {platform-docs}/#appendix-dependency-versions[versions
-in the Spring IO Platform bom] to the project's dependencies:
+This configuration will apply the {platform-docs}/#appendix-dependency-versions[versions in the Spring IO Platform bom] to the project's dependencies:
 
 [source,shell,indent=0,subs="verbatim,attributes"]
 ----
@@ -376,19 +365,17 @@ It has also set the version of all of the Spring Framework dependencies to `4.0.
 [[dependency-management-configuration-bom-import-multiple]]
 ==== Importing Multiple Boms
 
-If you import more than one bom, the order in which the boms are imported can be
-important. The boms are processed in the order in which they are imported. If multiple
-boms provide dependency management for the same dependency, the dependency management
-from the last bom will be used.
+If you import more than one bom, the order in which the boms are imported can be important.
+The boms are processed in the order in which they are imported.
+If multiple boms provide dependency management for the same dependency, the dependency management from the last bom will be used.
 
 
 
 [[dependency-management-configuration-bom-import-override]]
 ==== Overriding Versions in a Bom
 
-If you want to deviate slightly from the dependency management provided by a bom, it can
-be useful to be able to override a particular managed version. There are two ways to do
-this:
+If you want to deviate slightly from the dependency management provided by a bom, it can be useful to be able to override a particular managed version.
+There are two ways to do this:
 
 1. Change the value of a version property
 2. Override the dependency management
@@ -398,19 +385,14 @@ this:
 [[dependency-management-configuration-bom-import-override-property]]
 ===== Changing the Value of a Version Property
 
-If the bom has been written to use properties for its versions then you can override the
-version by providing a different value for the relevant version property.
+If the bom has been written to use properties for its versions then you can override the version by providing a different value for the relevant version property.
 
-NOTE: You should only use this approach if you do not intend to <<pom-generation,
-generate and publish a Maven pom>> for your project as it will result in a pom that does
-not override the version.
+NOTE: You should only use this approach if you do not intend to <<pom-generation, generate and publish a Maven pom>> for your project as it will result in a pom that does not override the version.
 
-Building on the example above, the Spring IO Platform bom that is used contains a property
-named `spring.version`. This property determines the version of all of the Spring
-Framework modules and, by default, its value is `4.0.6.RELEASE`.
+Building on the example above, the Spring IO Platform bom that is used contains a property named `spring.version`.
+This property determines the version of all of the Spring Framework modules and, by default, its value is `4.0.6.RELEASE`.
 
-A property can be overridden as part of importing a bom, as shown in the following
-example:
+A property can be overridden as part of importing a bom, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -466,9 +448,8 @@ dependencyManagement {
 }
 ----
 
-Alternatively, the property can also be overridden using a project's properties configured
-via any of the mechanisms that Gradle provides. You may choose to configure
-it in your `build.gradle` script, as shown in the following example:
+Alternatively, the property can also be overridden using a project's properties configured via any of the mechanisms that Gradle provides.
+You may choose to configure it in your `build.gradle` script, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -489,8 +470,7 @@ Or in `gradle.properties`
 spring.version=4.0.4.RELEASE
 ----
 
-Wherever you configure it, the version of any Spring Framework modules will now match the
-value of the property:
+Wherever you configure it, the version of any Spring Framework modules will now match the value of the property:
 
 [source,shell,indent=0,subs="verbatim,attributes"]
 ----
@@ -530,11 +510,8 @@ compileClasspath - Compile classpath for source set 'main'.
 [[dependency-management-configuration-bom-import-override-dependency-management]]
 ===== Overriding the Dependency Management
 
-If the bom that you have imported does not use properties, or you want the override to be
-honoured in the Maven pom that's generated for your Gradle project, you should use
-dependency management to perform the override. For example, if you're using the Spring IO
-Platform bom, you can override its version of Guava and have that override apply to the
-generated pom, as shown in the following example:
+If the bom that you have imported does not use properties, or you want the override to be honoured in the Maven pom that's generated for your Gradle project, you should use dependency management to perform the override.
+For example, if you're using the Spring IO Platform bom, you can override its version of Guava and have that override apply to the generated pom, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -584,11 +561,9 @@ This will produce the following `<dependencyManagement>` in the generated pom fi
 </dependencyManagement>
 ----
 
-The dependency management for Guava that's declared directly in the pom takes precedence
-over any dependency management for Guava in the `platform-bom` that's been imported.
+The dependency management for Guava that's declared directly in the pom takes precedence over any dependency management for Guava in the `platform-bom` that's been imported.
 
-You can also override the dependency management by declaring a dependency and configuring
-it with the desired version, as shown in the following example:
+You can also override the dependency management by declaring a dependency and configuring it with the desired version, as shown in the following example:
 
 [source,indent=0,subs="verbatim,attributes"]
 ----
@@ -597,11 +572,8 @@ dependencies {
 }
 ----
 
-This will cause any dependency (direct or transitive) on `com.google.guava:guava:18.0` in
-the `implementation` configuration to use version `18.0`, overriding any dependency management
-that may exist. If you do not want a project's dependencies to override its dependency
-management, this behavior can be disabled using `overriddenByDependencies`, as shown in
-the following example:
+This will cause any dependency (direct or transitive) on `com.google.guava:guava:18.0` in the `implementation` configuration to use version `18.0`, overriding any dependency management that may exist.
+If you do not want a project's dependencies to override its dependency management, this behavior can be disabled using `overriddenByDependencies`, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -625,9 +597,7 @@ dependencyManagement {
 
 The plugin uses separate, detached configurations for its internal dependency resolution.
 You can configure the resolution strategy for these configurations using a closure.
-If you're using a snapshot, you may want to disable the caching of an imported bom by
-configuring Gradle to cache changing modules for zero seconds, as shown in the following
-example:
+If you're using a snapshot, you may want to disable the caching of an imported bom by configuring Gradle to cache changing modules for zero seconds, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -654,9 +624,7 @@ dependencyManagement {
 [[dependency-management-configuration-specific]]
 === Dependency Management for Specific Configurations
 
-To target dependency management at a single configuration, you nest the dependency
-management within a block named after the configuration, such as `implementation` as shown
-in the following example:
+To target dependency management at a single configuration, you nest the dependency management within a block named after the configuration, such as `implementation` as shown in the following example:
 
 [source,indent=0,subs="verbatim,attributes"]
 ----
@@ -672,9 +640,7 @@ dependencyManagement {
 }
 ----
 
-To target dependency management at multiple configurations, you use `configurations` to
-list the configurations to which the dependency management should be applied, as shown in
-the following example:
+To target dependency management at multiple configurations, you use `configurations` to list the configurations to which the dependency management should be applied, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -716,10 +682,9 @@ dependencyManagement {
 [[accessing-properties]]
 == Accessing Properties from Imported Boms
 
-The plugin makes all of the properties from imported boms available for use in your Gradle
-build. Properties from both global dependency management and configuration-specific
-dependency management can be accessed. A property named `spring.version` from global
-dependency management can be accessed as shown in the following example:
+The plugin makes all of the properties from imported boms available for use in your Gradle build.
+Properties from both global dependency management and configuration-specific dependency management can be accessed.
+A property named `spring.version` from global dependency management can be accessed as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -733,31 +698,25 @@ dependencyManagement.importedProperties['spring.version']
 dependencyManagement.importedProperties["spring.version"]
 ----
 
-The same property from the implementation configuration's dependency management can be
-accessed as shown in the following example:
+The same property from the implementation configuration's dependency management can be accessed as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
 dependencyManagement.implementation.importedProperties['spring.version']
 ----
-
-NOTE: Accessing imported properties for a specific configuration is not currently
-supported when using the Kotlin DSL.
+NOTE: Accessing imported properties for a specific configuration is not currently supported when using the Kotlin DSL.
 
 
 
 [[maven-exclusions]]
 == Maven Exclusions
 
-While Gradle can consume dependencies described with a Maven pom file, Gradle does not
-honour Maven's semantics when it is using the pom to build the dependency graph. A notable
-difference that results from this is in how exclusions are handled. This is best
-illustrated with an example.
+While Gradle can consume dependencies described with a Maven pom file, Gradle does not honour Maven's semantics when it is using the pom to build the dependency graph.
+A notable difference that results from this is in how exclusions are handled.
+This is best illustrated with an example.
 
-Consider a Maven artifact, `exclusion-example`, that declares a dependency on
-`org.springframework:spring-core` in its pom with an exclusion for
-`commons-logging:commons-logging`, as illustrated in the following example:
+Consider a Maven artifact, `exclusion-example`, that declares a dependency on `org.springframework:spring-core` in its pom with an exclusion for `commons-logging:commons-logging`, as illustrated in the following example:
 
 [source,xml,indent=0,subs="verbatim,attributes"]
 ----
@@ -774,9 +733,7 @@ Consider a Maven artifact, `exclusion-example`, that declares a dependency on
 </dependency>
 ----
 
-If we have a Maven project, `consumer`, that depends on
-`exclusion-example` and `org.springframework:spring-beans` the exclusion in
-`exlusion-example` prevents a transitive dependency on `commons-logging:commons-logging`.
+If we have a Maven project, `consumer`, that depends on `exclusion-example` and `org.springframework:spring-beans` the exclusion in `exlusion-example` prevents a transitive dependency on `commons-logging:commons-logging`.
 This can be seen in the following output from `mvn dependency:tree`:
 
 [source,indent=0,subs="verbatim,attributes"]
@@ -786,9 +743,8 @@ This can be seen in the following output from `mvn dependency:tree`:
 \- org.springframework:spring-beans:jar:4.1.3.RELEASE:compile
 ----
 
-If we create a similar project in Gradle the dependencies are different as the exclusion
-of `commons-logging:commons-logging` is not honored. This can be seen in the following output
-from `gradle dependencies`:
+If we create a similar project in Gradle the dependencies are different as the exclusion of `commons-logging:commons-logging` is not honored.
+This can be seen in the following output from `gradle dependencies`:
 
 [source,indent=0,subs="verbatim,attributes"]
 ----
@@ -799,21 +755,17 @@ from `gradle dependencies`:
      \--- org.springframework:spring-core:4.1.3.RELEASE (*)
 ----
 
-Despite `exclusion-example` excluding `commons-logging` from its `spring-core` dependency,
-`spring-core` has still pulled in `commons-logging`.
+Despite `exclusion-example` excluding `commons-logging` from its `spring-core` dependency, `spring-core` has still pulled in `commons-logging`.
 
-The dependency management plugin improves Gradle's handling of exclusions that have been
-declared in a Maven pom by honoring Maven's semantics for those exclusions. This applies
-to exclusions declared in a project's dependencies that have a Maven pom and exclusions
-declared in imported Maven boms.
+The dependency management plugin improves Gradle's handling of exclusions that have been declared in a Maven pom by honoring Maven's semantics for those exclusions.
+This applies to exclusions declared in a project's dependencies that have a Maven pom and exclusions declared in imported Maven boms.
 
 
 
 [[maven-exclusions-disabling]]
 === Disabling Maven exclusions
 
-The plugin's support for applying Maven's exclusion semantics can be disabled by setting
-`applyMavenExclusions` to false, as shown in the following example:
+The plugin's support for applying Maven's exclusion semantics can be disabled by setting `applyMavenExclusions` to false, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -836,11 +788,9 @@ dependencyManagement {
 [[pom-generation]]
 == Pom generation
 
-Gradle's `maven` and `maven-publish` plugins automatically generate a pom file that
-describes the published artifact. The plugin will automatically include any global
-dependency management, i.e. dependency management that does not target a specific
-configuration, in the `<dependencyManagement>` section of the generated pom file. For
-example, the following dependency management configuration:
+Gradle's `maven` and `maven-publish` plugins automatically generate a pom file that describes the published artifact.
+The plugin will automatically include any global dependency management, i.e. dependency management that does not target a specific configuration, in the `<dependencyManagement>` section of the generated pom file.
+For example, the following dependency management configuration:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -894,9 +844,7 @@ Will result in the following `<dependencyManagement>` in the generated pom file:
 [[pom-generation-disabling]]
 === Disabling the customization of a generated pom
 
-If you prefer to have complete control over your project's generated pom, you can disable
-the plugin's customization by setting `enabled` to false, as shown in the following
-example:
+If you prefer to have complete control over your project's generated pom, you can disable the plugin's customization by setting `enabled` to false, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -923,9 +871,7 @@ dependencyManagement {
 [[pom-generation-manual]]
 === Configuring your own pom
 
-If your build creates a pom outside of Gradle's standard `maven` and `maven-publish`
-mechanisms you can still configure its dependency management by using the `pomConfigurer`
-from `dependencyManagement`:
+If your build creates a pom outside of Gradle's standard `maven` and `maven-publish` mechanisms you can still configure its dependency management by using the `pomConfigurer` from `dependencyManagement`:
 
 [source,indent=0,subs="verbatim,attributes"]
 ----
@@ -941,8 +887,7 @@ dependencyManagement.pomConfigurer.configurePom(yourPom)
 [[working-with-managed-versions-dependency-management-task]]
 === Dependency Management Task
 
-The plugin provides a task, `dependencyManagement`, that will output a report of the
-project's dependency management, as shown in the following example:
+The plugin provides a task, `dependencyManagement`, that will output a report of the project's dependency management, as shown in the following example:
 
 [source,shell,indent=0,subs="verbatim,attributes"]
 ----
@@ -1041,9 +986,8 @@ dependencyManagement {
 [[working-with-managed-versions-programmatic-access]]
 === Programmatic access
 
-The plugin provides an API for accessing the versions provided by the configured
-dependency management. The managed versions from global dependency management are
-available from `dependencyManagement.managedVersions`, as shown in the following example:
+The plugin provides an API for accessing the versions provided by the configured dependency management.
+The managed versions from global dependency management are available from `dependencyManagement.managedVersions`, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -1057,9 +1001,7 @@ def managedVersions = dependencyManagement.managedVersions
 val managedVersions = dependencyManagement.managedVersions
 ----
 
-Managed versions from configuration-specific dependency management are available from
-`dependencyManagement.<configuration>.managedVersions`, as shown in the following
-example for the `implementation `configuratation`:
+Managed versions from configuration-specific dependency management are available from `dependencyManagement.<configuration>.managedVersions`, as shown in the following example for the `implementation `configuratation`:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -1073,8 +1015,7 @@ def managedVersions = dependencyManagement.implementation.managedVersions
 dependencyManagement.getManagedVersionsForConfiguration(configurations.getByName("implementation"))
 ----
 
-The managed versions are of map of `groupId:artifactId` to `version`, as shown in the
-following example for accessing the version of `org.springframework:spring-core`:
+The managed versions are of map of `groupId:artifactId` to `version`, as shown in the following example for accessing the version of `org.springframework:spring-core`:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
