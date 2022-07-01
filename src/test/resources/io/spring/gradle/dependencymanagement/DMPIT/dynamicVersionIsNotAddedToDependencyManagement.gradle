@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-	compile 'commons-logging:commons-logging:latest.integration'
+	implementation 'commons-logging:commons-logging:latest.integration'
 }
 
 task managedVersions {

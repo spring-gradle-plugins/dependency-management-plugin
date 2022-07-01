@@ -17,12 +17,12 @@ dependencyManagement {
 }
 
 dependencies {
-	compile 'org.springframework:spring-core:4.0.4.RELEASE'
+	implementation 'org.springframework:spring-core:4.0.4.RELEASE'
 }
 
 task resolve {
 	doFirst {
-		def files = project.configurations.compile.resolve()
+		def files = project.configurations.compileClasspath.resolve()
 		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }

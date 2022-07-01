@@ -8,12 +8,12 @@ repositories {
 }
 
 dependencies {
-	compile 'org.springframework.boot:spring-boot-starter-remote-shell:1.2.0.RELEASE'
+	implementation 'org.springframework.boot:spring-boot-starter-remote-shell:1.2.0.RELEASE'
 }
 
 task resolve {
 	doFirst {
-		def files = project.configurations.compile.resolve()
+		def files = project.configurations.compileClasspath.resolve()
 		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }

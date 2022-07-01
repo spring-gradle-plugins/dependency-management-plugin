@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencyManagement {
-	configurations(project.configurations.getByName("compile")) {
+	configurations(project.configurations.getByName("implementation")) {
 		dependencies {
 			dependency 'org.springframework:spring-core:4.0.0.RELEASE'
 		}
@@ -19,7 +19,7 @@ task managedVersions {
 	doFirst {
 		def output = new File("${buildDir}/managed-versions.txt")
 		output.parentFile.mkdirs()
-		dependencyManagement.compile.managedVersions.each { key, value ->
+		dependencyManagement.implementation.managedVersions.each { key, value ->
 			output << "${key} -> ${value}\n"
 		}
 	}

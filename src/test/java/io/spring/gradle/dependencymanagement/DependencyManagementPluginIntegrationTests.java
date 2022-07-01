@@ -94,9 +94,9 @@ class DependencyManagementPluginIntegrationTests {
 	void transitiveProjectDependenciesTakePrecedenceOverDependencyManagement() {
 		writeLines(Paths.get("settings.gradle"), "include ':child'", "include ':grandchild'");
 		writeLines(Paths.get("child", "build.gradle"), "group = 'test'", "version = '1.1.0'", "apply plugin: 'java'",
-				"dependencies {", "\tcompile project([path: ':grandchild'])", "}");
+				"dependencies {", "\timplementation project([path: ':grandchild'])", "}");
 		writeLines(Paths.get("grandchild", "build.gradle"), "group = 'test-other'", "version = '1.1.0'",
-				"apply plugin: 'java'", "dependencies {", "\tcompile project([path: ':grandchild'])", "}");
+				"apply plugin: 'java'", "dependencies {", "\timplementation project([path: ':grandchild'])", "}");
 		this.gradleBuild.runner().withArguments("resolve").build();
 		assertThat(readLines("resolved.txt")).containsOnly("child-1.1.0.jar", "grandchild-1.1.0.jar");
 	}

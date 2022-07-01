@@ -17,13 +17,13 @@ dependencyManagement {
 }
 
 dependencies {
-	compile 'org.slf4j:slf4j-api'
-	compile 'org.slf4j:slf4j-simple'
+	implementation 'org.slf4j:slf4j-api'
+	implementation 'org.slf4j:slf4j-simple'
 }
 
 task resolve {
 	doFirst {
-		def files = project.configurations.compile.resolve()
+		def files = project.configurations.compileClasspath.resolve()
 		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }

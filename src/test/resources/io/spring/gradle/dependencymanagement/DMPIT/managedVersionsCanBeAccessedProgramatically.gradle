@@ -11,7 +11,7 @@ dependencyManagement {
 	imports {
 		mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
 	}
-	testRuntime {
+	testRuntimeOnly {
 		dependencies {
 			dependency 'com.foo:bar:1.2.3'
 		}
@@ -34,20 +34,20 @@ def verifyManagedVersion(def versions, def id, def expected) {
 
 task verify {
 	doFirst {
-		verifyManagedVersion(dependencyManagement.compile.managedVersions, "org.springframework:spring-core", "4.0.6.RELEASE")
-		verifyManagedVersion(dependencyManagement.testRuntime.managedVersions, "org.springframework:spring-core", "4.0.6.RELEASE")
+		verifyManagedVersion(dependencyManagement.implementation.managedVersions, "org.springframework:spring-core", "4.0.6.RELEASE")
+		verifyManagedVersion(dependencyManagement.testRuntimeOnly.managedVersions, "org.springframework:spring-core", "4.0.6.RELEASE")
 		verifyManagedVersion(dependencyManagement.managedVersions, "org.springframework:spring-core", "4.0.6.RELEASE")
 		
-		verifyManagedVersion(dependencyManagement.compile.managedVersions, "com.foo:bar", null)
-		verifyManagedVersion(dependencyManagement.testRuntime.managedVersions, "com.foo:bar", "1.2.3")
+		verifyManagedVersion(dependencyManagement.implementation.managedVersions, "com.foo:bar", null)
+		verifyManagedVersion(dependencyManagement.testRuntimeOnly.managedVersions, "com.foo:bar", "1.2.3")
 		verifyManagedVersion(dependencyManagement.managedVersions, "com.foo:bar", null)
 		
-		verifyManagedVersion(dependencyManagement.compile.managedVersions, "com.alpha:bravo", "1.0")
-		verifyManagedVersion(dependencyManagement.testRuntime.managedVersions, "com.alpha:bravo", "1.0")
+		verifyManagedVersion(dependencyManagement.implementation.managedVersions, "com.alpha:bravo", "1.0")
+		verifyManagedVersion(dependencyManagement.testRuntimeOnly.managedVersions, "com.alpha:bravo", "1.0")
 		verifyManagedVersion(dependencyManagement.managedVersions, "com.alpha:bravo", "1.0")
 		
-		verifyManagedVersion(dependencyManagement.compile.managedVersions, "com.alpha:charlie", "1.0")
-		verifyManagedVersion(dependencyManagement.testRuntime.managedVersions, "com.alpha:charlie", "1.0")
+		verifyManagedVersion(dependencyManagement.implementation.managedVersions, "com.alpha:charlie", "1.0")
+		verifyManagedVersion(dependencyManagement.testRuntimeOnly.managedVersions, "com.alpha:charlie", "1.0")
 		verifyManagedVersion(dependencyManagement.managedVersions, "com.alpha:charlie", "1.0")
 	}
 }

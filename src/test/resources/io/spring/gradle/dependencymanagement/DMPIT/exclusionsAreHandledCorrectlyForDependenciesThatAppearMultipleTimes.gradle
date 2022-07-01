@@ -8,13 +8,13 @@ repositories {
 }
 
 dependencies {
-	compile("org.springframework.cloud:spring-cloud-starter-eureka:1.0.0.RELEASE")
-	compile("org.springframework.boot:spring-boot-starter-web:1.2.3.RELEASE")
+	implementation("org.springframework.cloud:spring-cloud-starter-eureka:1.0.0.RELEASE")
+	implementation("org.springframework.boot:spring-boot-starter-web:1.2.3.RELEASE")
 }
 
 task resolve {
 	doFirst {
-		def files = project.configurations.compile.resolve()
+		def files = project.configurations.compileClasspath.resolve()
 		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }
