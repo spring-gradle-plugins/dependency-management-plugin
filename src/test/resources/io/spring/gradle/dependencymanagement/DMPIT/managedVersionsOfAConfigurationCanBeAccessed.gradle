@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencyManagement {
-	compile {
+	implementation {
 		imports {
 			mavenBom 'org.springframework.boot:spring-boot-dependencies:1.2.7.RELEASE'
 		}
@@ -25,7 +25,7 @@ def verifyManagedVersion(def versions, def id, def expected) {
 
 task verify {
 	doFirst {
-		verifyManagedVersion(dependencyManagement.runtime.managedVersions, "org.springframework:spring-core", "4.1.8.RELEASE")
-		verifyManagedVersion(dependencyManagement.getManagedVersionsForConfiguration(configurations.runtime), "org.springframework:spring-core", null)
+		verifyManagedVersion(dependencyManagement.testImplementation.managedVersions, "org.springframework:spring-core", "4.1.8.RELEASE")
+		verifyManagedVersion(dependencyManagement.getManagedVersionsForConfiguration(configurations.testImplementation), "org.springframework:spring-core", null)
 	}
 }

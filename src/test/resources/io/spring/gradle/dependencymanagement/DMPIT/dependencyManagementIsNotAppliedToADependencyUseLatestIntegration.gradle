@@ -14,12 +14,12 @@ dependencyManagement {
 }
 
 dependencies {
-	compile "commons-logging:commons-logging:latest.integration"
+	implementation "commons-logging:commons-logging:latest.integration"
 }
 
 task resolve {
 	doFirst {
-		def files = project.configurations.runtime.resolve()
+		def files = project.configurations.runtimeClasspath.resolve()
 		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }

@@ -16,12 +16,12 @@ dependencyManagement {
 	}
 }
 dependencies {
-	compile 'test:unresolvable-transitive-dependency'
+	implementation 'test:unresolvable-transitive-dependency'
 }
 
 task resolve {
 	doFirst {
-		def files = project.configurations.compile.resolve()
+		def files = project.configurations.compileClasspath.resolve()
 		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }

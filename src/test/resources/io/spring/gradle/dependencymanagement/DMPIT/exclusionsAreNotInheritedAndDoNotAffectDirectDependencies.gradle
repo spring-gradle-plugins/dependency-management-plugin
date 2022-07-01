@@ -11,13 +11,13 @@ repositories {
 }
 
 dependencies {
-	compile 'test:direct-exclude:1.0'
-	testCompile 'commons-logging:commons-logging:1.1.3'
+	implementation 'test:direct-exclude:1.0'
+	testImplementation 'commons-logging:commons-logging:1.1.3'
 }
 
 task resolveCompile {
 	doFirst {
-		def files = project.configurations.compile.resolve()
+		def files = project.configurations.compileClasspath.resolve()
 		def output = new File("${buildDir}/resolved-compile.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }
@@ -26,7 +26,7 @@ task resolveCompile {
 
 task resolveTestCompile {
 	doFirst {
-		def files = project.configurations.testCompile.resolve()
+		def files = project.configurations.testCompileClasspath.resolve()
 		def output = new File("${buildDir}/resolved-test-compile.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }

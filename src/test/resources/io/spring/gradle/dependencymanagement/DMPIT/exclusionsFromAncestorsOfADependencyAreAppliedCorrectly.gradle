@@ -9,12 +9,12 @@ repositories {
 }
 
 dependencies {
-	compile 'org.springframework.cloud:spring-cloud-starter-zuul:1.0.0.RC1'
+	implementation 'org.springframework.cloud:spring-cloud-starter-zuul:1.0.0.RC1'
 }
 
 task resolve {
 	doFirst {
-		def files = project.configurations.compile.resolve()
+		def files = project.configurations.compileClasspath.resolve()
 		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }

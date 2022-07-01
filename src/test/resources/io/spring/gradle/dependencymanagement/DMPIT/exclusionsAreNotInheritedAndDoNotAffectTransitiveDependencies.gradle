@@ -14,13 +14,13 @@ dependencyManagement {
 }
 
 dependencies {
-	compile 'org.codehaus.groovy:groovy'
-	testCompile 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.codehaus.groovy:groovy'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 task resolve {
 	doFirst {
-		def files = project.configurations.testCompile.resolve()
+		def files = project.configurations.testRuntimeClasspath.resolve()
 		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }

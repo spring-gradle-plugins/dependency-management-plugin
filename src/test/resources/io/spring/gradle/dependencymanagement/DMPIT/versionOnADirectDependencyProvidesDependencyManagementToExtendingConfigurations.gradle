@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencyManagement {
-	compile {
+	implementation {
 		dependencies {
 			dependency 'commons-logging:commons-logging:1.1.1'
 		}
@@ -16,12 +16,12 @@ dependencyManagement {
 }
 
 dependencies {
-	compile 'commons-logging:commons-logging:1.1.3'
+	implementation 'commons-logging:commons-logging:1.1.3'
 }
 
 task resolve {
 	doFirst {
-		def files = project.configurations.testRuntime.resolve()
+		def files = project.configurations.testRuntimeClasspath.resolve()
 		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }

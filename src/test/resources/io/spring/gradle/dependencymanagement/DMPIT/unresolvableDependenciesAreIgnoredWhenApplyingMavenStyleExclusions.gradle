@@ -18,17 +18,17 @@ dependencyManagement {
 	}
 }
 dependencies {
-	compile 'org.springframework:spring-core'
-	compile 'test:unresolvable-transitive-dependency:1.0'
+	implementation 'org.springframework:spring-core'
+	implementation 'test:unresolvable-transitive-dependency:1.0'
 }
 
 configurations {
-	compile.exclude group: 'test', module: 'unresolvable-dependency'
+	implementation.exclude group: 'test', module: 'unresolvable-dependency'
 }
 
 task resolve {
 	doFirst {
-		def files = project.configurations.compile.resolve()
+		def files = project.configurations.compileClasspath.resolve()
 		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }

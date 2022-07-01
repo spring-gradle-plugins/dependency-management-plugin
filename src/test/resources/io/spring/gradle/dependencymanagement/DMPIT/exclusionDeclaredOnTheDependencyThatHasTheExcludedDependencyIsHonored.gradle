@@ -11,12 +11,12 @@ repositories {
 }
 
 dependencies {
-	compile 'test:direct-exclude:1.0'
+	implementation 'test:direct-exclude:1.0'
 }
 
 task resolve {
 	doFirst {
-		def files = project.configurations.compile.resolve()
+		def files = project.configurations.compileClasspath.resolve()
 		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }
