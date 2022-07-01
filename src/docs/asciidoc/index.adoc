@@ -836,11 +836,11 @@ dependencyManagement {
 [[pom-generation]]
 == Pom generation
 
-Gradle's `maven` and `maven-publish` plugins automatically generate a pom file that
-describes the published artifact. The plugin will automatically include any global
-dependency management, i.e. dependency management that does not target a specific
-configuration, in the `<dependencyManagement>` section of the generated pom file. For
-example, the following dependency management configuration:
+Gradle's `maven-publish` plugins automatically generate a pom file that describes the
+published artifact. The plugin will automatically include any global dependency
+management, i.e. dependency management that does not target a specific configuration,
+in the `<dependencyManagement>` section of the generated pom file. For example, the
+following dependency management configuration:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -923,9 +923,9 @@ dependencyManagement {
 [[pom-generation-manual]]
 === Configuring your own pom
 
-If your build creates a pom outside of Gradle's standard `maven` and `maven-publish`
-mechanisms you can still configure its dependency management by using the `pomConfigurer`
-from `dependencyManagement`:
+If your build creates a pom outside of Gradle's standard `maven-publish` mechanism you
+can still configure its dependency management by using the `pomConfigurer` from
+`dependencyManagement`:
 
 [source,indent=0,subs="verbatim,attributes"]
 ----

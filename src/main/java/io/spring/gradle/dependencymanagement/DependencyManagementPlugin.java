@@ -22,11 +22,9 @@ import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfig
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
-import org.gradle.api.tasks.Upload;
 
 /**
  * Main class for the dependency management plugin.
@@ -54,31 +52,6 @@ public class DependencyManagementPlugin implements Plugin<Project> {
 	private void configurePomCustomization(final Project project,
 			DependencyManagementExtension dependencyManagementExtension) {
 		final PomDependencyManagementConfigurer pomConfigurer = dependencyManagementExtension.getPomConfigurer();
-		project.getTasks().withType(Upload.class, new Action<Upload>() {
-
-			@Override
-			public void execute(final Upload upload) {
-				upload.doFirst(new Action<Task>() {
-
-					@Override
-					@SuppressWarnings("deprecation")
-					public void execute(Task task) {
-						upload.getRepositories().withType(org.gradle.api.artifacts.maven.MavenResolver.class,
-								new Action<org.gradle.api.artifacts.maven.MavenResolver>() {
-
-									@Override
-									public void execute(org.gradle.api.artifacts.maven.MavenResolver mavenResolver) {
-										mavenResolver.getPom().withXml(pomConfigurer);
-									}
-
-								});
-					}
-
-				});
-
-			}
-
-		});
 		project.getPlugins().withType(MavenPublishPlugin.class, new Action<MavenPublishPlugin>() {
 
 			@Override
