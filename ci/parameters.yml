@@ -3,7 +3,7 @@ github-repository: "dependency-management-plugin"
 docker-hub-organization: "springci"
 artifactory-server: "https://repo.spring.io"
 branch: "main"
-milestone: "2.0.x"
+milestone: "1.1.x"
 build-name: "dependency-management-plugin"
 concourse-url: "https://ci.spring.io"
 task-timeout: 1h00m
