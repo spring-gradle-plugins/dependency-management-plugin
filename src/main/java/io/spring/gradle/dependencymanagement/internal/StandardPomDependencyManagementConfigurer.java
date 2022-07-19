@@ -42,6 +42,8 @@ import org.gradle.api.XmlProvider;
  */
 public class StandardPomDependencyManagementConfigurer implements PomDependencyManagementConfigurer {
 
+	private static final PropertySource EMPTY_PROPERTY_SOURCE = (name) -> null;
+
 	private static final String NODE_NAME_DEPENDENCY_MANAGEMENT = "dependencyManagement";
 
 	private static final String NODE_NAME_DEPENDENCIES = "dependencies";
@@ -121,7 +123,6 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 			if ((childObject instanceof Node) && ((Node) childObject).name().equals(name)) {
 				return (Node) childObject;
 			}
-
 		}
 		return null;
 	}
@@ -129,7 +130,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 	private void configureBomImports(Node dependencies) {
 		List<PomReference> bomReferences = this.dependencyManagement.getImportedBomReferences();
 		Map<String, Dependency> withoutPropertiesManagedDependencies = getManagedDependenciesById(bomReferences,
-				new EmptyPropertySource());
+				EMPTY_PROPERTY_SOURCE);
 		Map<String, Dependency> withPropertiesManagedDependencies = getManagedDependenciesById(bomReferences,
 				new ProjectPropertySource(this.project));
 		List<Dependency> overrides = new ArrayList<>();
@@ -161,9 +162,9 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 	}
 
 	private String createId(Dependency dependency) {
-		return String.format("%s:%s:%s:%s:%s", dependency.getCoordinates().getGroupId(),
-				dependency.getCoordinates().getArtifactId(), dependency.getScope(), dependency.getType(),
-				dependency.getClassifier());
+		Coordinates coordinates = dependency.getCoordinates();
+		return String.format("%s:%s:%s:%s", coordinates.getGroupAndArtifactId(), dependency.getScope(),
+				dependency.getType(), dependency.getClassifier());
 	}
 
 	private boolean differentVersions(Dependency dependency1, Dependency dependency2) {
@@ -243,15 +244,6 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 	private String findTextOfChild(Node node, String name) {
 		Node child = findChild(node, name);
 		return (child != null) ? child.text() : null;
-	}
-
-	private static final class EmptyPropertySource implements PropertySource {
-
-		@Override
-		public Object getProperty(String name) {
-			return null;
-		}
-
 	}
 
 }

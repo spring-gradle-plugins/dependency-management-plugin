@@ -24,6 +24,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencyResolveDetails;
+import org.gradle.api.artifacts.ResolutionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,28 +59,23 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 	public void execute(DependencyResolveDetails details) {
 		logger.debug("Processing dependency '{}'", details.getRequested());
 		if (isDependencyOnLocalProject(this.project, details)) {
-			logger.debug("'{}' is a local project dependency. Dependency management has not " + "been applied",
+			logger.debug("'{}' is a local project dependency. Dependency management has not been applied",
 					details.getRequested());
 			return;
 		}
-
 		if (isDirectDependency(details) && Versions.isDynamic(details.getRequested().getVersion())) {
-			logger.debug("'{}' is a direct dependency and has a dynamic version. Dependency management has not been "
-					+ "applied", details.getRequested());
+			logger.debug("'{}' is a direct dependency and has a dynamic version. "
+					+ "Dependency management has not been applied", details.getRequested());
 			return;
 		}
-
 		String version = this.dependencyManagementContainer.getManagedVersion(this.configuration,
 				details.getRequested().getGroup(), details.getRequested().getName());
-
 		if (version != null) {
 			logger.debug("Using version '{}' for dependency '{}'", version, details.getRequested());
 			details.useVersion(version);
+			return;
 		}
-		else {
-			logger.debug("No dependency management for dependency '{}'", details.getRequested());
-		}
-
+		logger.debug("No dependency management for dependency '{}'", details.getRequested());
 	}
 
 	private boolean isDirectDependency(DependencyResolveDetails details) {
@@ -90,8 +86,7 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 			}
 			this.directDependencies = directDependencies;
 		}
-		return this.directDependencies
-				.contains(details.getRequested().getGroup() + ":" + details.getRequested().getName());
+		return this.directDependencies.contains(getId(details));
 	}
 
 	private boolean isDependencyOnLocalProject(Project project, DependencyResolveDetails details) {
@@ -102,9 +97,15 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 			}
 			this.localProjectNames = names;
 		}
+		return this.localProjectNames.contains(getId(details));
+	}
 
-		return this.localProjectNames
-				.contains(details.getRequested().getGroup() + ":" + details.getRequested().getName());
+	private String getId(DependencyResolveDetails details) {
+		return details.getRequested().getGroup() + ":" + details.getRequested().getName();
+	}
+
+	ResolutionStrategy applyTo(Configuration c) {
+		return c.getResolutionStrategy().eachDependency(this);
 	}
 
 }

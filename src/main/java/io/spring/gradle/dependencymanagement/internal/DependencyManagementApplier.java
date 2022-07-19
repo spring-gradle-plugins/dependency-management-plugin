@@ -20,6 +20,7 @@ import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ResolvableDependencies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,19 +70,18 @@ public class DependencyManagementApplier implements Action<Configuration> {
 	public void execute(Configuration configuration) {
 		logger.info("Applying dependency management to configuration '{}' in project '{}'", configuration.getName(),
 				this.project.getName());
-
-		configuration.getIncoming().beforeResolve(
-				(resolvableDependencies) -> DependencyManagementApplier.this.dependencyManagementContainer
-						.getManagedVersionsForConfiguration(configuration));
-
+		configuration.getIncoming().beforeResolve((resolvableDependencies) -> this.dependencyManagementContainer
+				.getManagedVersionsForConfiguration(configuration));
 		VersionConfiguringAction versionConfiguringAction = new VersionConfiguringAction(this.project,
 				this.dependencyManagementContainer, configuration);
+		configuration.getIncoming().beforeResolve(configureMavenExclusions(configuration, versionConfiguringAction));
+		versionConfiguringAction.applyTo(configuration);
+	}
 
-		configuration.getIncoming().beforeResolve(new ExclusionConfiguringAction(this.dependencyManagementSettings,
-				this.dependencyManagementContainer, this.configurationContainer, configuration, this.exclusionResolver,
-				(c) -> c.getResolutionStrategy().eachDependency(versionConfiguringAction)));
-
-		configuration.getResolutionStrategy().eachDependency(versionConfiguringAction);
+	private Action<ResolvableDependencies> configureMavenExclusions(Configuration configuration,
+			VersionConfiguringAction versionConfiguringAction) {
+		return new ExclusionConfiguringAction(this.dependencyManagementSettings, this.dependencyManagementContainer,
+				this.configurationContainer, configuration, this.exclusionResolver, versionConfiguringAction::applyTo);
 	}
 
 }

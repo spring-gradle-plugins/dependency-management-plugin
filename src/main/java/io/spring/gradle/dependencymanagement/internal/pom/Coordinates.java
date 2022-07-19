@@ -66,4 +66,13 @@ public class Coordinates {
 		return this.version;
 	}
 
+	public String getGroupAndArtifactId() {
+		return String.format("%s:%s", getGroupId(), getArtifactId());
+	}
+
+	@Override
+	public String toString() {
+		return String.format("%s:%s:%s", getGroupId(), getArtifactId(), getVersion());
+	}
+
 }

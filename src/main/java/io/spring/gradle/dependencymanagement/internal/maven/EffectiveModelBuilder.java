@@ -68,7 +68,6 @@ final class EffectiveModelBuilder {
 		request.setModelSource(new FileModelSource(input.pom));
 		request.setModelResolver(this.modelResolver);
 		request.setModelCache(cache);
-
 		try {
 			ModelBuildingResult result = createModelBuilder(input.properties).build(request);
 			List<ModelProblem> errors = extractErrors(result.getProblems());
@@ -165,11 +164,11 @@ final class EffectiveModelBuilder {
 					return false;
 				}
 				Key other = (Key) obj;
-				if (!this.groupId.equals(other.groupId) || !this.artifactId.equals(other.artifactId)
-						|| !this.version.equals(other.version) || !this.tag.equals(other.tag)) {
-					return false;
-				}
-				return true;
+				boolean result = this.groupId.equals(other.groupId);
+				result = result && this.artifactId.equals(other.artifactId);
+				result = result && this.version.equals(other.version);
+				result = result && this.tag.equals(other.tag);
+				return result;
 			}
 
 			@Override

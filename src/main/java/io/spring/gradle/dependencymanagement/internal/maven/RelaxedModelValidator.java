@@ -45,13 +45,13 @@ class RelaxedModelValidator extends DefaultModelValidator {
 
 	private void withNoDistributionManagementStatus(Model model, Action<Model> action) {
 		if (model.getDistributionManagement() != null) {
-			String distributionManagementStatus = model.getDistributionManagement().getStatus();
+			String status = model.getDistributionManagement().getStatus();
 			model.getDistributionManagement().setStatus(null);
 			try {
 				action.execute(model);
 			}
 			finally {
-				model.getDistributionManagement().setStatus(distributionManagementStatus);
+				model.getDistributionManagement().setStatus(status);
 			}
 		}
 		else {

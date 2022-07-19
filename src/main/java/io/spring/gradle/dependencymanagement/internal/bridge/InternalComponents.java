@@ -99,14 +99,13 @@ public class InternalComponents {
 	 * @param taskName the task name
 	 */
 	public void createDependencyManagementReportTask(String taskName) {
-		this.project.getTasks().create(taskName, DependencyManagementReportTask.class,
-				(dependencyManagementReportTask) -> {
-					dependencyManagementReportTask
-							.setDependencyManagementContainer(InternalComponents.this.dependencyManagementContainer);
-					dependencyManagementReportTask.setGroup(HelpTasksPlugin.HELP_GROUP);
-					dependencyManagementReportTask.setDescription("Displays the dependency management declared in "
-							+ dependencyManagementReportTask.getProject() + ".");
-				});
+		this.project.getTasks().create(taskName, DependencyManagementReportTask.class, this::setupTask);
+	}
+
+	private void setupTask(DependencyManagementReportTask task) {
+		task.setDependencyManagementContainer(InternalComponents.this.dependencyManagementContainer);
+		task.setGroup(HelpTasksPlugin.HELP_GROUP);
+		task.setDescription("Displays the dependency management declared in " + task.getProject() + ".");
 	}
 
 }

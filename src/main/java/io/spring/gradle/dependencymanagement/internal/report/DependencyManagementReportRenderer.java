@@ -44,18 +44,10 @@ class DependencyManagementReportRenderer {
 	void startProject(Project project) {
 		this.output.println();
 		this.output.println("------------------------------------------------------------");
-		String heading;
-		if (project.getRootProject().equals(project)) {
-			heading = "Root project";
-		}
-		else {
-			heading = "Project " + project.getPath();
-		}
-
+		String heading = (project.getRootProject().equals(project)) ? "Root project" : "Project " + project.getPath();
 		if (project.getDescription() != null) {
 			heading += " - " + project.getDescription();
 		}
-
 		this.output.println(heading);
 		this.output.println("------------------------------------------------------------");
 		this.output.println();
@@ -63,7 +55,6 @@ class DependencyManagementReportRenderer {
 
 	void renderGlobalManagedVersions(Map<String, String> globalManagedVersions) {
 		renderDependencyManagementHeader("global", "Default dependency management for all configurations");
-
 		if (globalManagedVersions != null && !globalManagedVersions.isEmpty()) {
 			renderManagedVersions(globalManagedVersions);
 		}
@@ -71,7 +62,6 @@ class DependencyManagementReportRenderer {
 			this.output.println("No dependency management");
 			this.output.println();
 		}
-
 		this.output.flush();
 	}
 
@@ -90,9 +80,7 @@ class DependencyManagementReportRenderer {
 			return result;
 		});
 		sortedVersions.putAll(managedVersions);
-		for (Map.Entry<String, String> entry : sortedVersions.entrySet()) {
-			this.output.println("	" + entry.getKey() + " " + entry.getValue());
-		}
+		sortedVersions.forEach((key, value) -> this.output.println("	" + key + " " + value));
 		this.output.println();
 	}
 
@@ -100,7 +88,6 @@ class DependencyManagementReportRenderer {
 			Map<String, String> globalManagedVersions) {
 		renderDependencyManagementHeader(configuration.getName(),
 				"Dependency management for the " + configuration.getName() + " configuration");
-
 		if (managedVersions != null && !managedVersions.isEmpty()) {
 			if (!managedVersions.equals(globalManagedVersions)) {
 				renderManagedVersions(managedVersions);
@@ -109,13 +96,11 @@ class DependencyManagementReportRenderer {
 				this.output.println("No configuration-specific dependency management");
 				this.output.println();
 			}
-
 		}
 		else {
 			this.output.println("No dependency management");
 			this.output.println();
 		}
-
 		this.output.flush();
 	}
 

@@ -16,11 +16,10 @@
 
 package io.spring.gradle.dependencymanagement.internal;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +28,7 @@ import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.ResolvableDependencies;
 import org.gradle.api.artifacts.component.ComponentSelector;
 import org.gradle.api.artifacts.component.ModuleComponentSelector;
@@ -83,25 +83,13 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
 	private void applyMavenExclusions(ResolvableDependencies resolvableDependencies) {
 		Set<DependencyCandidate> excludedDependencies = findExcludedDependencies();
-		if (logger.isInfoEnabled()) {
-			logger.info("Excluding " + excludedDependencies);
-		}
-
-		List<Map<String, String>> exclusions = new ArrayList<>();
-		for (DependencyCandidate excludedDependency : excludedDependencies) {
-			Map<String, String> exclusion = new HashMap<>();
-			exclusion.put("group", excludedDependency.groupId);
-			exclusion.put("module", excludedDependency.artifactId);
-			exclusions.add(exclusion);
-		}
+		logger.info("Excluding {}", excludedDependencies);
 		for (org.gradle.api.artifacts.Dependency dependency : resolvableDependencies.getDependencies()) {
 			if (dependency instanceof ModuleDependency) {
-				for (Map<String, String> exclusion : exclusions) {
-					((ModuleDependency) dependency).exclude(exclusion);
+				for (DependencyCandidate excludedDependency : excludedDependencies) {
+					((ModuleDependency) dependency).exclude(excludedDependency.asMap());
 				}
-
 			}
-
 		}
 	}
 
@@ -115,8 +103,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 		resolutionResult.allDependencies((dependencyResult) -> {
 			if (dependencyResult instanceof ResolvedDependencyResult) {
 				ResolvedDependencyResult resolved = (ResolvedDependencyResult) dependencyResult;
-				excludedDependencies.add(new DependencyCandidate(resolved.getSelected().getModuleVersion().getGroup(),
-						resolved.getSelected().getModuleVersion().getName()));
+				excludedDependencies.add(new DependencyCandidate(resolved.getSelected().getModuleVersion()));
 			}
 			else if (dependencyResult instanceof UnresolvedDependencyResult) {
 				DependencyCandidate dependencyCandidate = toDependencyCandidate(
@@ -140,8 +127,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 		Set<DependencyCandidate> includedComponents = new HashSet<>();
 		while (!queue.isEmpty()) {
 			Node node = queue.remove();
-			includedComponents.add(new DependencyCandidate(node.component.getModuleVersion().getGroup(),
-					node.component.getModuleVersion().getName()));
+			includedComponents.add(new DependencyCandidate(node.component.getModuleVersion()));
 			for (DependencyResult dependency : node.component.getDependencies()) {
 				if (dependency instanceof ResolvedDependencyResult) {
 					handleResolvedDependency((ResolvedDependencyResult) dependency, node, pomExclusionsById, queue,
@@ -167,8 +153,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 	private void handleUnresolvedDependency(UnresolvedDependencyResult dependency, Node node,
 			Set<DependencyCandidate> includedComponents) {
 		DependencyCandidate dependencyCandidate = toDependencyCandidate(dependency);
-		if (dependencyCandidate != null
-				&& (!node.excluded(dependencyCandidate.groupId + ":" + dependencyCandidate.artifactId))) {
+		if (dependencyCandidate != null && (!node.excluded(dependencyCandidate.getGroupAndArtifactId()))) {
 			includedComponents.add(dependencyCandidate);
 		}
 	}
@@ -197,7 +182,6 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 		if (addition != null) {
 			current.addAll(addition);
 		}
-
 	}
 
 	private String getId(ResolvedComponentResult component) {
@@ -244,6 +228,10 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
 		private final String artifactId;
 
+		private DependencyCandidate(ModuleVersionIdentifier identifier) {
+			this(identifier.getGroup(), identifier.getName());
+		}
+
 		private DependencyCandidate(String groupId, String artifactId) {
 			this.groupId = groupId;
 			this.artifactId = artifactId;
@@ -257,14 +245,10 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 			if (o == null || getClass() != o.getClass()) {
 				return false;
 			}
-
-			DependencyCandidate that = (DependencyCandidate) o;
-
-			if (!this.groupId.equals(that.groupId)) {
-				return false;
-			}
-			return this.artifactId.equals(that.artifactId);
-
+			DependencyCandidate other = (DependencyCandidate) o;
+			boolean result = this.groupId.equals(other.groupId);
+			result = result && this.artifactId.equals(other.artifactId);
+			return result;
 		}
 
 		@Override
@@ -274,8 +258,19 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 			return result;
 		}
 
+		Map<String, String> asMap() {
+			Map<String, String> map = new HashMap<>();
+			map.put("group", this.groupId);
+			map.put("module", this.artifactId);
+			return Collections.unmodifiableMap(map);
+		}
+
 		@Override
 		public String toString() {
+			return getGroupAndArtifactId();
+		}
+
+		String getGroupAndArtifactId() {
 			return this.groupId + ":" + this.artifactId;
 		}
 

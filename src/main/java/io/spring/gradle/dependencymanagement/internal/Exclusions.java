@@ -35,18 +35,12 @@ class Exclusions {
 		if (exclusionsForDependency.isEmpty()) {
 			return;
 		}
-		Set<Exclusion> exclusions = this.exclusionsByDependency.get(dependency);
-		if (exclusions == null) {
-			exclusions = new HashSet<>();
-			this.exclusionsByDependency.put(dependency, exclusions);
-		}
-		exclusions.addAll(exclusionsForDependency);
+		this.exclusionsByDependency.computeIfAbsent(dependency, (key) -> new HashSet<>())
+				.addAll(exclusionsForDependency);
 	}
 
 	void addAll(Exclusions exclusions) {
-		for (Map.Entry<String, Set<Exclusion>> entry : exclusions.exclusionsByDependency.entrySet()) {
-			add(entry.getKey(), entry.getValue());
-		}
+		exclusions.exclusionsByDependency.forEach(this::add);
 	}
 
 	Set<Exclusion> exclusionsForDependency(String dependency) {

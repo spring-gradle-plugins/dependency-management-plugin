@@ -29,19 +29,13 @@ import java.util.Set;
 final class Versions {
 
 	private static final Set<String> DYNAMIC_PREFIXES = Collections
-			.unmodifiableSet(new HashSet<String>(Arrays.asList("latest.", "[", "]", "(")));
+			.unmodifiableSet(new HashSet<>(Arrays.asList("latest.", "[", "]", "(")));
 
 	private Versions() {
-
 	}
 
 	static boolean isDynamic(String version) {
-		for (String dynamicPrefix : DYNAMIC_PREFIXES) {
-			if (version.startsWith(dynamicPrefix)) {
-				return true;
-			}
-		}
-		return version.endsWith("+");
+		return DYNAMIC_PREFIXES.stream().anyMatch(version::startsWith) || version.endsWith("+");
 	}
 
 }

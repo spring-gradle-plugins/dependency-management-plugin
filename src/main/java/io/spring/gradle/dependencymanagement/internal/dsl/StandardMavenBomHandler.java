@@ -43,9 +43,7 @@ class StandardMavenBomHandler implements MavenBomHandler {
 	}
 
 	private void putAll(Map<? extends CharSequence, ? extends CharSequence> source, Map<String, String> target) {
-		for (Map.Entry<? extends CharSequence, ? extends CharSequence> entry : source.entrySet()) {
-			target.put(entry.getKey().toString(), entry.getValue().toString());
-		}
+		source.forEach((key, value) -> target.put(key.toString(), value.toString()));
 	}
 
 	PropertySource getBomProperties() {

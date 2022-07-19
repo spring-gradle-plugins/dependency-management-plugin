@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement.internal.dsl;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import groovy.lang.Closure;
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
@@ -41,30 +42,26 @@ class CompoundDependencyManagementConfigurer implements DependencyManagementConf
 
 	@Override
 	public void imports(Closure<?> closure) {
-		for (DependencyManagementConfigurer delegate : this.delegates) {
-			delegate.imports(closure);
-		}
+		doWithDelegates((delegate) -> delegate.imports(closure));
 	}
 
 	@Override
 	public void imports(Action<ImportsHandler> action) {
-		for (DependencyManagementConfigurer delegate : this.delegates) {
-			delegate.imports(action);
-		}
+		doWithDelegates((delegate) -> delegate.imports(action));
 	}
 
 	@Override
 	public void dependencies(Closure<?> closure) {
-		for (DependencyManagementConfigurer delegate : this.delegates) {
-			delegate.dependencies(closure);
-		}
+		doWithDelegates((delegate) -> delegate.dependencies(closure));
 	}
 
 	@Override
 	public void dependencies(Action<DependenciesHandler> action) {
-		for (DependencyManagementConfigurer delegate : this.delegates) {
-			delegate.dependencies(action);
-		}
+		doWithDelegates((delegate) -> delegate.dependencies(action));
+	}
+
+	private void doWithDelegates(Consumer<DependencyManagementConfigurer> delegate) {
+		this.delegates.forEach(delegate);
 	}
 
 }

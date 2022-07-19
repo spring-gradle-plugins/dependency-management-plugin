@@ -63,13 +63,9 @@ public class Exclusion {
 			return false;
 		}
 		Exclusion other = (Exclusion) obj;
-		if (!this.artifactId.equals(other.artifactId)) {
-			return false;
-		}
-		if (!this.groupId.equals(other.groupId)) {
-			return false;
-		}
-		return true;
+		boolean result = this.artifactId.equals(other.artifactId);
+		result = result && this.groupId.equals(other.groupId);
+		return result;
 	}
 
 	@Override

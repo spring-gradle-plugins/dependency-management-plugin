@@ -18,6 +18,7 @@ package io.spring.gradle.dependencymanagement.internal.properties;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A {@link PropertySource} that delegates to other property sources.
@@ -39,13 +40,8 @@ public class CompositePropertySource implements PropertySource {
 
 	@Override
 	public Object getProperty(String name) {
-		for (PropertySource delegate : this.delegates) {
-			Object property = delegate.getProperty(name);
-			if (property != null) {
-				return property;
-			}
-		}
-		return null;
+		return this.delegates.stream().map((delegate) -> delegate.getProperty(name)).filter(Objects::nonNull)
+				.findFirst().orElse(null);
 	}
 
 }

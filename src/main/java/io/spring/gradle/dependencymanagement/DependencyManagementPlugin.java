@@ -35,16 +35,12 @@ public class DependencyManagementPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		InternalComponents internalComponents = new InternalComponents(project);
-
 		DependencyManagementExtension dependencyManagementExtension = internalComponents
 				.getDependencyManagementExtension();
-
 		project.getExtensions().add("dependencyManagement", dependencyManagementExtension);
 		internalComponents.createDependencyManagementReportTask("dependencyManagement");
-
 		project.getConfigurations().all(internalComponents.getImplicitDependencyManagementCollector());
 		project.getConfigurations().all(internalComponents.getDependencyManagementApplier());
-
 		configurePomCustomization(project, dependencyManagementExtension);
 	}
 
@@ -61,7 +57,7 @@ public class DependencyManagementPlugin implements Plugin<Project> {
 	}
 
 	private void configurePublications(PublishingExtension publishingExtension,
-			final PomDependencyManagementConfigurer extension) {
+			PomDependencyManagementConfigurer extension) {
 		publishingExtension.getPublications().withType(MavenPublication.class,
 				(mavenPublication) -> mavenPublication.getPom().withXml(extension));
 	}

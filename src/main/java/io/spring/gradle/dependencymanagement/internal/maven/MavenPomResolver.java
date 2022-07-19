@@ -20,11 +20,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
 import io.spring.gradle.dependencymanagement.internal.Exclusion;
@@ -42,6 +44,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.ResolvedArtifact;
+import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.specs.Specs;
 
@@ -80,9 +83,9 @@ public class MavenPomResolver implements PomResolver {
 	@Override
 	public List<Pom> resolvePoms(List<PomReference> pomReferences, PropertySource properties) {
 		List<PomReference> deduplicatedPomReferences = deduplicate(pomReferences);
-		return createPoms(
-				createConfiguration(deduplicatedPomReferences).getResolvedConfiguration().getResolvedArtifacts(),
-				deduplicatedPomReferences, properties);
+		Configuration configuration = createConfiguration(deduplicatedPomReferences);
+		ResolvedConfiguration resolvedConfiguration = configuration.getResolvedConfiguration();
+		return createPoms(resolvedConfiguration.getResolvedArtifacts(), deduplicatedPomReferences, properties);
 	}
 
 	private List<PomReference> deduplicate(List<PomReference> pomReferences) {
@@ -90,8 +93,7 @@ public class MavenPomResolver implements PomResolver {
 		Set<String> seen = new HashSet<>();
 		for (int i = pomReferences.size() - 1; i >= 0; i--) {
 			PomReference pomReference = pomReferences.get(i);
-			if (seen.add(createKey(pomReference.getCoordinates().getGroupId(),
-					pomReference.getCoordinates().getArtifactId()))) {
+			if (seen.add(pomReference.getCoordinates().getGroupAndArtifactId())) {
 				deduplicatedReferences.add(pomReference);
 			}
 		}
@@ -114,13 +116,12 @@ public class MavenPomResolver implements PomResolver {
 			PropertySource properties) {
 		Map<String, PomReference> referencesById = new HashMap<>();
 		for (PomReference pomReference : pomReferences) {
-			referencesById.put(createKey(pomReference.getCoordinates().getGroupId(),
-					pomReference.getCoordinates().getArtifactId()), pomReference);
+			referencesById.put(pomReference.getCoordinates().getGroupAndArtifactId(), pomReference);
 		}
 		List<ModelInput> modelInputs = new ArrayList<>();
 		for (ResolvedArtifact resolvedArtifact : resolvedArtifacts) {
 			ModuleVersionIdentifier id = resolvedArtifact.getModuleVersion().getId();
-			PomReference reference = referencesById.get(createKey(id.getGroup(), id.getName()));
+			PomReference reference = referencesById.get(id.getGroup() + ":" + id.getName());
 			CompositePropertySource allProperties = new CompositePropertySource(reference.getProperties(), properties);
 			modelInputs.add(new ModelInput(resolvedArtifact.getFile(), allProperties));
 		}
@@ -133,8 +134,10 @@ public class MavenPomResolver implements PomResolver {
 		for (Model effectiveModel : effectiveModels) {
 			Coordinates coordinates = new Coordinates(effectiveModel.getGroupId(), effectiveModel.getArtifactId(),
 					effectiveModel.getVersion());
-			poms.add(new Pom(coordinates, getManagedDependencies(effectiveModel), getDependencies(effectiveModel),
-					asMap(effectiveModel.getProperties())));
+			List<Dependency> managedDependencies = getManagedDependencies(effectiveModel);
+			List<Dependency> dependencies = getDependencies(effectiveModel);
+			Map<String, String> properties = asMap(effectiveModel.getProperties());
+			poms.add(new Pom(coordinates, managedDependencies, dependencies, properties));
 		}
 		return poms;
 	}
@@ -143,51 +146,37 @@ public class MavenPomResolver implements PomResolver {
 		if (model.getDependencyManagement() == null || model.getDependencyManagement().getDependencies() == null) {
 			return Collections.emptyList();
 		}
-		List<Dependency> result = new ArrayList<>();
-		for (io.spring.gradle.dependencymanagement.org.apache.maven.model.Dependency dependency : model
-				.getDependencyManagement().getDependencies()) {
-			result.add(createDependency(dependency));
-		}
-		return result;
+		return model.getDependencyManagement().getDependencies().stream().map(this::createDependency)
+				.collect(Collectors.toList());
 	}
 
 	private Dependency createDependency(
 			io.spring.gradle.dependencymanagement.org.apache.maven.model.Dependency dependency) {
 		Set<Exclusion> exclusions = new LinkedHashSet<>();
 		if (dependency.getExclusions() != null) {
-			for (io.spring.gradle.dependencymanagement.org.apache.maven.model.Exclusion exclusion : dependency
-					.getExclusions()) {
-				exclusions.add(new Exclusion(exclusion.getGroupId(), exclusion.getArtifactId()));
-			}
+			dependency.getExclusions().stream()
+					.map((exclusion) -> new Exclusion(exclusion.getGroupId(), exclusion.getArtifactId()))
+					.forEach(exclusions::add);
 		}
-		return new Dependency(
-				new Coordinates(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion()),
-				dependency.isOptional(), dependency.getType(), dependency.getClassifier(), dependency.getScope(),
-				exclusions);
+		Coordinates coordinates = new Coordinates(dependency.getGroupId(), dependency.getArtifactId(),
+				dependency.getVersion());
+		return new Dependency(coordinates, dependency.isOptional(), dependency.getType(), dependency.getClassifier(),
+				dependency.getScope(), exclusions);
 	}
 
 	private List<Dependency> getDependencies(Model model) {
 		if (model.getDependencies() == null) {
 			return Collections.emptyList();
 		}
-		List<Dependency> result = new ArrayList<>();
-		for (io.spring.gradle.dependencymanagement.org.apache.maven.model.Dependency dependency : model
-				.getDependencies()) {
-			result.add(createDependency(dependency));
-		}
-		return result;
+		return model.getDependencies().stream().map(this::createDependency).collect(Collectors.toList());
 	}
 
 	private Map<String, String> asMap(Properties properties) {
-		Map<String, String> map = new HashMap<>();
+		Map<String, String> map = new LinkedHashMap<>();
 		for (String name : properties.stringPropertyNames()) {
 			map.put(name, properties.getProperty(name));
 		}
 		return map;
-	}
-
-	private String createKey(String group, String name) {
-		return group + ":" + name;
 	}
 
 }

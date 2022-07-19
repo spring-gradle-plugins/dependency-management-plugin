@@ -103,14 +103,11 @@ public class DependencyManagementContainer {
 	}
 
 	String getManagedVersion(Configuration configuration, String group, String name) {
-		String version = null;
-		if (configuration != null) {
-			version = findManagedVersion(configuration, group, name);
-		}
+		String version = (configuration != null) ? findManagedVersion(configuration, group, name) : null;
 		if (version == null) {
 			version = this.globalDependencyManagement.getManagedVersion(group, name);
 			if (version != null) {
-				logger.debug("Found managed version '{}' for dependency '{}:{}' in global dependency " + "management",
+				logger.debug("Found managed version '{}' for dependency '{}:{}' in global dependency management",
 						version, group, name);
 			}
 		}
@@ -141,7 +138,6 @@ public class DependencyManagementContainer {
 			for (Configuration inHierarchy : configuration.getHierarchy()) {
 				exclusions.addAll(dependencyManagementForConfiguration(inHierarchy).getExclusions());
 			}
-
 		}
 		exclusions.addAll(this.globalDependencyManagement.getExclusions());
 		return exclusions;
@@ -159,7 +155,6 @@ public class DependencyManagementContainer {
 			for (Configuration inHierarchy : getReversedHierarchy(configuration)) {
 				properties.putAll(dependencyManagementForConfiguration(inHierarchy).getImportedProperties());
 			}
-
 		}
 		return properties;
 	}
@@ -209,15 +204,12 @@ public class DependencyManagementContainer {
 		if (configuration == null) {
 			return this.globalDependencyManagement;
 		}
-		else {
-			DependencyManagement dependencyManagement = this.configurationDependencyManagement.get(configuration);
-			if (dependencyManagement == null) {
-				dependencyManagement = new DependencyManagement(this.project, configuration, this.pomResolver);
-				this.configurationDependencyManagement.put(configuration, dependencyManagement);
-			}
-			return dependencyManagement;
+		DependencyManagement dependencyManagement = this.configurationDependencyManagement.get(configuration);
+		if (dependencyManagement == null) {
+			dependencyManagement = new DependencyManagement(this.project, configuration, this.pomResolver);
+			this.configurationDependencyManagement.put(configuration, dependencyManagement);
 		}
-
+		return dependencyManagement;
 	}
 
 	/**

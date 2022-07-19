@@ -31,6 +31,7 @@ import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
 import io.spring.gradle.dependencymanagement.internal.pom.PomReference;
 import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
+import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
 import org.gradle.api.artifacts.result.ResolvedComponentResult;
 
@@ -57,25 +58,23 @@ class ExclusionResolver {
 		List<PomReference> pomReferences = new ArrayList<>();
 		Map<String, Exclusions> exclusionsById = new HashMap<>();
 		for (ResolvedComponentResult resolvedComponent : resolvedComponents) {
-			if (!(resolvedComponent.getId() instanceof ProjectComponentIdentifier)
-					&& resolvedComponent.getModuleVersion().getGroup() != null
-					&& resolvedComponent.getModuleVersion().getName() != null) {
-				String id = resolvedComponent.getModuleVersion().getGroup() + ":"
-						+ resolvedComponent.getModuleVersion().getName();
+			ModuleVersionIdentifier moduleVersion = resolvedComponent.getModuleVersion();
+			if (!(resolvedComponent.getId() instanceof ProjectComponentIdentifier) && moduleVersion.getGroup() != null
+					&& moduleVersion.getName() != null) {
+				String id = moduleVersion.getGroup() + ":" + moduleVersion.getName();
 				Exclusions exclusions = this.exclusionsCache.get(id);
 				if (exclusions != null) {
 					exclusionsById.put(id, exclusions);
 				}
 				else {
-					pomReferences.add(new PomReference(new Coordinates(resolvedComponent.getModuleVersion().getGroup(),
-							resolvedComponent.getModuleVersion().getName(),
-							resolvedComponent.getModuleVersion().getVersion())));
+					pomReferences.add(new PomReference(new Coordinates(moduleVersion.getGroup(),
+							moduleVersion.getName(), moduleVersion.getVersion())));
 				}
 			}
 		}
 		List<Pom> poms = this.pomResolver.resolvePomsLeniently(pomReferences);
 		for (Pom pom : poms) {
-			String id = pom.getCoordinates().getGroupId() + ":" + pom.getCoordinates().getArtifactId();
+			String id = pom.getCoordinates().getGroupAndArtifactId();
 			Exclusions exclusions = collectExclusions(pom);
 			this.exclusionsCache.put(id, exclusions);
 			exclusionsById.put(id, exclusions);
@@ -90,11 +89,9 @@ class ExclusionResolver {
 		for (Dependency dependency : dependencies) {
 			if (dependency.getExclusions() != null && !dependency.isOptional()
 					&& !IGNORED_SCOPES.contains(dependency.getScope())) {
-				String dependencyId = dependency.getCoordinates().getGroupId() + ":"
-						+ dependency.getCoordinates().getArtifactId();
-				exclusions.add(dependencyId, new HashSet<>(dependency.getExclusions()));
+				String id = dependency.getCoordinates().getGroupAndArtifactId();
+				exclusions.add(id, new HashSet<>(dependency.getExclusions()));
 			}
-
 		}
 		return exclusions;
 	}

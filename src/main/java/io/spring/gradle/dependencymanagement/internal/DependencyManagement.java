@@ -18,6 +18,7 @@ package io.spring.gradle.dependencymanagement.internal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -133,15 +134,15 @@ public class DependencyManagement {
 	}
 
 	private void resolveIfNecessary() {
-		if (!this.importedBoms.isEmpty() && !this.resolved) {
-			try {
-				this.resolved = true;
-				resolve();
-			}
-			catch (Exception ex) {
-				throw new GradleException("Failed to resolve imported Maven boms: " + getRootCause(ex).getMessage(),
-						ex);
-			}
+		if (this.importedBoms.isEmpty() && this.resolved) {
+			return;
+		}
+		try {
+			this.resolved = true;
+			resolve();
+		}
+		catch (Exception ex) {
+			throw new GradleException("Failed to resolve imported Maven boms: " + getRootCause(ex).getMessage(), ex);
 		}
 	}
 
@@ -154,45 +155,38 @@ public class DependencyManagement {
 	}
 
 	private void resolve() {
+		String projectName = this.project.getName();
 		if (this.targetConfiguration != null) {
 			logger.info("Resolving dependency management for configuration '{}' of project '{}'",
-					this.targetConfiguration.getName(), this.project.getName());
+					this.targetConfiguration.getName(), projectName);
 		}
 		else {
-			logger.info("Resolving global dependency management for project '{}'", this.project.getName());
+			logger.info("Resolving global dependency management for project '{}'", projectName);
 		}
-		Map<String, String> existingVersions = new HashMap<>();
-		existingVersions.putAll(this.versions);
-
+		Map<String, String> existingVersions = new LinkedHashMap<>(this.versions);
 		logger.debug("Preserving existing versions: {}", existingVersions);
-
 		List<Pom> resolvedBoms = this.pomResolver.resolvePoms(this.importedBoms,
 				new ProjectPropertySource(this.project));
-
 		for (Pom resolvedBom : resolvedBoms) {
 			for (Dependency dependency : resolvedBom.getManagedDependencies()) {
-				if (isEmpty(dependency.getClassifier())) {
-					Coordinates coordinates = dependency.getCoordinates();
-					if (isEmpty(coordinates.getVersion())) {
-						String bomId = resolvedBom.getCoordinates().getGroupId() + ":"
-								+ resolvedBom.getCoordinates().getArtifactId() + ":"
-								+ resolvedBom.getCoordinates().getVersion();
-						logger.warn("Dependency management for " + coordinates.getGroupId() + ":"
-								+ coordinates.getArtifactId() + " in bom " + bomId
-								+ " has no version and will be ignored.");
-					}
-					else {
-						this.versions.put(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
-								coordinates.getVersion());
-						this.allExclusions.add(coordinates.getGroupId() + ":" + coordinates.getArtifactId(),
-								dependency.getExclusions());
-					}
-				}
+				resolve(resolvedBom, dependency);
 			}
 			this.bomProperties.putAll(resolvedBom.getProperties());
 		}
-
 		this.versions.putAll(existingVersions);
+	}
+
+	private void resolve(Pom resolvedBom, Dependency dependency) {
+		if (isEmpty(dependency.getClassifier())) {
+			Coordinates coordinates = dependency.getCoordinates();
+			if (isEmpty(coordinates.getVersion())) {
+				logger.warn("Dependency management for {} in bom {} has no version and will be ignored.",
+						coordinates.getGroupAndArtifactId(), resolvedBom.getCoordinates());
+				return;
+			}
+			this.versions.put(coordinates.getGroupAndArtifactId(), coordinates.getVersion());
+			this.allExclusions.add(coordinates.getGroupAndArtifactId(), dependency.getExclusions());
+		}
 	}
 
 	private boolean isEmpty(String string) {

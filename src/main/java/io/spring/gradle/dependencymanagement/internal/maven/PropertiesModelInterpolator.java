@@ -51,8 +51,9 @@ class PropertiesModelInterpolator extends StringSearchModelInterpolator {
 	@Override
 	public List<ValueSource> createValueSources(Model model, File projectDir, ModelBuildingRequest request,
 			ModelProblemCollector collector) {
-		List<ValueSource> valueSources = new ArrayList<>(Arrays.asList(new PropertySourceValueSource(this.properties),
-				new PropertiesBasedValueSource(System.getProperties())));
+		PropertySourceValueSource properties = new PropertySourceValueSource(this.properties);
+		PropertiesBasedValueSource systemProperties = new PropertiesBasedValueSource(System.getProperties());
+		List<ValueSource> valueSources = new ArrayList<>(Arrays.asList(properties, systemProperties));
 		valueSources.addAll(super.createValueSources(model, projectDir, request, collector));
 		return valueSources;
 	}

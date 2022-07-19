@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import groovy.lang.Closure;
 import io.spring.gradle.dependencymanagement.dsl.DependenciesHandler;
@@ -122,7 +123,6 @@ class StandardDependenciesHandler implements DependenciesHandler {
 	public void dependencySet(Map<String, String> setSpecification, Action<DependencySetHandler> action) {
 		String group = getAsString(setSpecification, KEY_GROUP);
 		String version = getAsString(setSpecification, KEY_VERSION);
-
 		if (!hasText(group) || !hasText(version)) {
 			throw new GradleException("A dependency set requires both a group and a version");
 		}
@@ -140,18 +140,11 @@ class StandardDependenciesHandler implements DependenciesHandler {
 	}
 
 	private boolean hasText(String string) {
-		return string != null && string.trim().length() > 0;
+		return (string != null) && string.trim().length() > 0;
 	}
 
 	private String toCommaSeparatedString(Collection<String> items) {
-		StringBuilder output = new StringBuilder();
-		for (String item : items) {
-			if (output.length() > 0) {
-				output.append(", ");
-			}
-			output.append(item);
-		}
-		return output.toString();
+		return items.stream().collect(Collectors.joining(", "));
 	}
 
 	private void configureDependency(String group, String name, String version, Action<DependencyHandler> action) {

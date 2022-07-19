@@ -58,7 +58,7 @@ final class StandardDependencyHandler implements DependencyHandler {
 	}
 
 	private boolean hasText(String string) {
-		return string != null && string.trim().length() > 0;
+		return (string != null) && string.trim().length() > 0;
 	}
 
 }
