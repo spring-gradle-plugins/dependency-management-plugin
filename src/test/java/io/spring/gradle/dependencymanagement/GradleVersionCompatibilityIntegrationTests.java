@@ -47,7 +47,7 @@ class GradleVersionCompatibilityIntegrationTests {
 	}
 
 	static List<String[]> gradleVersions() {
-		List<String> versions = Arrays.asList("6.8.3", "6.9.2", "7.0.2", "7.1.1", "7.2", "7.3.3");
+		List<String> versions = Arrays.asList("6.8.3", "6.9.2", "7.0.2", "7.1.1", "7.2", "7.3.3", "7.4.2");
 		List<String[]> result = new ArrayList<>();
 		for (String version : versions) {
 			result.add(new String[] { version });
