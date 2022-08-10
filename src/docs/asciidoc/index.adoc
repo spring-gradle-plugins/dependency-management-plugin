@@ -1001,7 +1001,7 @@ def managedVersions = dependencyManagement.managedVersions
 val managedVersions = dependencyManagement.managedVersions
 ----
 
-Managed versions from configuration-specific dependency management are available from `dependencyManagement.<configuration>.managedVersions`, as shown in the following example for the `implementation `configuratation`:
+Managed versions from configuration-specific dependency management are available from `dependencyManagement.<configuration>.managedVersions`, as shown in the following example for the `implementation` configuratation`:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
