@@ -23,6 +23,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.maven.MavenResolver;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
@@ -54,31 +55,9 @@ public class DependencyManagementPlugin implements Plugin<Project> {
 	private void configurePomCustomization(final Project project,
 			DependencyManagementExtension dependencyManagementExtension) {
 		final PomDependencyManagementConfigurer pomConfigurer = dependencyManagementExtension.getPomConfigurer();
-		project.getTasks().withType(Upload.class, new Action<Upload>() {
-
-			@Override
-			public void execute(final Upload upload) {
-				upload.doFirst(new Action<Task>() {
-
-					@Override
-					@SuppressWarnings("deprecation")
-					public void execute(Task task) {
-						upload.getRepositories().withType(org.gradle.api.artifacts.maven.MavenResolver.class,
-								new Action<org.gradle.api.artifacts.maven.MavenResolver>() {
-
-									@Override
-									public void execute(org.gradle.api.artifacts.maven.MavenResolver mavenResolver) {
-										mavenResolver.getPom().withXml(pomConfigurer);
-									}
-
-								});
-					}
-
-				});
-
-			}
-
-		});
+		if (classIsPresent("org.gradle.api.tasks.Upload")) {
+			project.getTasks().withType(Upload.class, new UploadPomConfigurationAction(pomConfigurer));
+		}
 		project.getPlugins().withType(MavenPublishPlugin.class, new Action<MavenPublishPlugin>() {
 
 			@Override
@@ -87,6 +66,17 @@ public class DependencyManagementPlugin implements Plugin<Project> {
 			}
 
 		});
+	}
+
+	private boolean classIsPresent(String name) {
+		try {
+			ClassLoader classLoader = DependencyManagementPlugin.class.getClassLoader();
+			Class.forName(name, false, classLoader);
+			return true;
+		}
+		catch (Throwable ex) {
+			return false;
+		}
 	}
 
 	private void configurePublishingExtension(Project project, final PomDependencyManagementConfigurer extension) {
@@ -110,6 +100,37 @@ public class DependencyManagementPlugin implements Plugin<Project> {
 			}
 
 		});
+	}
+
+	private static final class UploadPomConfigurationAction implements Action<Upload> {
+
+		private final PomDependencyManagementConfigurer pomConfigurer;
+
+		private UploadPomConfigurationAction(PomDependencyManagementConfigurer pomConfigurer) {
+			this.pomConfigurer = pomConfigurer;
+		}
+
+		@Override
+		public void execute(final Upload upload) {
+			upload.doFirst(new Action<Task>() {
+
+				@Override
+				@SuppressWarnings("deprecation")
+				public void execute(Task task) {
+					upload.getRepositories().withType(MavenResolver.class, new Action<MavenResolver>() {
+
+						@Override
+						public void execute(org.gradle.api.artifacts.maven.MavenResolver mavenResolver) {
+							mavenResolver.getPom().withXml(UploadPomConfigurationAction.this.pomConfigurer);
+						}
+
+					});
+				}
+
+			});
+
+		}
+
 	}
 
 }
