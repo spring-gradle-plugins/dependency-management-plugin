@@ -16,20 +16,19 @@
 
 package io.spring.gradle.dependencymanagement.internal.maven;
 
-import java.lang.reflect.Method;
-
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.attributes.Attribute;
+import org.gradle.api.attributes.AttributeContainer;
+import org.gradle.api.attributes.Category;
 import org.gradle.util.GradleVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Support class for configuring the {@code org.gradle.category} attribute on a
- * {@link ModuleDependency} with a value of {@code platform}. The configuration is done
- * reflectively as the necessary APIs are not available in the version of Gradle against
- * which the code is compiled.
+ * {@link ModuleDependency} with a value of {@code platform}.
  * <p/>
  * Configuring the attribute works around a problem in Gradle 5 that prevents resolution
  * of a pom for which Gradle 5 has been used to publish Gradle module metadata. The
@@ -46,22 +45,12 @@ class PlatformCategoryAttributeConfigurer {
 			return;
 		}
 		try {
-			Method attributes = dependency.getClass().getMethod("attributes", Action.class);
-			attributes.invoke(dependency, new Action<Object>() {
+			((ModuleDependency) dependency).attributes(new Action<AttributeContainer>() {
 
 				@Override
-				public void execute(Object container) {
-					try {
-						Class<?> attributeClass = Class.forName("org.gradle.api.attributes.Attribute");
-						Object attribute = attributeClass.getMethod("of", String.class, Class.class).invoke(null,
-								"org.gradle.category", String.class);
-						Class.forName("org.gradle.api.attributes.AttributeContainer")
-								.getMethod("attribute", attributeClass, Object.class)
-								.invoke(container, attribute, "platform");
-					}
-					catch (Throwable ex) {
-						logger.debug("Failed to configure platform attribute", ex);
-					}
+				public void execute(AttributeContainer container) {
+					Attribute<String> attribute = Attribute.of("org.gradle.category", String.class);
+					container.attribute(attribute, Category.REGULAR_PLATFORM);
 				}
 
 			});
@@ -72,7 +61,9 @@ class PlatformCategoryAttributeConfigurer {
 	}
 
 	private boolean isGradle5() {
-		return GradleVersion.current().getNextMajor().getVersion().startsWith("6.");
+		GradleVersion current = GradleVersion.current().getBaseVersion();
+		return (current.compareTo(GradleVersion.version("5.0")) >= 0)
+				&& (current.compareTo(GradleVersion.version("6.0")) < 0);
 	}
 
 }
