@@ -134,7 +134,7 @@ public class DependencyManagement {
 	}
 
 	private void resolveIfNecessary() {
-		if (this.importedBoms.isEmpty() && this.resolved) {
+		if (this.importedBoms.isEmpty() || this.resolved) {
 			return;
 		}
 		try {
