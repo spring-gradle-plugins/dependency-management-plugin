@@ -26,6 +26,8 @@ import java.util.Set;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer.ConfigurationConfigurer;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.DependencyConstraintSet;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
@@ -94,10 +96,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 	}
 
 	private Set<DependencyCandidate> findExcludedDependencies() {
-		DependencySet allDependencies = this.configuration.getAllDependencies();
-		Configuration configurationCopy = this.configurationContainer.newConfiguration(this.configurationConfigurer,
-				allDependencies.toArray(new org.gradle.api.artifacts.Dependency[allDependencies.size()]));
-		ResolutionResult resolutionResult = configurationCopy.getIncoming().getResolutionResult();
+		ResolutionResult resolutionResult = copyConfiguration().getIncoming().getResolutionResult();
 		ResolvedComponentResult root = resolutionResult.getRoot();
 		Set<DependencyCandidate> excludedDependencies = new HashSet<>();
 		resolutionResult.allDependencies((dependencyResult) -> {
@@ -117,6 +116,20 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 				this.exclusionResolver.resolveExclusions(resolutionResult.getAllComponents()));
 		excludedDependencies.removeAll(includedDependencies);
 		return excludedDependencies;
+	}
+
+	private Configuration copyConfiguration() {
+		DependencySet allDependencies = this.configuration.getAllDependencies();
+		Configuration configurationCopy = this.configurationContainer.newConfiguration(this.configurationConfigurer,
+				allDependencies.toArray(new Dependency[allDependencies.size()]));
+		try {
+			DependencyConstraintSet constraints = this.configuration.getAllDependencyConstraints();
+			configurationCopy.getDependencyConstraints().addAll(constraints);
+		}
+		catch (NoSuchMethodError ex) {
+			// Continue
+		}
+		return configurationCopy;
 	}
 
 	private Set<DependencyCandidate> determineIncludedComponents(ResolvedComponentResult root,
