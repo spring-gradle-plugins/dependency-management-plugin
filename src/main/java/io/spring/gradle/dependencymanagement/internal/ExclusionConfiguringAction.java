@@ -122,13 +122,8 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 		DependencySet allDependencies = this.configuration.getAllDependencies();
 		Configuration configurationCopy = this.configurationContainer.newConfiguration(this.configurationConfigurer,
 				allDependencies.toArray(new Dependency[allDependencies.size()]));
-		try {
-			DependencyConstraintSet constraints = this.configuration.getAllDependencyConstraints();
-			configurationCopy.getDependencyConstraints().addAll(constraints);
-		}
-		catch (NoSuchMethodError ex) {
-			// Continue
-		}
+		DependencyConstraintSet constraints = this.configuration.getAllDependencyConstraints();
+		configurationCopy.getDependencyConstraints().addAll(constraints);
 		return configurationCopy;
 	}
 
