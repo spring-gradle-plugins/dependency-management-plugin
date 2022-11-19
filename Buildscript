@@ -1,0 +1,10 @@
+buildscript {
+    repositories {
+        maven { url 'https://repo.spring.io/plugins-snapshot' }
+    }
+    dependencies {
+        classpath 'io.spring.gradle:dependency-management-plugin:<<snapshot-version>>'
+    }
+}
+
+apply plugin: "io.spring.dependency-management"
