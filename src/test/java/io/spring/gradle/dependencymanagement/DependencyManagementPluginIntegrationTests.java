@@ -469,6 +469,12 @@ class DependencyManagementPluginIntegrationTests {
 				"spring-beans-4.1.2.RELEASE.jar", "spring-tx-4.1.2.RELEASE.jar", "spring-core-4.1.2.RELEASE.jar");
 	}
 
+	@Test
+	void dependenciesWithExtremelyLargePomsAreHandled() {
+		this.gradleBuild.runner().withArguments("resolve").build();
+		assertThat(readLines("resolved.txt")).contains("hisrc-basicjaxb-plugins-2.1.0.jar");
+	}
+
 	private void writeLines(Path path, String... lines) {
 		try {
 			Path resolvedPath = this.gradleBuild.runner().getProjectDir().toPath().resolve(path);

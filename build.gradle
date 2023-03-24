@@ -15,7 +15,7 @@ description = 'Dependency Management Plugin'
 ext {
 	cglibVersion = '3.1'
 	jarjarVersion = '1.2.1'
-	mavenVersion = '3.0.4'
+	mavenVersion = '3.8.7'
 }
 
 repositories {
