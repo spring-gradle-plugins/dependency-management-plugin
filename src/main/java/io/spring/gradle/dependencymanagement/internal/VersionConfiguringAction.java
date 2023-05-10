@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,13 +44,15 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 
 	private final Configuration configuration;
 
-	private Set<String> directDependencies;
+	private final LocalProjects localProjects;
 
-	private Set<String> localProjectNames;
+	private Set<String> directDependencies;
 
 	VersionConfiguringAction(Project project, DependencyManagementContainer dependencyManagementContainer,
 			Configuration configuration) {
 		this.project = project;
+		this.localProjects = project.getGradle().getStartParameter().isConfigureOnDemand()
+				? new StandardLocalProjects(project) : new CachingLocalProjects(project);
 		this.dependencyManagementContainer = dependencyManagementContainer;
 		this.configuration = configuration;
 	}
@@ -90,14 +92,7 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 	}
 
 	private boolean isDependencyOnLocalProject(Project project, DependencyResolveDetails details) {
-		if (this.localProjectNames == null) {
-			Set<String> names = new HashSet<>();
-			for (Project localProject : project.getRootProject().getAllprojects()) {
-				names.add(localProject.getGroup() + ":" + localProject.getName());
-			}
-			this.localProjectNames = names;
-		}
-		return this.localProjectNames.contains(getId(details));
+		return this.localProjects.getNames().contains(getId(details));
 	}
 
 	private String getId(DependencyResolveDetails details) {
@@ -106,6 +101,53 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 
 	ResolutionStrategy applyTo(Configuration c) {
 		return c.getResolutionStrategy().eachDependency(this);
+	}
+
+	private interface LocalProjects {
+
+		Set<String> getNames();
+
+	}
+
+	private static final class StandardLocalProjects implements LocalProjects {
+
+		private final Project project;
+
+		private StandardLocalProjects(Project project) {
+			this.project = project;
+		}
+
+		@Override
+		public Set<String> getNames() {
+			Set<String> names = new HashSet<>();
+			for (Project localProject : this.project.getRootProject().getAllprojects()) {
+				names.add(localProject.getGroup() + ":" + localProject.getName());
+			}
+			return names;
+		}
+
+	}
+
+	private static final class CachingLocalProjects implements LocalProjects {
+
+		private final LocalProjects delegate;
+
+		private Set<String> localProjectNames;
+
+		private CachingLocalProjects(Project project) {
+			this.delegate = new StandardLocalProjects(project);
+		}
+
+		@Override
+		public Set<String> getNames() {
+			Set<String> names = this.localProjectNames;
+			if (names == null) {
+				names = this.delegate.getNames();
+				this.localProjectNames = names;
+			}
+			return names;
+		}
+
 	}
 
 }
