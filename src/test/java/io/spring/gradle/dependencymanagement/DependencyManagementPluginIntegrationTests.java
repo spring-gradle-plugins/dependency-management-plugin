@@ -475,6 +475,12 @@ class DependencyManagementPluginIntegrationTests {
 		assertThat(readLines("resolved.txt")).contains("hisrc-basicjaxb-plugins-2.1.0.jar");
 	}
 
+	@Test
+	void constraintsInTransitivePlatformDependenciesDoNotPreventExclusionsFromWorking() {
+		this.gradleBuild.runner().withArguments("resolve").build();
+		assertThat(readLines("resolved.txt")).noneMatch((line) -> line.contains("junit"));
+	}
+
 	private void writeLines(Path path, String... lines) {
 		try {
 			Path resolvedPath = this.gradleBuild.runner().getProjectDir().toPath().resolve(path);

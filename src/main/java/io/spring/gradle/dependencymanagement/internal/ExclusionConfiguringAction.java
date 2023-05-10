@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,7 +39,11 @@ import org.gradle.api.artifacts.result.DependencyResult;
 import org.gradle.api.artifacts.result.ResolutionResult;
 import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.artifacts.result.ResolvedDependencyResult;
+import org.gradle.api.artifacts.result.ResolvedVariantResult;
 import org.gradle.api.artifacts.result.UnresolvedDependencyResult;
+import org.gradle.api.attributes.Attribute;
+import org.gradle.api.attributes.AttributeContainer;
+import org.gradle.api.attributes.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,10 +157,26 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 	private void handleResolvedDependency(ResolvedDependencyResult dependency, Node node,
 			Map<String, Exclusions> pomExclusionsById, LinkedList<Node> queue, Set<ResolvedComponentResult> seen) {
 		ResolvedComponentResult child = dependency.getSelected();
+		if (isPlatform(child)) {
+			return;
+		}
 		String childId = getId(child);
 		if (!node.excluded(childId) && seen.add(child)) {
 			queue.add(new Node(child, childId, getChildExclusions(node, childId, pomExclusionsById)));
 		}
+	}
+
+	private boolean isPlatform(ResolvedComponentResult component) {
+		List<ResolvedVariantResult> variants = component.getVariants();
+		for (ResolvedVariantResult variant : variants) {
+			AttributeContainer attributes = variant.getAttributes();
+			String category = attributes.getAttribute(Attribute.of("org.gradle.category", String.class));
+			if (category == null
+					|| (!Category.REGULAR_PLATFORM.equals(category) && !Category.ENFORCED_PLATFORM.equals(category))) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private void handleUnresolvedDependency(UnresolvedDependencyResult dependency, Node node,
