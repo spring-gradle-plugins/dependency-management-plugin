@@ -144,8 +144,11 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 			appendDependencyNode(dependencies, override.getCoordinates(), override.getScope(), override.getType());
 		}
 		List<PomReference> importedBoms = this.dependencyManagement.getImportedBomReferences();
-		Collections.reverse(importedBoms);
-		for (PomReference resolvedBom : importedBoms) {
+
+		List<PomReference> importedBomsCopy = new ArrayList<>(importedBoms);
+		Collections.reverse(importedBomsCopy);
+
+		for (PomReference resolvedBom : importedBomsCopy) {
 			addImport(dependencies, resolvedBom);
 		}
 	}

@@ -337,6 +337,12 @@ class DependencyManagementPluginIntegrationTests {
 	}
 
 	@Test
+	void bomImportOrderIsReflectedInManagedVersionsWhenThePomIsPublished() {
+		this.gradleBuild.runner().withArguments("managedVersionsAfterPublishPom").build();
+		assertThat(readLines("managed-versions.txt")).contains("org.springframework:spring-core -> 4.2.3.RELEASE");
+	}
+
+	@Test
 	void managedVersionsOfAConfigurationCanBeAccessed() {
 		this.gradleBuild.runner().withArguments("verify").build();
 	}
