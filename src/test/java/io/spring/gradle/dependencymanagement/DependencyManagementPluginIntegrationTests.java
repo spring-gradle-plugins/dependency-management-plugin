@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Integration tests for {@link DependencyManagementPlugin}.
  *
  * @author Andy Wilkinson
+ * @author Rupert Waldron
  */
 class DependencyManagementPluginIntegrationTests {
 
@@ -333,6 +334,12 @@ class DependencyManagementPluginIntegrationTests {
 	@Test
 	void bomImportOrderIsReflectedInManagedVersionsWhenSameBomIsImportedMultipleTimes() {
 		this.gradleBuild.runner().withArguments("managedVersions").build();
+		assertThat(readLines("managed-versions.txt")).contains("org.springframework:spring-core -> 4.2.3.RELEASE");
+	}
+
+	@Test
+	void bomImportOrderIsReflectedInManagedVersionsWhenThePomIsPublished() {
+		this.gradleBuild.runner().withArguments("managedVersionsAfterPublishPom").build();
 		assertThat(readLines("managed-versions.txt")).contains("org.springframework:spring-core -> 4.2.3.RELEASE");
 	}
 
