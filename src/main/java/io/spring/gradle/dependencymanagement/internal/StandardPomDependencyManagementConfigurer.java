@@ -39,6 +39,7 @@ import org.gradle.api.XmlProvider;
  * Standard implementation of {@link PomDependencyManagementConfigurer}.
  *
  * @author Andy Wilkinson
+ * @author Rupert Waldron
  */
 public class StandardPomDependencyManagementConfigurer implements PomDependencyManagementConfigurer {
 

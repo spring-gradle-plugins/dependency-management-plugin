@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Integration tests for {@link DependencyManagementPlugin}.
  *
  * @author Andy Wilkinson
+ * @author Rupert Waldron
  */
 class DependencyManagementPluginIntegrationTests {
 
