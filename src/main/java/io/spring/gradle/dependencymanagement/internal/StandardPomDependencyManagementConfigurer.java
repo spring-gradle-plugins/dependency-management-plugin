@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.gradle.api.XmlProvider;
  * Standard implementation of {@link PomDependencyManagementConfigurer}.
  *
  * @author Andy Wilkinson
+ * @author Rupert Waldron
  */
 public class StandardPomDependencyManagementConfigurer implements PomDependencyManagementConfigurer {
 
@@ -143,10 +144,10 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 		for (Dependency override : overrides) {
 			appendDependencyNode(dependencies, override.getCoordinates(), override.getScope(), override.getType());
 		}
-		List<PomReference> importedBoms = this.dependencyManagement.getImportedBomReferences();
-		Collections.reverse(importedBoms);
-		for (PomReference resolvedBom : importedBoms) {
-			addImport(dependencies, resolvedBom);
+		List<PomReference> importOrderBomReferences = new ArrayList<>(bomReferences);
+		Collections.reverse(importOrderBomReferences);
+		for (PomReference bomReference : importOrderBomReferences) {
+			addImport(dependencies, bomReference);
 		}
 	}
 

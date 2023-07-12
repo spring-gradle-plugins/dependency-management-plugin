@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -80,7 +81,7 @@ public class DependencyManagement {
 	}
 
 	List<PomReference> getImportedBomReferences() {
-		return this.importedBoms;
+		return Collections.unmodifiableList(this.importedBoms);
 	}
 
 	Map<String, String> getImportedProperties() {
