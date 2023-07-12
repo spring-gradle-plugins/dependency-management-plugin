@@ -112,7 +112,7 @@ tasks.named("javadoc").configure {
 	exclude 'io/spring/gradle/dependencymanagement/internal/**'
 	options {
 		links "https://docs.gradle.org/${project.gradle.gradleVersion}/javadoc/",
-			  'https://docs.oracle.com/javase/6/docs/api/'
+			  'https://docs.oracle.com/javase/8/docs/api/'
 	}
 }
 
