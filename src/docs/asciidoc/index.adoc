@@ -13,7 +13,7 @@ Andy Wilkinson
 :docinfo: shared,private
 :attribute-missing: warn
 :github: https://github.com/spring-gradle-plugins/dependency-management-plugin
-:platform-docs: https://docs.spring.io/platform/docs/1.0.1.RELEASE/reference/htmlsingle
+:boot-docs: https://docs.spring.io/spring-boot/docs/3.1.1/reference/html
 
 
 
@@ -123,7 +123,7 @@ The DSL allows you to declare dependency management using a `:` separated string
 ----
 dependencyManagement {
     dependencies {
-        dependency 'org.springframework:spring-core:4.0.3.RELEASE'
+        dependency 'org.springframework:spring-core:6.0.10'
     }
 }
 ----
@@ -133,7 +133,7 @@ dependencyManagement {
 ----
 dependencyManagement {
     dependencies {
-        dependency("org.springframework:spring-core:4.0.3.RELEASE")
+        dependency("org.springframework:spring-core:6.0.10")
     }
 }
 ----
@@ -145,7 +145,7 @@ Alternatively, you can use a map with `group`, `name`, and `version` entries, as
 ----
 dependencyManagement {
     dependencies {
-        dependency group:'org.springframework', name:'spring-core', version:'4.0.3.RELEASE'
+        dependency group:'org.springframework', name:'spring-core', version:'6.0.10'
     }
 }
 ----
@@ -158,13 +158,13 @@ dependencyManagement {
         dependency(mapOf(
             "group" to "org.springframework",
             "name" to "spring-core",
-            "version" to "4.0.3.RELEASE"
+            "version" to "6.0.10"
         ))
     }
 }
 ----
 
-With either syntax, this configuration will cause all dependencies (direct or transitive) on `spring-core` to have the version `4.0.3.RELEASE`.
+With either syntax, this configuration will cause all dependencies (direct or transitive) on `spring-core` to have the version `6.0.10`.
 When dependency management is in place, you can declare a dependency without a version, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
@@ -196,7 +196,7 @@ Using a dependency set removes the need to specify the same group and version mu
 ----
 dependencyManagement {
      dependencies {
-          dependencySet(group:'org.slf4j', version: '1.7.7') {
+          dependencySet(group:'org.slf4j', version: '2.0.7') {
                entry 'slf4j-api'
                entry 'slf4j-simple'
           }
@@ -209,7 +209,7 @@ dependencyManagement {
 ----
 dependencyManagement {
     dependencies {
-        dependencySet("org.slf4j:1.7.7") {
+        dependencySet("org.slf4j:2.0.7") {
             entry("slf4j-api")
             entry("slf4j-simple")
         }
@@ -232,7 +232,7 @@ An exclusion can be declared on individual dependencies, as shown in the followi
 ----
 dependencyManagement {
     dependencies {
-        dependency('org.springframework:spring-core:4.0.3.RELEASE') {
+        dependency('org.apache.activemq:activemq-spring:5.18.1') {
             exclude 'commons-logging:commons-logging'
         }
     }
@@ -244,7 +244,7 @@ dependencyManagement {
 ----
 dependencyManagement {
     dependencies {
-        dependency("org.springframework:spring-core:4.0.3.RELEASE") {
+        dependency("org.apache.activemq:activemq-spring:5.18.1") {
             exclude("commons-logging:commons-logging")
         }
     }
@@ -258,8 +258,8 @@ An exclusion can also be declared on an entry in a dependency set, as shown in t
 ----
 dependencyManagement {
     dependencies {
-        dependencySet(group:'org.springframework', version: '4.1.4.RELEASE') {
-            entry('spring-core') {
+        dependencySet(group:'org.apache.activemq', version: '5.18.1') {
+            entry('activemq-spring') {
                 exclude group: 'commons-logging', name: 'commons-logging'
             }
         }
@@ -272,8 +272,8 @@ dependencyManagement {
 ----
 dependencyManagement {
     dependencies {
-        dependencySet("org.springframework:4.1.4.RELEASE") {
-            entry("spring-core") {
+        dependencySet("org.apache.activemq:5.18.1") {
+            entry("activemq-spring") {
                 exclude(mapOf("group" to "commons-logging", "name" to "commons-logging"))
             }
         }
@@ -298,7 +298,7 @@ The plugin also allows you to import an existing Maven bom to utilise its depend
 ----
 dependencyManagement {
      imports {
-          mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+          mavenBom 'org.springframework.boo:spring-boot-dependencies:3.1.1'
      }
 }
 
@@ -312,7 +312,7 @@ dependencies {
 ----
 dependencyManagement {
     imports {
-        mavenBom("io.spring.platform:platform-bom:1.0.1.RELEASE")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:3.1.1")
     }
 }
 
@@ -321,7 +321,7 @@ dependencies {
 }
 ----
 
-This configuration will apply the {platform-docs}/#appendix-dependency-versions[versions in the Spring IO Platform bom] to the project's dependencies:
+This configuration will apply the {boot-docs}/dependency-versions.html#appendix.dependency-versions[versions in `spring-boot-dependencies`] to the project's dependencies:
 
 [source,shell,indent=0,subs="verbatim,attributes"]
 ----
@@ -334,31 +334,32 @@ Root project
 ------------------------------------------------------------
 
 compileClasspath - Compile classpath for source set 'main'.
-\--- org.springframework.integration:spring-integration-core -> 4.0.2.RELEASE
-     +--- org.springframework.retry:spring-retry:1.1.0.RELEASE
-     |    \--- org.springframework:spring-context:4.0.3.RELEASE -> 4.0.6.RELEASE
-     |         +--- org.springframework:spring-aop:4.0.6.RELEASE
-     |         |    +--- aopalliance:aopalliance:1.0
-     |         |    +--- org.springframework:spring-beans:4.0.6.RELEASE
-     |         |    |    \--- org.springframework:spring-core:4.0.6.RELEASE
-     |         |    \--- org.springframework:spring-core:4.0.6.RELEASE
-     |         +--- org.springframework:spring-beans:4.0.6.RELEASE (*)
-     |         +--- org.springframework:spring-core:4.0.6.RELEASE
-     |         \--- org.springframework:spring-expression:4.0.6.RELEASE
-     |              \--- org.springframework:spring-core:4.0.6.RELEASE
-     +--- org.springframework:spring-tx:4.0.5.RELEASE -> 4.0.6.RELEASE
-     |    +--- org.springframework:spring-beans:4.0.6.RELEASE (*)
-     |    \--- org.springframework:spring-core:4.0.6.RELEASE
-     +--- org.springframework:spring-messaging:4.0.5.RELEASE -> 4.0.6.RELEASE
-     |    +--- org.springframework:spring-beans:4.0.6.RELEASE (*)
-     |    +--- org.springframework:spring-context:4.0.6.RELEASE (*)
-     |    \--- org.springframework:spring-core:4.0.6.RELEASE
-     +--- org.springframework:spring-context:4.0.5.RELEASE -> 4.0.6.RELEASE (*)
-     \--- org.springframework:spring-aop:4.0.5.RELEASE -> 4.0.6.RELEASE (*)
+\--- org.springframework.integration:spring-integration-core -> 6.1.1
+     +--- org.springframework:spring-aop:6.0.10
+     |    +--- org.springframework:spring-beans:6.0.10
+     |    |    \--- org.springframework:spring-core:6.0.10
+     |    |         \--- org.springframework:spring-jcl:6.0.10
+     |    \--- org.springframework:spring-core:6.0.10 (*)
+     +--- org.springframework:spring-context:6.0.10
+     |    +--- org.springframework:spring-aop:6.0.10 (*)
+     |    +--- org.springframework:spring-beans:6.0.10 (*)
+     |    +--- org.springframework:spring-core:6.0.10 (*)
+     |    \--- org.springframework:spring-expression:6.0.10
+     |         \--- org.springframework:spring-core:6.0.10 (*)
+     +--- org.springframework:spring-messaging:6.0.10
+     |    +--- org.springframework:spring-beans:6.0.10 (*)
+     |    \--- org.springframework:spring-core:6.0.10 (*)
+     +--- org.springframework:spring-tx:6.0.10
+     |    +--- org.springframework:spring-beans:6.0.10 (*)
+     |    \--- org.springframework:spring-core:6.0.10 (*)
+     +--- org.springframework.retry:spring-retry:2.0.2
+     +--- io.projectreactor:reactor-core:3.5.7
+     |    \--- org.reactivestreams:reactive-streams:1.0.4
+     \--- io.micrometer:micrometer-observation:1.11.1
+          \--- io.micrometer:micrometer-commons:1.11.1
 ----
 
-It's provided a version of `4.0.2.RELEASE` for the `spring-integration-core` dependency.
-It has also set the version of all of the Spring Framework dependencies to `4.0.6.RELEASE`
+It's provided a version of `6.1.1` for the `spring-integration-core` dependency.
 
 
 
@@ -399,8 +400,8 @@ A property can be overridden as part of importing a bom, as shown in the followi
 ----
 dependencyManagement {
     imports {
-        mavenBom('io.spring.platform:platform-bom:1.0.1.RELEASE') {
-            bomProperty 'spring.version', '4.0.4.RELEASE'
+        mavenBom('org.springframework.boot:spring-boot-dependencies:3.1.1') {
+            bomProperty 'spring-framework.version', '6.0.9'
         }
     }
 }
@@ -411,8 +412,8 @@ dependencyManagement {
 ----
 dependencyManagement {
     imports {
-        mavenBom("io.spring.platform:platform-bom:1.0.1.RELEASE") {
-            bomProperty("spring.version", "4.0.4.RELEASE")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:3.1.1") {
+            bomProperty("spring-framework.version", "6.0.9")
         }
     }
 }
@@ -425,9 +426,9 @@ You can also use a map, as shown in the following example:
 ----
 dependencyManagement {
     imports {
-        mavenBom('io.spring.platform:platform-bom:1.0.1.RELEASE') {
+        mavenBom('org.springframework.boot:spring-boot-dependencies:3.1.1') {
             bomProperties([
-                'spring.version': '4.0.4.RELEASE'
+                'spring-framework.version': '6.0.9'
             ])
         }
     }
@@ -439,9 +440,9 @@ dependencyManagement {
 ----
 dependencyManagement {
     imports {
-        mavenBom("io.spring.platform:platform-bom:1.0.1.RELEASE") {
+        mavenBom("org.springframework.boot:spring-boot-dependencies:3.1.1") {
             bomProperties(mapOf(
-                "spring.version" to "4.0.4.RELEASE"
+                "spring-framework.version" to "6.0.9"
             ))
         }
     }
@@ -454,20 +455,20 @@ You may choose to configure it in your `build.gradle` script, as shown in the fo
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-ext['spring.version'] = '4.0.4.RELEASE'
+ext['spring-framework.version'] = '6.0.9'
 ----
 
 [source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
 .Kotlin
 ----
-ext["spring.version"] = "4.0.4.RELEASE"
+ext["spring-framework.version"] = "6.0.9"
 ----
 
 Or in `gradle.properties`
 
 [source,indent=0,subs="verbatim,attributes"]
 ----
-spring.version=4.0.4.RELEASE
+spring-framework.version=6.0.9
 ----
 
 Wherever you configure it, the version of any Spring Framework modules will now match the value of the property:
@@ -483,27 +484,29 @@ Root project
 ------------------------------------------------------------
 
 compileClasspath - Compile classpath for source set 'main'.
-\--- org.springframework.integration:spring-integration-core -> 4.0.2.RELEASE
-     +--- org.springframework.retry:spring-retry:1.1.0.RELEASE
-     |    \--- org.springframework:spring-context:4.0.3.RELEASE -> 4.0.4.RELEASE
-     |         +--- org.springframework:spring-aop:4.0.4.RELEASE
-     |         |    +--- aopalliance:aopalliance:1.0
-     |         |    +--- org.springframework:spring-beans:4.0.4.RELEASE
-     |         |    |    \--- org.springframework:spring-core:4.0.4.RELEASE
-     |         |    \--- org.springframework:spring-core:4.0.4.RELEASE
-     |         +--- org.springframework:spring-beans:4.0.4.RELEASE (*)
-     |         +--- org.springframework:spring-core:4.0.4.RELEASE
-     |         \--- org.springframework:spring-expression:4.0.4.RELEASE
-     |              \--- org.springframework:spring-core:4.0.4.RELEASE
-     +--- org.springframework:spring-tx:4.0.5.RELEASE -> 4.0.4.RELEASE
-     |    +--- org.springframework:spring-beans:4.0.4.RELEASE (*)
-     |    \--- org.springframework:spring-core:4.0.4.RELEASE
-     +--- org.springframework:spring-messaging:4.0.5.RELEASE -> 4.0.4.RELEASE
-     |    +--- org.springframework:spring-beans:4.0.4.RELEASE (*)
-     |    +--- org.springframework:spring-context:4.0.4.RELEASE (*)
-     |    \--- org.springframework:spring-core:4.0.4.RELEASE
-     +--- org.springframework:spring-context:4.0.5.RELEASE -> 4.0.4.RELEASE (*)
-     \--- org.springframework:spring-aop:4.0.5.RELEASE -> 4.0.4.RELEASE (*)
+\--- org.springframework.integration:spring-integration-core -> 6.1.1
+     +--- org.springframework:spring-aop:6.0.10 -> 6.0.9
+     |    +--- org.springframework:spring-beans:6.0.9
+     |    |    \--- org.springframework:spring-core:6.0.9
+     |    |         \--- org.springframework:spring-jcl:6.0.9
+     |    \--- org.springframework:spring-core:6.0.9 (*)
+     +--- org.springframework:spring-context:6.0.10 -> 6.0.9
+     |    +--- org.springframework:spring-aop:6.0.9 (*)
+     |    +--- org.springframework:spring-beans:6.0.9 (*)
+     |    +--- org.springframework:spring-core:6.0.9 (*)
+     |    \--- org.springframework:spring-expression:6.0.9
+     |         \--- org.springframework:spring-core:6.0.9 (*)
+     +--- org.springframework:spring-messaging:6.0.10 -> 6.0.9
+     |    +--- org.springframework:spring-beans:6.0.9 (*)
+     |    \--- org.springframework:spring-core:6.0.9 (*)
+     +--- org.springframework:spring-tx:6.0.10 -> 6.0.9
+     |    +--- org.springframework:spring-beans:6.0.9 (*)
+     |    \--- org.springframework:spring-core:6.0.9 (*)
+     +--- org.springframework.retry:spring-retry:2.0.2
+     +--- io.projectreactor:reactor-core:3.5.7
+     |    \--- org.reactivestreams:reactive-streams:1.0.4
+     \--- io.micrometer:micrometer-observation:1.11.1
+          \--- io.micrometer:micrometer-commons:1.11.1
 ----
 
 
@@ -511,17 +514,17 @@ compileClasspath - Compile classpath for source set 'main'.
 ===== Overriding the Dependency Management
 
 If the bom that you have imported does not use properties, or you want the override to be honoured in the Maven pom that's generated for your Gradle project, you should use dependency management to perform the override.
-For example, if you're using the Spring IO Platform bom, you can override its version of Guava and have that override apply to the generated pom, as shown in the following example:
+For example, if you're using `spring-boot-dependencies`, you can override its version of HikariCP and have that override apply to the generated pom, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
 dependencyManagement {
     imports {
-        mavenBom 'io.spring.platform:platform-bom:1.1.1.RELEASE'
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:3.1.1'
     }
     dependencies {
-        dependency 'com.google.guava:guava:18.0'
+        dependency 'com.zaxxer:HikariCP:5.0.0'
     }
 }
 ----
@@ -531,10 +534,10 @@ dependencyManagement {
 ----
 dependencyManagement {
     imports {
-        mavenBom("io.spring.platform:platform-bom:1.1.1.RELEASE")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:3.1.1")
     }
     dependencies {
-        dependency("com.google.guava:guava:18.0")
+        dependency("com.zaxxer:HikariCP:5.0.0")
     }
 }
 ----
@@ -546,33 +549,33 @@ This will produce the following `<dependencyManagement>` in the generated pom fi
 <dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>io.spring.platform</groupId>
-            <artifactId>platform-bom</artifactId>
-            <version>1.1.1.RELEASE</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>3.1.1</version>
             <scope>import</scope>
             <type>pom</type>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>18.0</version>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.0.0</version>
         </dependency>
     </dependencies>
 </dependencyManagement>
 ----
 
-The dependency management for Guava that's declared directly in the pom takes precedence over any dependency management for Guava in the `platform-bom` that's been imported.
+The dependency management for HikariCP that's declared directly in the pom takes precedence over any dependency management for it in `spring-boot-dependencies` that's been imported.
 
 You can also override the dependency management by declaring a dependency and configuring it with the desired version, as shown in the following example:
 
 [source,indent=0,subs="verbatim,attributes"]
 ----
 dependencies {
-    implementation("com.google.guava:guava:18.0")
+    implementation("com.zaxxer:HikariCP:5.0.0")
 }
 ----
 
-This will cause any dependency (direct or transitive) on `com.google.guava:guava:18.0` in the `implementation` configuration to use version `18.0`, overriding any dependency management that may exist.
+This will cause any dependency (direct or transitive) on `com.zaxxer:HikariCP` in the `implementation` configuration to use version `5.0.0`, overriding any dependency management that may exist.
 If you do not want a project's dependencies to override its dependency management, this behavior can be disabled using `overriddenByDependencies`, as shown in the following example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
@@ -689,13 +692,13 @@ A property named `spring.version` from global dependency management can be acces
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-dependencyManagement.importedProperties['spring.version']
+dependencyManagement.importedProperties['spring-framework.version']
 ----
 
 [source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
 .Kotlin
 ----
-dependencyManagement.importedProperties["spring.version"]
+dependencyManagement.importedProperties["spring-framework.version"]
 ----
 
 The same property from the implementation configuration's dependency management can be accessed as shown in the following example:
@@ -703,7 +706,7 @@ The same property from the implementation configuration's dependency management 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-dependencyManagement.implementation.importedProperties['spring.version']
+dependencyManagement.implementation.importedProperties['spring-framework.version']
 ----
 NOTE: Accessing imported properties for a specific configuration is not currently supported when using the Kotlin DSL.
 
@@ -716,46 +719,46 @@ While Gradle can consume dependencies described with a Maven pom file, Gradle do
 A notable difference that results from this is in how exclusions are handled.
 This is best illustrated with an example.
 
-Consider a Maven artifact, `exclusion-example`, that declares a dependency on `org.springframework:spring-core` in its pom with an exclusion for `commons-logging:commons-logging`, as illustrated in the following example:
+Consider a Maven artifact, `exclusion-example`, that declares a dependency on `org.springframework:spring-core` in its pom with an exclusion for `org.springframework:spring-jcl`, as illustrated in the following example:
 
 [source,xml,indent=0,subs="verbatim,attributes"]
 ----
 <dependency>
     <groupId>org.springframework</groupId>
     <artifactId>spring-core</artifactId>
-    <version>4.1.3.RELEASE</version>
+    <version>6.0.10</version>
     <exclusions>
         <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jcl</artifactId>
         </exclusion>
     </exclusions>
 </dependency>
 ----
 
-If we have a Maven project, `consumer`, that depends on `exclusion-example` and `org.springframework:spring-beans` the exclusion in `exlusion-example` prevents a transitive dependency on `commons-logging:commons-logging`.
+If we have a Maven project, `consumer`, that depends on `exclusion-example` and `org.springframework:spring-beans` the exclusion in `exclusion-example` prevents a transitive dependency on `org.springframework:spring-jcl`.
 This can be seen in the following output from `mvn dependency:tree`:
 
 [source,indent=0,subs="verbatim,attributes"]
 ----
 +- com.example:exclusion-example:jar:1.0:compile
-|  \- org.springframework:spring-core:jar:4.1.3.RELEASE:compile
-\- org.springframework:spring-beans:jar:4.1.3.RELEASE:compile
+|  \- org.springframework:spring-core:jar:6.0.10:compile
+\- org.springframework:spring-beans:jar:6.0.10:compile
 ----
 
-If we create a similar project in Gradle the dependencies are different as the exclusion of `commons-logging:commons-logging` is not honored.
+If we create a similar project in Gradle the dependencies are different as the exclusion of `org.springframework:spring-jcl` is not honored.
 This can be seen in the following output from `gradle dependencies`:
 
 [source,indent=0,subs="verbatim,attributes"]
 ----
 +--- com.example:exclusion-example:1.0
-|    \--- org.springframework:spring-core:4.1.3.RELEASE
-|         \--- commons-logging:commons-logging:1.2
-\--- org.springframework:spring-beans:4.1.3.RELEASE
-     \--- org.springframework:spring-core:4.1.3.RELEASE (*)
+|    \--- org.springframework:spring-core:6.0.10
+|         \--- org.springframework:spring-jcl:6.0.10
+\--- org.springframework:spring-beans:6.0.10
+     \--- org.springframework:spring-core:6.0.10 (*)
 ----
 
-Despite `exclusion-example` excluding `commons-logging` from its `spring-core` dependency, `spring-core` has still pulled in `commons-logging`.
+Despite `exclusion-example` excluding `spring-jcl` from its `spring-core` dependency, `spring-core` has still pulled in `spring-jcl`.
 
 The dependency management plugin improves Gradle's handling of exclusions that have been declared in a Maven pom by honoring Maven's semantics for those exclusions.
 This applies to exclusions declared in a project's dependencies that have a Maven pom and exclusions declared in imported Maven boms.
@@ -900,7 +903,7 @@ Root project
 ------------------------------------------------------------
 
 global - Default dependency management for all configurations
-    org.springframework:spring-core 4.1.5.RELEASE
+    org.springframework:spring-core 6.0.10
 
 annotationProcessor - Dependency management for the annotationProcessor configuration
 No configuration-specific dependency management
@@ -945,22 +948,22 @@ testCompile - Dependency management for the testCompile configuration
 No configuration-specific dependency management
 
 testCompileClasspath - Dependency management for the testCompileClasspath configuration
-    org.springframework:spring-beans 4.1.5.RELEASE
-    org.springframework:spring-core 4.1.5.RELEASE
+    org.springframework:spring-beans 6.0.10
+    org.springframework:spring-core 6.0.10
 
 testCompileOnly - Dependency management for the testCompileOnly configuration
 No configuration-specific dependency management
 
 testImplementation - Dependency management for the testImplementation configuration
-    org.springframework:spring-beans 4.1.5.RELEASE
-    org.springframework:spring-core 4.1.5.RELEASE
+    org.springframework:spring-beans 6.0.10
+    org.springframework:spring-core 6.0.10
 
 testRuntime - Dependency management for the testRuntime configuration
 No configuration-specific dependency management
 
 testRuntimeClasspath - Dependency management for the testRuntimeClasspath configuration
-    org.springframework:spring-beans 4.1.5.RELEASE
-    org.springframework:spring-core 4.1.5.RELEASE
+    org.springframework:spring-beans 6.0.10
+    org.springframework:spring-core 6.0.10
 
 testRuntimeOnly - Dependency management for the testRuntimeOnly configuration
 No configuration-specific dependency management
@@ -972,11 +975,11 @@ This report is produced by a project with the following dependency management:
 ----
 dependencyManagement {
     dependencies {
-        dependency 'org.springframework:spring-core:4.1.5.RELEASE'
+        dependency 'org.springframework:spring-core:6.0.10'
     }
     testImplementation {
         dependencies {
-            dependency 'org.springframework:spring-beans:4.1.5.RELEASE'
+            dependency 'org.springframework:spring-beans:6.0.10'
         }
     }
 }
