@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,8 @@ class GradleVersionCompatibilityIntegrationTests {
 	}
 
 	static List<String[]> gradleVersions() {
-		List<String> versions = Arrays.asList("6.8.3", "6.9.2", "7.0.2", "7.1.1", "7.2", "7.3.3", "7.4.2");
+		List<String> versions = Arrays.asList("6.8.3", "6.9.4", "7.0.2", "7.1.1", "7.2", "7.3.3", "7.4.2", "7.5.1",
+				"7.6.2", "8.0.2", "8.1.1", "8.2.1");
 		List<String[]> result = new ArrayList<>();
 		for (String version : versions) {
 			result.add(new String[] { version });
