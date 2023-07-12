@@ -36,7 +36,7 @@ public class DependencyManagementPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		InternalComponents internalComponents = new InternalComponents(project);
 		DependencyManagementExtension dependencyManagementExtension = internalComponents
-				.getDependencyManagementExtension();
+			.getDependencyManagementExtension();
 		project.getExtensions().add("dependencyManagement", dependencyManagementExtension);
 		internalComponents.createDependencyManagementReportTask("dependencyManagement");
 		project.getConfigurations().all(internalComponents.getImplicitDependencyManagementCollector());
@@ -47,19 +47,21 @@ public class DependencyManagementPlugin implements Plugin<Project> {
 	private void configurePomCustomization(Project project,
 			DependencyManagementExtension dependencyManagementExtension) {
 		PomDependencyManagementConfigurer pomConfigurer = dependencyManagementExtension.getPomConfigurer();
-		project.getPlugins().withType(MavenPublishPlugin.class,
-				(mavenPublishPlugin) -> configurePublishingExtension(project, pomConfigurer));
+		project.getPlugins()
+			.withType(MavenPublishPlugin.class,
+					(mavenPublishPlugin) -> configurePublishingExtension(project, pomConfigurer));
 	}
 
 	private void configurePublishingExtension(Project project, PomDependencyManagementConfigurer extension) {
-		project.getExtensions().configure(PublishingExtension.class,
-				(publishingExtension) -> configurePublications(publishingExtension, extension));
+		project.getExtensions()
+			.configure(PublishingExtension.class,
+					(publishingExtension) -> configurePublications(publishingExtension, extension));
 	}
 
 	private void configurePublications(PublishingExtension publishingExtension,
 			PomDependencyManagementConfigurer extension) {
-		publishingExtension.getPublications().withType(MavenPublication.class,
-				(mavenPublication) -> mavenPublication.getPom().withXml(extension));
+		publishingExtension.getPublications()
+			.withType(MavenPublication.class, (mavenPublication) -> mavenPublication.getPom().withXml(extension));
 	}
 
 }

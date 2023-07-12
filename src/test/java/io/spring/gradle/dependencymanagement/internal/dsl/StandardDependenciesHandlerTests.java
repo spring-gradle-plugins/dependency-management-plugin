@@ -56,8 +56,8 @@ class StandardDependenciesHandlerTests {
 		dependencyId.put("name", gstring("example"));
 		dependencyId.put("version", gstring("1.0"));
 		this.handler.dependency(dependencyId);
-		then(this.container).should().addManagedVersion(this.configuration, "com.example", "example", "1.0",
-				Collections.emptyList());
+		then(this.container).should()
+			.addManagedVersion(this.configuration, "com.example", "example", "1.0", Collections.emptyList());
 	}
 
 	@Test
@@ -80,8 +80,8 @@ class StandardDependenciesHandlerTests {
 		dependencyId.put("name", gstring("example"));
 		dependencyId.put("version", gstring("1.0"));
 		this.handler.dependency(dependencyId);
-		then(this.container).should().addManagedVersion(this.configuration, "com.example", "example", "1.0",
-				Collections.emptyList());
+		then(this.container).should()
+			.addManagedVersion(this.configuration, "com.example", "example", "1.0", Collections.emptyList());
 	}
 
 	@Test
@@ -119,7 +119,7 @@ class StandardDependenciesHandlerTests {
 		}
 		catch (Exception ex) {
 			assertThat(ex.getMessage())
-					.isEqualTo("Exclusion 'malformed' is malformed. The required form is 'group:name'");
+				.isEqualTo("Exclusion 'malformed' is malformed. The required form is 'group:name'");
 		}
 	}
 

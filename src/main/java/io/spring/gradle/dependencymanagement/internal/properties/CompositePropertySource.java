@@ -40,8 +40,11 @@ public class CompositePropertySource implements PropertySource {
 
 	@Override
 	public Object getProperty(String name) {
-		return this.delegates.stream().map((delegate) -> delegate.getProperty(name)).filter(Objects::nonNull)
-				.findFirst().orElse(null);
+		return this.delegates.stream()
+			.map((delegate) -> delegate.getProperty(name))
+			.filter(Objects::nonNull)
+			.findFirst()
+			.orElse(null);
 	}
 
 }

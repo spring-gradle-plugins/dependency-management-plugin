@@ -163,7 +163,7 @@ class DependencyManagementPluginIntegrationTests {
 	void springCloudStarterParentBomCanBeImportedAndUsedForDependencyManagement() {
 		this.gradleBuild.runner().withArguments("managedVersions").build();
 		assertThat(readLines("managed-versions.txt"))
-				.contains("org.springframework.cloud:spring-cloud-starter-eureka-server -> 1.0.0.M3");
+			.contains("org.springframework.cloud:spring-cloud-starter-eureka-server -> 1.0.0.M3");
 	}
 
 	@Test
@@ -352,7 +352,7 @@ class DependencyManagementPluginIntegrationTests {
 	void dependencyWithAMissingComponentInItsStringIdentifierProducesAHelpfulError() {
 		String output = this.gradleBuild.runner().withArguments("build").buildAndFail().getOutput();
 		assertThat(output)
-				.contains("Dependency identifier 'a:1.0' is malformed. The required form is 'group:name:version'");
+			.contains("Dependency identifier 'a:1.0' is malformed. The required form is 'group:name:version'");
 	}
 
 	@Test
@@ -365,7 +365,7 @@ class DependencyManagementPluginIntegrationTests {
 	void dynamicVersionIsNotAddedToDependencyManagement() {
 		this.gradleBuild.runner().withArguments("managedVersions").build();
 		assertThat(readLines("managed-versions.txt"))
-				.noneMatch((line) -> line.startsWith("commons-logging:commons-logging ->"));
+			.noneMatch((line) -> line.startsWith("commons-logging:commons-logging ->"));
 	}
 
 	@Test
@@ -501,8 +501,8 @@ class DependencyManagementPluginIntegrationTests {
 
 	private List<String> readLines(String filename) {
 		try {
-			return Files.readAllLines(
-					this.gradleBuild.runner().getProjectDir().toPath().resolve(Paths.get("build", filename)));
+			return Files
+				.readAllLines(this.gradleBuild.runner().getProjectDir().toPath().resolve(Paths.get("build", filename)));
 		}
 		catch (IOException ex) {
 			throw new RuntimeException(ex);

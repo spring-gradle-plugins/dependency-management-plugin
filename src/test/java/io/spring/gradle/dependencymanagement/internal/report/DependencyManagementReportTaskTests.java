@@ -40,8 +40,8 @@ class DependencyManagementReportTaskTests {
 
 	private final Project project = ProjectBuilder.builder().build();
 
-	private final DependencyManagementReportTask task = this.project.getTasks().create("dependencyManagement",
-			DependencyManagementReportTask.class);
+	private final DependencyManagementReportTask task = this.project.getTasks()
+		.create("dependencyManagement", DependencyManagementReportTask.class);
 
 	private final DependencyManagementReportRenderer renderer = mock(DependencyManagementReportRenderer.class);
 
@@ -68,10 +68,10 @@ class DependencyManagementReportTaskTests {
 		this.task.report();
 		then(this.renderer).should().startProject(this.project);
 		then(this.renderer).should().renderGlobalManagedVersions(any(Map.class));
-		then(this.renderer).should().renderConfigurationManagedVersions(any(Map.class), eq(configurationTwo),
-				any(Map.class));
-		then(this.renderer).should().renderConfigurationManagedVersions(any(Map.class), eq(configurationOne),
-				any(Map.class));
+		then(this.renderer).should()
+			.renderConfigurationManagedVersions(any(Map.class), eq(configurationTwo), any(Map.class));
+		then(this.renderer).should()
+			.renderConfigurationManagedVersions(any(Map.class), eq(configurationOne), any(Map.class));
 		then(this.renderer).shouldHaveNoMoreInteractions();
 	}
 

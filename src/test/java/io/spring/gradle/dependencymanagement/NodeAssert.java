@@ -73,7 +73,7 @@ public class NodeAssert extends AbstractAssert<NodeAssert, Node> implements Asse
 	private static Document read(String xmlContent) {
 		try {
 			return FACTORY.newDocumentBuilder()
-					.parse(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
+				.parse(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
 		}
 		catch (Exception ex) {
 			throw new RuntimeException(ex);

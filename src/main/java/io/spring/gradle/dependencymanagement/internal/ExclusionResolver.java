@@ -44,7 +44,7 @@ import org.gradle.api.artifacts.result.ResolvedComponentResult;
 class ExclusionResolver {
 
 	private static final Set<String> IGNORED_SCOPES = Collections
-			.unmodifiableSet(new HashSet<>(Arrays.asList("provided", "test")));
+		.unmodifiableSet(new HashSet<>(Arrays.asList("provided", "test")));
 
 	private final Map<String, Exclusions> exclusionsCache = new HashMap<>();
 

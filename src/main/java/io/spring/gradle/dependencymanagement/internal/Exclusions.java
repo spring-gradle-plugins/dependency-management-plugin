@@ -36,7 +36,7 @@ class Exclusions {
 			return;
 		}
 		this.exclusionsByDependency.computeIfAbsent(dependency, (key) -> new HashSet<>())
-				.addAll(exclusionsForDependency);
+			.addAll(exclusionsForDependency);
 	}
 
 	void addAll(Exclusions exclusions) {

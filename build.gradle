@@ -4,7 +4,7 @@ plugins {
 	id 'java-gradle-plugin'
 	id 'maven-publish'
 
-	id 'io.spring.javaformat' version '0.0.34'
+	id 'io.spring.javaformat' version '0.0.39'
 	id 'io.spring.nohttp' version '0.0.10'
 	id 'org.asciidoctor.jvm.convert' version '3.3.2'
 }
@@ -65,7 +65,7 @@ def mavenRepackJar = tasks.register("mavenRepackJar", Jar) { repackJar ->
 dependencies {
 	asciidoctorExt 'io.spring.asciidoctor.backends:spring-asciidoctor-backends:0.0.4'
 
-	checkstyle 'io.spring.javaformat:spring-javaformat-checkstyle:0.0.34'
+	checkstyle 'io.spring.javaformat:spring-javaformat-checkstyle:0.0.39'
 
 	implementation(files(mavenRepackJar))
 

@@ -70,7 +70,8 @@ public class DependencyManagementApplier implements Action<Configuration> {
 	public void execute(Configuration configuration) {
 		logger.info("Applying dependency management to configuration '{}' in project '{}'", configuration.getName(),
 				this.project.getName());
-		configuration.getIncoming().beforeResolve((resolvableDependencies) -> this.dependencyManagementContainer
+		configuration.getIncoming()
+			.beforeResolve((resolvableDependencies) -> this.dependencyManagementContainer
 				.getManagedVersionsForConfiguration(configuration));
 		VersionConfiguringAction versionConfiguringAction = new VersionConfiguringAction(this.project,
 				this.dependencyManagementContainer, configuration);

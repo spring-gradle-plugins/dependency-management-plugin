@@ -29,7 +29,7 @@ import java.util.Set;
 final class Versions {
 
 	private static final Set<String> DYNAMIC_PREFIXES = Collections
-			.unmodifiableSet(new HashSet<>(Arrays.asList("latest.", "[", "]", "(")));
+		.unmodifiableSet(new HashSet<>(Arrays.asList("latest.", "[", "]", "(")));
 
 	private Versions() {
 	}

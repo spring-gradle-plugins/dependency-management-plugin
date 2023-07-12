@@ -53,8 +53,10 @@ class MavenPublishPluginIntegrationTests {
 	}
 
 	private NodeAssert generatedPom() {
-		return new NodeAssert(this.gradleBuild.runner().getProjectDir().toPath()
-				.resolve(Paths.get("build", "publications", "mavenJava", "pom-default.xml")));
+		return new NodeAssert(this.gradleBuild.runner()
+			.getProjectDir()
+			.toPath()
+			.resolve(Paths.get("build", "publications", "mavenJava", "pom-default.xml")));
 	}
 
 }

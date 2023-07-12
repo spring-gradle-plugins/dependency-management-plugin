@@ -52,8 +52,10 @@ public class GradleBuild implements BeforeEachCallback {
 		Store store = context.getStore(Namespace.create(GradleBuild.class));
 		Project project = new Project();
 		store.put("project", project);
-		this.runner = GradleRunner.create().withPluginClasspath().withProjectDir(project.dir.toFile())
-				.withArguments("-PmavenRepo=" + new File("src/test/resources/maven-repo").getAbsolutePath());
+		this.runner = GradleRunner.create()
+			.withPluginClasspath()
+			.withProjectDir(project.dir.toFile())
+			.withArguments("-PmavenRepo=" + new File("src/test/resources/maven-repo").getAbsolutePath());
 		Class<?> testClass = context.getRequiredTestClass();
 		String methodName = context.getRequiredTestMethod().getName();
 		InputStream input = testClass.getResourceAsStream(initials(testClass) + "/" + methodName + ".gradle");

@@ -76,8 +76,9 @@ public class MavenPomResolver implements PomResolver {
 
 	@Override
 	public List<Pom> resolvePomsLeniently(List<PomReference> pomReferences) {
-		return createPoms(createConfiguration(pomReferences).getResolvedConfiguration().getLenientConfiguration()
-				.getArtifacts(Specs.SATISFIES_ALL), pomReferences, new MapPropertySource(Collections.emptyMap()));
+		return createPoms(createConfiguration(pomReferences).getResolvedConfiguration()
+			.getLenientConfiguration()
+			.getArtifacts(Specs.SATISFIES_ALL), pomReferences, new MapPropertySource(Collections.emptyMap()));
 	}
 
 	@Override
@@ -146,17 +147,21 @@ public class MavenPomResolver implements PomResolver {
 		if (model.getDependencyManagement() == null || model.getDependencyManagement().getDependencies() == null) {
 			return Collections.emptyList();
 		}
-		return model.getDependencyManagement().getDependencies().stream().map(this::createDependency)
-				.collect(Collectors.toList());
+		return model.getDependencyManagement()
+			.getDependencies()
+			.stream()
+			.map(this::createDependency)
+			.collect(Collectors.toList());
 	}
 
 	private Dependency createDependency(
 			io.spring.gradle.dependencymanagement.org.apache.maven.model.Dependency dependency) {
 		Set<Exclusion> exclusions = new LinkedHashSet<>();
 		if (dependency.getExclusions() != null) {
-			dependency.getExclusions().stream()
-					.map((exclusion) -> new Exclusion(exclusion.getGroupId(), exclusion.getArtifactId()))
-					.forEach(exclusions::add);
+			dependency.getExclusions()
+				.stream()
+				.map((exclusion) -> new Exclusion(exclusion.getGroupId(), exclusion.getArtifactId()))
+				.forEach(exclusions::add);
 		}
 		Coordinates coordinates = new Coordinates(dependency.getGroupId(), dependency.getArtifactId(),
 				dependency.getVersion());

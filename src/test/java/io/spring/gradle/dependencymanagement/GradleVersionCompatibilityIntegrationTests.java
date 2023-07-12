@@ -41,8 +41,10 @@ class GradleVersionCompatibilityIntegrationTests {
 	@ParameterizedTest(name = "Gradle {0}")
 	@MethodSource("gradleVersions")
 	void pluginIsCompatible(String gradleVersion) {
-		BuildResult result = this.gradleBuild.runner().withGradleVersion(gradleVersion).withArguments("resolve")
-				.build();
+		BuildResult result = this.gradleBuild.runner()
+			.withGradleVersion(gradleVersion)
+			.withArguments("resolve")
+			.build();
 		assertThat(result.task(":resolve").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
 	}
 

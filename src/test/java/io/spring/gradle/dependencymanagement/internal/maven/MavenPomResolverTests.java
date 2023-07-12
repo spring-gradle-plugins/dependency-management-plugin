@@ -48,7 +48,7 @@ class MavenPomResolverTests {
 	MavenPomResolverTests() {
 		this.project.getRepositories().mavenCentral();
 		this.project.getRepositories()
-				.maven((repository) -> repository.setUrl(new File("src/test/resources/maven-repo").getAbsoluteFile()));
+			.maven((repository) -> repository.setUrl(new File("src/test/resources/maven-repo").getAbsoluteFile()));
 	}
 
 	@Test

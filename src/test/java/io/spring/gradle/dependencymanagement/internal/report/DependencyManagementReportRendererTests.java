@@ -57,8 +57,10 @@ class DependencyManagementReportRendererTests {
 
 	@Test
 	void projectHeaderForSubproject() {
-		Project subproject = ProjectBuilder.builder().withParent(ProjectBuilder.builder().build()).withName("alpha")
-				.build();
+		Project subproject = ProjectBuilder.builder()
+			.withParent(ProjectBuilder.builder().build())
+			.withName("alpha")
+			.build();
 		this.renderer.startProject(subproject);
 		assertThat(outputLines()).containsExactly("", "------------------------------------------------------------",
 				"Project :alpha", "------------------------------------------------------------", "");
@@ -66,8 +68,10 @@ class DependencyManagementReportRendererTests {
 
 	@Test
 	void projectHeaderForSubprojectWithDescription() {
-		Project subproject = ProjectBuilder.builder().withParent(ProjectBuilder.builder().build()).withName("alpha")
-				.build();
+		Project subproject = ProjectBuilder.builder()
+			.withParent(ProjectBuilder.builder().build())
+			.withName("alpha")
+			.build();
 		subproject.setDescription("description of alpha project");
 		this.renderer.startProject(subproject);
 		assertThat(outputLines()).containsExactly("", "------------------------------------------------------------",

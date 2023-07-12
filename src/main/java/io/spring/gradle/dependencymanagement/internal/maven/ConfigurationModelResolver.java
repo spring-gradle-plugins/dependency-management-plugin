@@ -87,8 +87,13 @@ class ConfigurationModelResolver implements ModelResolver {
 	private FileModelSource resolveModel(String coordinates, Consumer<String> versionHandler) {
 		Dependency dependency = this.project.getDependencies().create(coordinates);
 		Configuration configuration = this.configurationContainer.newConfiguration(dependency);
-		versionHandler.accept(configuration.getResolvedConfiguration().getResolvedArtifacts().iterator().next()
-				.getModuleVersion().getId().getVersion());
+		versionHandler.accept(configuration.getResolvedConfiguration()
+			.getResolvedArtifacts()
+			.iterator()
+			.next()
+			.getModuleVersion()
+			.getId()
+			.getVersion());
 		return new FileModelSource(configuration.resolve().iterator().next());
 	}
 

@@ -56,13 +56,13 @@ public class DependencyManagementReportTask extends DefaultTask {
 	public void report() {
 		this.renderer.startProject(getProject());
 		Map<String, String> globalManagedVersions = this.dependencyManagementContainer
-				.getManagedVersionsForConfiguration(null);
+			.getManagedVersionsForConfiguration(null);
 		this.renderer.renderGlobalManagedVersions(globalManagedVersions);
 		Set<Configuration> configurations = new TreeSet<>(Comparator.comparing(Configuration::getName));
 		configurations.addAll(getProject().getConfigurations());
 		for (Configuration configuration : configurations) {
 			Map<String, String> managedVersions = this.dependencyManagementContainer
-					.getManagedVersionsForConfiguration(configuration);
+				.getManagedVersionsForConfiguration(configuration);
 			this.renderer.renderConfigurationManagedVersions(managedVersions, configuration, globalManagedVersions);
 		}
 	}

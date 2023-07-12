@@ -54,7 +54,7 @@ class DependencyManagementPluginTests {
 	void whenPluginIsAppliedThenPomConfigurerIsAvailable() {
 		this.project.getPlugins().apply(DependencyManagementPlugin.class);
 		assertThat(this.project.getExtensions().findByType(DependencyManagementExtension.class).getPomConfigurer())
-				.isNotNull();
+			.isNotNull();
 	}
 
 	@Test
