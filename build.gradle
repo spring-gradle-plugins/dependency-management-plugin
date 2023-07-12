@@ -150,7 +150,7 @@ publishing {
 			description = 'A Gradle plugin that provides Maven-like dependency management functionality'
 			url = 'https://github.com/spring-gradle-plugins/dependency-management-plugin'
 			organization {
-				name = 'Pivotal Software, Inc.'
+				name = 'VMware, Inc.'
 				url = 'https://spring.io'
 			}
 			licenses {
@@ -167,7 +167,7 @@ publishing {
 				developer {
 					id = 'wilkinsona'
 					name = 'Andy Wilkinson'
-					email = 'awilkinson@pivotal.io'
+					email = 'wilkinsona@vmware.com'
 					roles = ["Project lead"]
 				}
 			}
