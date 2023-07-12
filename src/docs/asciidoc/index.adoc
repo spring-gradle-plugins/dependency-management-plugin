@@ -33,7 +33,7 @@ Based on the configured dependency management metadata, the Dependency Managemen
 
 The Plugin has the following requirements:
 
- - Gradle 6.x (6.8 or later) or 7.x.
+ - Gradle 6.x (6.8 or later), 7.x, or 8.x.
    Gradle 6.7 and earlier are not supported.
  - Java 8 or later
 
