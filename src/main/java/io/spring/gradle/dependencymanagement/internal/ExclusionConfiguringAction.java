@@ -107,7 +107,9 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 		resolutionResult.allDependencies((dependencyResult) -> {
 			if (dependencyResult instanceof ResolvedDependencyResult) {
 				ResolvedDependencyResult resolved = (ResolvedDependencyResult) dependencyResult;
-				excludedDependencies.add(new DependencyCandidate(resolved.getSelected().getModuleVersion()));
+				if (!isPlatform(resolved.getSelected())) {
+					excludedDependencies.add(new DependencyCandidate(resolved.getSelected().getModuleVersion()));
+				}
 			}
 			else if (dependencyResult instanceof UnresolvedDependencyResult) {
 				DependencyCandidate dependencyCandidate = toDependencyCandidate(

@@ -4,16 +4,19 @@ plugins {
 }
 
 repositories {
+	maven {
+		url file("maven-repo")
+	}
 	mavenCentral()
 }
 
 dependencies {
-	implementation("com.google.guava:guava:32.1.1-jre");
+	implementation("test:platform-consumer:1.0");
 }
 
 tasks.register("resolve") {
 	doFirst {
-		def files = project.configurations.compileClasspath.resolve()
+		def files = project.configurations.runtimeClasspath.resolve()
 		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }
