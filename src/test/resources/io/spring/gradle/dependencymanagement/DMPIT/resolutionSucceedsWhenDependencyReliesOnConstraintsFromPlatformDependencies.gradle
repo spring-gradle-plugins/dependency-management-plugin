@@ -1,0 +1,21 @@
+plugins {
+	id "java"
+	id "io.spring.dependency-management"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation("com.google.guava:guava:32.1.1-jre");
+}
+
+tasks.register("resolve") {
+	doFirst {
+		def files = project.configurations.compileClasspath.resolve()
+		def output = new File("${buildDir}/resolved.txt")
+		output.parentFile.mkdirs()
+		files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

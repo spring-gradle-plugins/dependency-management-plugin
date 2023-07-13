@@ -495,6 +495,14 @@ class DependencyManagementPluginIntegrationTests {
 				"spring-core-5.3.27.jar", "spring-jcl-5.3.27.jar");
 	}
 
+	@Test
+	void resolutionSucceedsWhenDependencyReliesOnConstraintsFromPlatformDependencies() {
+		this.gradleBuild.runner().withArguments("resolve").build();
+		assertThat(readLines("resolved.txt")).containsExactly("guava-32.1.1-jre.jar", "failureaccess-1.0.1.jar",
+				"jsr305-3.0.2.jar", "checker-qual-3.33.0.jar", "error_prone_annotations-2.18.0.jar",
+				"j2objc-annotations-2.8.jar");
+	}
+
 	private void writeLines(Path path, String... lines) {
 		try {
 			Path resolvedPath = this.gradleBuild.runner().getProjectDir().toPath().resolve(path);
