@@ -1,0 +1,24 @@
+plugins {
+	id "java"
+	id "io.spring.dependency-management"
+}
+
+repositories {
+	maven {
+		url file("maven-repo")
+	}
+	mavenCentral()
+}
+
+dependencies {
+	implementation("test:dependency-management-child:1.0");
+}
+
+tasks.register("resolve") {
+	doFirst {
+		def files = project.configurations.compileClasspath.resolve()
+		def output = new File("${buildDir}/resolved.txt")
+		output.parentFile.mkdirs()
+		files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

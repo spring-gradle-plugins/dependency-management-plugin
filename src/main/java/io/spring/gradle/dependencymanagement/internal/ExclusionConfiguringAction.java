@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,19 +135,21 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 	private Set<DependencyCandidate> determineIncludedComponents(ResolvedComponentResult root,
 			Map<String, Exclusions> pomExclusionsById) {
 		LinkedList<Node> queue = new LinkedList<>();
-		queue.add(new Node(root, getId(root), new HashSet<>()));
+		queue.add(new Node(root, getId(root), new HashSet<>(), false));
 		Set<ResolvedComponentResult> seen = new HashSet<>();
 		Set<DependencyCandidate> includedComponents = new HashSet<>();
 		while (!queue.isEmpty()) {
 			Node node = queue.remove();
 			includedComponents.add(new DependencyCandidate(node.component.getModuleVersion()));
-			for (DependencyResult dependency : node.component.getDependencies()) {
-				if (dependency instanceof ResolvedDependencyResult) {
-					handleResolvedDependency((ResolvedDependencyResult) dependency, node, pomExclusionsById, queue,
-							seen);
-				}
-				else if (dependency instanceof UnresolvedDependencyResult) {
-					handleUnresolvedDependency((UnresolvedDependencyResult) dependency, node, includedComponents);
+			if (!node.platform) {
+				for (DependencyResult dependency : node.component.getDependencies()) {
+					if (dependency instanceof ResolvedDependencyResult) {
+						handleResolvedDependency((ResolvedDependencyResult) dependency, node, pomExclusionsById, queue,
+								seen);
+					}
+					else if (dependency instanceof UnresolvedDependencyResult) {
+						handleUnresolvedDependency((UnresolvedDependencyResult) dependency, node, includedComponents);
+					}
 				}
 			}
 		}
@@ -157,12 +159,10 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 	private void handleResolvedDependency(ResolvedDependencyResult dependency, Node node,
 			Map<String, Exclusions> pomExclusionsById, LinkedList<Node> queue, Set<ResolvedComponentResult> seen) {
 		ResolvedComponentResult child = dependency.getSelected();
-		if (isPlatform(child)) {
-			return;
-		}
 		String childId = getId(child);
 		if (!node.excluded(childId) && seen.add(child)) {
-			queue.add(new Node(child, childId, getChildExclusions(node, childId, pomExclusionsById)));
+			boolean platform = isPlatform(child);
+			queue.add(new Node(child, childId, getChildExclusions(node, childId, pomExclusionsById), platform));
 		}
 	}
 
@@ -225,10 +225,13 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
 		private final Set<Exclusion> exclusions;
 
-		private Node(ResolvedComponentResult component, String id, Set<Exclusion> exclusions) {
+		private final boolean platform;
+
+		private Node(ResolvedComponentResult component, String id, Set<Exclusion> exclusions, boolean platform) {
 			this.component = component;
 			this.id = id;
 			this.exclusions = exclusions;
+			this.platform = platform;
 		}
 
 		private boolean excluded(String id) {

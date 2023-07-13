@@ -488,6 +488,13 @@ class DependencyManagementPluginIntegrationTests {
 		assertThat(readLines("resolved.txt")).noneMatch((line) -> line.contains("junit"));
 	}
 
+	@Test
+	void resolutionSucceedsWhenDependencyReliesOnDependencyManagementFromItsAncestors() {
+		this.gradleBuild.runner().withArguments("resolve").build();
+		assertThat(readLines("resolved.txt")).containsExactly("dependency-management-child-1.0.jar",
+				"spring-core-5.3.27.jar", "spring-jcl-5.3.27.jar");
+	}
+
 	private void writeLines(Path path, String... lines) {
 		try {
 			Path resolvedPath = this.gradleBuild.runner().getProjectDir().toPath().resolve(path);
