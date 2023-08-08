@@ -25,6 +25,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 
+import org.gradle.testkit.runner.BuildResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -500,6 +501,13 @@ class DependencyManagementPluginIntegrationTests {
 		this.gradleBuild.runner().withArguments("resolve").build();
 		assertThat(readLines("resolved.txt")).containsExactly("platform-consumer-1.0.jar", "spring-core-5.3.27.jar",
 				"spring-jcl-5.3.27.jar");
+	}
+
+	@Test
+	void resolutionSucceedsWhenDependencyHasAnInvalidPom() {
+		BuildResult result = this.gradleBuild.runner().withArguments("resolve").build();
+		assertThat(result.getOutput()).contains("Errors occurred while building effective model")
+			.contains("Building this project requires a newer version of Maven");
 	}
 
 	private void writeLines(Path path, String... lines) {

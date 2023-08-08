@@ -57,7 +57,10 @@ final class EffectiveModelBuilder {
 		List<Model> models = new ArrayList<>();
 		InMemoryModelCache cache = new InMemoryModelCache();
 		for (ModelInput input : inputs) {
-			models.add(buildModel(input, cache));
+			Model model = buildModel(input, cache);
+			if (model != null) {
+				models.add(model);
+			}
 		}
 		return models;
 	}
@@ -70,10 +73,7 @@ final class EffectiveModelBuilder {
 		request.setModelCache(cache);
 		try {
 			ModelBuildingResult result = createModelBuilder(input.properties).build(request);
-			List<ModelProblem> errors = extractErrors(result.getProblems());
-			if (!errors.isEmpty()) {
-				reportErrors(errors, input.pom);
-			}
+			reportErrors(extractErrors(result.getProblems()), input.pom);
 			return result.getEffectiveModel();
 		}
 		catch (ModelBuildingException ex) {
@@ -86,7 +86,8 @@ final class EffectiveModelBuilder {
 	private List<ModelProblem> extractErrors(List<ModelProblem> problems) {
 		List<ModelProblem> errors = new ArrayList<>();
 		for (ModelProblem problem : problems) {
-			if (problem.getSeverity() == ModelProblem.Severity.ERROR) {
+			if (problem.getSeverity() == ModelProblem.Severity.ERROR
+					|| problem.getSeverity() == ModelProblem.Severity.FATAL) {
 				errors.add(problem);
 			}
 		}
@@ -94,7 +95,10 @@ final class EffectiveModelBuilder {
 	}
 
 	private void reportErrors(List<ModelProblem> errors, File file) {
-		StringBuilder message = new StringBuilder("Errors occurred while build effective model from " + file + ":");
+		if (errors.isEmpty()) {
+			return;
+		}
+		StringBuilder message = new StringBuilder("Errors occurred while building effective model from " + file + ":");
 		for (ModelProblem error : errors) {
 			message.append("\n	" + error.getMessage() + " in " + error.getModelId());
 		}
