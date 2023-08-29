@@ -298,7 +298,7 @@ The plugin also allows you to import an existing Maven bom to utilise its depend
 ----
 dependencyManagement {
      imports {
-          mavenBom 'org.springframework.boo:spring-boot-dependencies:3.1.1'
+          mavenBom 'org.springframework.boot:spring-boot-dependencies:3.1.1'
      }
 }
 
