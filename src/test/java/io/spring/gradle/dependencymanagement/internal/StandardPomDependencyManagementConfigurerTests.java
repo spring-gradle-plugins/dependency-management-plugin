@@ -244,7 +244,7 @@ class StandardPomDependencyManagementConfigurerTests {
 				Collections.emptyList());
 		NodeAssert pom = configuredPom(PROJECT_TAG
 				+ "<dependencies><dependency><groupId>org.apache.logging.log4j</groupId><artifactId>log4j-core</artifactId><classifier>test</classifier></dependency></dependencies></project>");
-		// assertThat(pom).nodesAtPath("//project/dependencyManagement/dependencies/dependency").hasSize(2);
+		assertThat(pom).nodesAtPath("//project/dependencyManagement/dependencies/dependency").hasSize(2);
 		assertThat(pom).textAtPath("//project/dependencyManagement/dependencies/dependency[1]/groupId")
 			.isEqualTo("org.apache.logging.log4j");
 		assertThat(pom).textAtPath("//project/dependencyManagement/dependencies/dependency[1]/artifactId")
