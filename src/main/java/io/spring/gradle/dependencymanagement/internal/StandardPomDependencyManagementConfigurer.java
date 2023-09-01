@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import groovy.namespace.QName;
 import groovy.util.Node;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
@@ -121,11 +122,19 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 
 	private Node findChild(Node node, String name) {
 		for (Object childObject : node.children()) {
-			if ((childObject instanceof Node) && ((Node) childObject).name().equals(name)) {
-				return (Node) childObject;
+			if (childObject instanceof Node) {
+				Node childNode = (Node) childObject;
+				if (hasName(childNode, name)) {
+					return childNode;
+				}
 			}
 		}
 		return null;
+	}
+
+	private boolean hasName(Node node, String wanted) {
+		Object actual = node.name();
+		return (actual instanceof QName && ((QName) actual).getLocalPart().equals(wanted)) || actual.equals(wanted);
 	}
 
 	private void configureBomImports(Node dependencies) {
@@ -226,7 +235,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 	private List<String> findClassifiers(Node dependencies, Dependency managedDependency) {
 		List<String> classifiers = new ArrayList<>();
 		for (Object child : dependencies.children()) {
-			if (child instanceof Node && ((Node) child).name().equals(NODE_NAME_DEPENDENCY)) {
+			if (child instanceof Node && hasName((Node) child, NODE_NAME_DEPENDENCY)) {
 				Node dependency = (Node) child;
 				String groupId = findTextOfChild(dependency, NODE_NAME_GROUP_ID);
 				String artifactId = findTextOfChild(dependency, NODE_NAME_ARTIFACT_ID);

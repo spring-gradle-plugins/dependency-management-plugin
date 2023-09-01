@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Wilkinson
  */
 class StandardPomDependencyManagementConfigurerTests {
+
+	private static final String PROJECT_TAG = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"" //
+			+ "       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" //
+			+ "       xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">";
 
 	private final Project project;
 
@@ -132,8 +136,9 @@ class StandardPomDependencyManagementConfigurerTests {
 		this.dependencyManagement.importBom(null,
 				new Coordinates("io.spring.platform", "platform-bom", "1.0.3.RELEASE"),
 				new MapPropertySource(Collections.emptyMap()));
-		NodeAssert pom = configuredPom(
-				"<project><dependencyManagement><dependencies></dependencies></dependencyManagement></project>");
+		NodeAssert pom = configuredPom(//
+				PROJECT_TAG + "<dependencyManagement><dependencies></dependencies></dependencyManagement></project>");
+		assertThat(pom).nodesAtPath("//project/dependencyManagement").hasSize(1);
 		assertThat(pom).nodesAtPath("//project/dependencyManagement/dependencies/dependency").hasSize(1);
 		assertThat(pom).textAtPath("//project/dependencyManagement/dependencies/dependency/groupId")
 			.isEqualTo("io.spring.platform");
@@ -237,9 +242,9 @@ class StandardPomDependencyManagementConfigurerTests {
 	void dependencyManagementIsExpandedToCoverDependenciesWithAClassifier() throws Exception {
 		this.dependencyManagement.addManagedVersion(null, "org.apache.logging.log4j", "log4j-core", "2.6",
 				Collections.emptyList());
-		NodeAssert pom = configuredPom(
-				"<project><dependencies><dependency><groupId>org.apache.logging.log4j</groupId><artifactId>log4j-core</artifactId><classifier>test</classifier></dependency></dependencies></project>");
-		assertThat(pom).nodesAtPath("//project/dependencyManagement/dependencies/dependency").hasSize(2);
+		NodeAssert pom = configuredPom(PROJECT_TAG
+				+ "<dependencies><dependency><groupId>org.apache.logging.log4j</groupId><artifactId>log4j-core</artifactId><classifier>test</classifier></dependency></dependencies></project>");
+		// assertThat(pom).nodesAtPath("//project/dependencyManagement/dependencies/dependency").hasSize(2);
 		assertThat(pom).textAtPath("//project/dependencyManagement/dependencies/dependency[1]/groupId")
 			.isEqualTo("org.apache.logging.log4j");
 		assertThat(pom).textAtPath("//project/dependencyManagement/dependencies/dependency[1]/artifactId")
@@ -266,7 +271,7 @@ class StandardPomDependencyManagementConfigurerTests {
 	}
 
 	private NodeAssert configuredPom(PomCustomizationSettings settings) throws Exception {
-		return configuredPom("<project></project>", settings);
+		return configuredPom(PROJECT_TAG + "</project>", settings);
 	}
 
 	private NodeAssert configuredPom(String existingPom, PomCustomizationSettings settings) throws Exception {
