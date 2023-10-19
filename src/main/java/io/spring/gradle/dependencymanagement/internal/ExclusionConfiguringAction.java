@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,11 +38,7 @@ import org.gradle.api.artifacts.result.DependencyResult;
 import org.gradle.api.artifacts.result.ResolutionResult;
 import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.artifacts.result.ResolvedDependencyResult;
-import org.gradle.api.artifacts.result.ResolvedVariantResult;
 import org.gradle.api.artifacts.result.UnresolvedDependencyResult;
-import org.gradle.api.attributes.Attribute;
-import org.gradle.api.attributes.AttributeContainer;
-import org.gradle.api.attributes.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +102,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 		resolutionResult.allDependencies((dependencyResult) -> {
 			if (dependencyResult instanceof ResolvedDependencyResult) {
 				ResolvedDependencyResult resolved = (ResolvedDependencyResult) dependencyResult;
-				if (!isPlatform(resolved.getSelected())) {
+				if (!resolved.isConstraint()) {
 					excludedDependencies.add(new DependencyCandidate(resolved.getSelected().getModuleVersion()));
 				}
 			}
@@ -137,21 +132,19 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 	private Set<DependencyCandidate> determineIncludedComponents(ResolvedComponentResult root,
 			Map<String, Exclusions> pomExclusionsById) {
 		LinkedList<Node> queue = new LinkedList<>();
-		queue.add(new Node(root, getId(root), new HashSet<>(), false));
+		queue.add(new Node(root, getId(root), new HashSet<>()));
 		Set<ResolvedComponentResult> seen = new HashSet<>();
 		Set<DependencyCandidate> includedComponents = new HashSet<>();
 		while (!queue.isEmpty()) {
 			Node node = queue.remove();
 			includedComponents.add(new DependencyCandidate(node.component.getModuleVersion()));
-			if (!node.platform) {
-				for (DependencyResult dependency : node.component.getDependencies()) {
-					if (dependency instanceof ResolvedDependencyResult) {
-						handleResolvedDependency((ResolvedDependencyResult) dependency, node, pomExclusionsById, queue,
-								seen);
-					}
-					else if (dependency instanceof UnresolvedDependencyResult) {
-						handleUnresolvedDependency((UnresolvedDependencyResult) dependency, node, includedComponents);
-					}
+			for (DependencyResult dependency : node.component.getDependencies()) {
+				if (dependency instanceof ResolvedDependencyResult) {
+					handleResolvedDependency((ResolvedDependencyResult) dependency, node, pomExclusionsById, queue,
+							seen);
+				}
+				else if (dependency instanceof UnresolvedDependencyResult) {
+					handleUnresolvedDependency((UnresolvedDependencyResult) dependency, node, includedComponents);
 				}
 			}
 		}
@@ -162,23 +155,9 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 			Map<String, Exclusions> pomExclusionsById, LinkedList<Node> queue, Set<ResolvedComponentResult> seen) {
 		ResolvedComponentResult child = dependency.getSelected();
 		String childId = getId(child);
-		if (!node.excluded(childId) && seen.add(child)) {
-			boolean platform = isPlatform(child);
-			queue.add(new Node(child, childId, getChildExclusions(node, childId, pomExclusionsById), platform));
+		if (!node.excluded(childId) && seen.add(child) && !dependency.isConstraint()) {
+			queue.add(new Node(child, childId, getChildExclusions(node, childId, pomExclusionsById)));
 		}
-	}
-
-	private boolean isPlatform(ResolvedComponentResult component) {
-		List<ResolvedVariantResult> variants = component.getVariants();
-		for (ResolvedVariantResult variant : variants) {
-			AttributeContainer attributes = variant.getAttributes();
-			String category = attributes.getAttribute(Attribute.of("org.gradle.category", String.class));
-			if (category == null
-					|| (!Category.REGULAR_PLATFORM.equals(category) && !Category.ENFORCED_PLATFORM.equals(category))) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	private void handleUnresolvedDependency(UnresolvedDependencyResult dependency, Node node,
@@ -227,13 +206,10 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 
 		private final Set<Exclusion> exclusions;
 
-		private final boolean platform;
-
-		private Node(ResolvedComponentResult component, String id, Set<Exclusion> exclusions, boolean platform) {
+		private Node(ResolvedComponentResult component, String id, Set<Exclusion> exclusions) {
 			this.component = component;
 			this.id = id;
 			this.exclusions = exclusions;
-			this.platform = platform;
 		}
 
 		private boolean excluded(String id) {
