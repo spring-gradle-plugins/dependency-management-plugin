@@ -516,6 +516,14 @@ class DependencyManagementPluginIntegrationTests {
 		assertThat(readLines("resolved.txt")).containsExactly("spring-core-5.3.27.jar", "spring-jcl-5.3.27.jar");
 	}
 
+	@Test
+	void platformConstrainingATransitiveDependencyDoesNotAccidentallyExcludeThatDependency() {
+		this.gradleBuild.runner().withArguments("resolve").build();
+		assertThat(readLines("resolved.txt")).containsExactly("okhttp-4.11.0.jar", "okio-jvm-3.6.0.jar",
+				"kotlin-stdlib-jdk8-1.9.10.jar", "kotlin-stdlib-jdk7-1.9.10.jar", "kotlin-stdlib-1.9.10.jar",
+				"kotlin-stdlib-common-1.9.10.jar", "annotations-13.0.jar");
+	}
+
 	private void writeLines(Path path, String... lines) {
 		try {
 			Path resolvedPath = this.gradleBuild.runner().getProjectDir().toPath().resolve(path);

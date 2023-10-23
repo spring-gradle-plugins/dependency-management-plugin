@@ -155,7 +155,7 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 			Map<String, Exclusions> pomExclusionsById, LinkedList<Node> queue, Set<ResolvedComponentResult> seen) {
 		ResolvedComponentResult child = dependency.getSelected();
 		String childId = getId(child);
-		if (!node.excluded(childId) && seen.add(child) && !dependency.isConstraint()) {
+		if (!node.excluded(childId) && !dependency.isConstraint() && seen.add(child)) {
 			queue.add(new Node(child, childId, getChildExclusions(node, childId, pomExclusionsById)));
 		}
 	}
