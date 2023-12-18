@@ -96,6 +96,9 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 	}
 
 	private Set<DependencyCandidate> findExcludedDependencies() {
+		if (!this.configuration.isTransitive()) {
+			return Collections.emptySet();
+		}
 		ResolutionResult resolutionResult = copyConfiguration().getIncoming().getResolutionResult();
 		ResolvedComponentResult root = resolutionResult.getRoot();
 		Set<DependencyCandidate> excludedDependencies = new HashSet<>();
