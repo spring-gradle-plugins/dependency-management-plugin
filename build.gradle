@@ -4,19 +4,13 @@ plugins {
 	id 'java-gradle-plugin'
 	id 'maven-publish'
 
-	id 'io.spring.javaformat' version '0.0.39'
-	id 'io.spring.nohttp' version '0.0.10'
-	id 'org.asciidoctor.jvm.convert' version '3.3.2'
+	alias(libs.plugins.asciidoctor)
+	alias(libs.plugins.javaformat)
+	alias(libs.plugins.nohttp)
 }
 
 group = 'io.spring.gradle'
 description = 'Dependency Management Plugin'
-
-ext {
-	cglibVersion = '3.1'
-	jarjarVersion = '1.2.1'
-	mavenVersion = '3.8.7'
-}
 
 repositories {
 	mavenCentral()
@@ -35,7 +29,7 @@ gradlePlugin {
 }
 
 checkstyle {
-	configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+	configFile = layout.projectDirectory.file("config/checkstyle/checkstyle.xml").asFile
 	configProperties = [ 'checkstyle.config.dir' : rootProject.file('config/checkstyle') ]
 }
 
@@ -47,7 +41,7 @@ configurations {
 
 def mavenRepackJar = tasks.register("mavenRepackJar", Jar) { repackJar ->
 	repackJar.archiveBaseName = "maven-repack"
-	repackJar.archiveVersion = mavenVersion
+	repackJar.archiveVersion = libs.versions.maven.get()
 
 	doLast() {
 		project.ant {
@@ -63,26 +57,26 @@ def mavenRepackJar = tasks.register("mavenRepackJar", Jar) { repackJar ->
 }
 
 dependencies {
-	asciidoctorExt 'io.spring.asciidoctor.backends:spring-asciidoctor-backends:0.0.4'
+	asciidoctorExt libs.spring.asciidoctor.backends
 
-	checkstyle 'io.spring.javaformat:spring-javaformat-checkstyle:0.0.39'
+	checkstyle libs.spring.javaformat.checkstyle
 
 	implementation(files(mavenRepackJar))
 
-	jarjar "org.gradle.jarjar:jarjar:$jarjarVersion"
+	jarjar libs.jarjar
 
-	maven "org.apache.maven:maven-model-builder:$mavenVersion"
+	maven libs.maven.model.builder
 
-	testImplementation "cglib:cglib-nodep:$cglibVersion"
-	testImplementation "org.assertj:assertj-core:3.23.1"
-	testImplementation "org.mockito:mockito-core:4.6.1"
-	testImplementation "org.junit.jupiter:junit-jupiter:5.8.2"
+	testImplementation libs.cglib.nodep
+	testImplementation libs.assertj.core
+	testImplementation libs.mockito.core
+	testImplementation libs.junit.jupiter
 }
 
-sourceCompatibility = "1.8"
-targetCompatibility = "1.8"
-
 java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(8)
+	}
 	withJavadocJar()
 	withSourcesJar()
 }
@@ -133,7 +127,7 @@ tasks.register("docsZip", Zip) {
 	archiveBaseName = 'dependency-management-plugin'
 	archiveClassifier = 'docs'
 	description = "Builds docs archive containing API and reference documentation"
-	destinationDirectory = file("${project.buildDir}/distributions")
+	destinationDirectory = layout.buildDirectory.dir("distributions")
 
 	from(tasks.named("asciidoctor")) {
 		into 'reference/html'
@@ -144,7 +138,7 @@ tasks.register("docsZip", Zip) {
 }
 
 publishing {
-	publications.all {
+	publications.configureEach {
 		pom {
 			name = 'Dependency management plugin'
 			description = 'A Gradle plugin that provides Maven-like dependency management functionality'

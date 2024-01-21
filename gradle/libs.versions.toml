@@ -1,0 +1,19 @@
+[versions]
+maven = "3.8.7"
+
+[libraries]
+assertj-core = { module = "org.assertj:assertj-core", version = "3.23.1" }
+cglib-nodep = { module = "cglib:cglib-nodep", version = "3.1" }
+jarjar = { module = "org.gradle.jarjar:jarjar", version = "1.2.1" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.8.2" }
+spring-asciidoctor-backends = { module = "io.spring.asciidoctor.backends:spring-asciidoctor-backends", version = "0.0.4" }
+spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version = "0.0.39" }
+maven-model-builder = { module = "org.apache.maven:maven-model-builder", version.ref = "maven" }
+mockito-core = { module = "org.mockito:mockito-core", version = "4.6.1" }
+
+[bundles]
+
+[plugins]
+asciidoctor = { id = "org.asciidoctor.jvm.convert", version = "3.3.2" }
+javaformat = { id = "io.spring.javaformat", version = "0.0.39" }
+nohttp = { id = "io.spring.nohttp", version = "0.0.10" }
