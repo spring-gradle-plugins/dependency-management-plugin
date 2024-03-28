@@ -160,11 +160,6 @@ jobs:
         params: { state: "failure", commit: "git-repo" }
   - put: repo-status-build
     params: { state: "success", commit: "git-repo" }
-  - put: artifactory-repo
-    params:
-      <<: *artifactory-repo-put-params
-    get_params:
-      threads: 8
 - name: stage-milestone
   serial: true
   plan:
