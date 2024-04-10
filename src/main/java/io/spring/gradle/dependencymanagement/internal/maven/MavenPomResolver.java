@@ -46,7 +46,6 @@ import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.specs.Specs;
 
 /**
  * A {@link PomResolver} that uses the jarjared Maven API to access the pom's model.
@@ -76,9 +75,9 @@ public class MavenPomResolver implements PomResolver {
 
 	@Override
 	public List<Pom> resolvePomsLeniently(List<PomReference> pomReferences) {
-		return createPoms(createConfiguration(pomReferences).getResolvedConfiguration()
-			.getLenientConfiguration()
-			.getArtifacts(Specs.SATISFIES_ALL), pomReferences, new MapPropertySource(Collections.emptyMap()));
+		return createPoms(
+				createConfiguration(pomReferences).getResolvedConfiguration().getLenientConfiguration().getArtifacts(),
+				pomReferences, new MapPropertySource(Collections.emptyMap()));
 	}
 
 	@Override
