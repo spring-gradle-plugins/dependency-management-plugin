@@ -4,6 +4,10 @@ inputs:
   develocity-access-key:
     description: Access key for authentication with https://ge.spring.io
     required: true
+outputs:
+  version:
+    description: 'The version that was built'
+    value: ${{ steps.read-version.outputs.version }}
 runs:
   using: composite
   steps:
@@ -26,3 +30,10 @@ runs:
       env:
         DEVELOCITY_ACCESS_KEY: ${{ inputs.develocity-access-key }}
       run: ./gradlew -PdeploymentRepository=$(pwd)/artifactory build publishAllPublicationsToDeploymentRepository
+    - name: Read Version From gradle.properties
+      id: read-version
+      shell: bash
+      run: |
+        version=$(sed -n 's/version=\(.*\)/\1/p' gradle.properties)
+        echo "Version is $version"
+        echo "version=$version" >> $GITHUB_OUTPUT

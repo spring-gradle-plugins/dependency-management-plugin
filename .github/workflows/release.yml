@@ -1,0 +1,91 @@
+name: Release
+on:
+  push:
+    tags:
+      - v1.1.[0-9]+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+jobs:
+  build-and-stage-release:
+    if: ${{ github.repository == 'spring-gradle-plugins/dependency-management-plugin' }}
+    name: Build and Stage Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Build
+        id: build
+        uses: ./.github/actions/build
+        with:
+          develocity-access-key: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
+      - name: Stage Release
+        uses: ./.github/actions/deploy-to-artifactory
+        with:
+          build-name-version: ${{ steps.build.outputs.version }}
+          repository: 'libs-staging-local'
+          username: ${{ secrets.ARTIFACTORY_USERNAME }}
+          password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+          signing-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          signing-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+    outputs:
+      version: ${{ steps.build.outputs.version }}
+  sync-to-maven-central:
+    name: Sync to Maven Central
+    needs:
+      - build-and-stage-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Sync to Maven Central
+        uses: ./.github/actions/sync-to-maven-central
+        with:
+          jfrog-cli-config-token: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+          ossrh-s01-staging-profile: ${{ secrets.OSSRH_S01_STAGING_PROFILE }}
+          ossrh-s01-token-password: ${{ secrets.OSSRH_S01_TOKEN_PASSWORD }}
+          ossrh-s01-token-username: ${{ secrets.OSSRH_S01_TOKEN_USERNAME }}
+          version: ${{ needs.build-and-stage-release.outputs.version }}
+  promote-release:
+    name: Promote Release
+    needs:
+      - build-and-stage-release
+      - sync-to-maven-central
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up JFrog CLI
+        uses: jfrog/setup-jfrog-cli@d82fe26823e1f25529250895d5673f65b02af085 # v4.0.1
+        env:
+          JF_ENV_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+      - name: Promote build
+        run: jfrog rt build-promote ${{ format('dependency-management-plugin-{0}', needs.build-and-stage-release.outputs.version)}} ${{ github.run_number }} plugins-release-local
+  publish-to-plugin-portal:
+    name: Publish to Plugin Portal
+    needs:
+      - build-and-stage-release
+      - sync-to-maven-central
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Publish
+        uses: ./.github/actions/publish-to-plugin-portal
+        with:
+          gradle-plugin-publish-key: ${{ secrets.GRADLE_PUBLISH_KEY_CREDENTIAL }}
+          gradle-plugin-publish-secret: ${{ secrets.GRADLE_PUBLISH_SECRET_CREDENTIAL }}
+          jfrog-cli-config-token: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+          plugin-version: ${{ needs.build-and-stage-release.outputs.version }}
+  create-github-release:
+    name: Create GitHub Release
+    needs:
+      - build-and-stage-release
+      - promote-release
+      - publish-to-plugin-portal
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Create GitHub Release
+        uses: ./.github/actions/create-github-release
+        with:
+          milestone: ${{ needs.build-and-stage-release.outputs.version }}
+          token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
