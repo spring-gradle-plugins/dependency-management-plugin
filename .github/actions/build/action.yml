@@ -22,6 +22,7 @@ runs:
         echo 'systemProp.org.gradle.internal.launcher.welcomeMessageEnabled=false' >> $HOME/.gradle/gradle.properties
         echo 'org.gradle.daemon=false' >> $HOME/.gradle/gradle.properties
     - name: Build and Publish
+      shell: bash
       env:
         DEVELOCITY_ACCESS_KEY: ${{ inputs.develocity-access-key }}
       run: ./gradlew -PdeploymentRepository=$(pwd)/artifactory build publishAllPublicationsToDeploymentRepository
