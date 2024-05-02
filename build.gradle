@@ -87,6 +87,10 @@ java {
 	withSourcesJar()
 }
 
+tasks.withType(JavaCompile).configureEach {
+	options.compilerArgs.addAll "-Werror", "-Xlint:unchecked", "-Xlint:deprecation", "-Xlint:rawtypes", "-Xlint:varargs"
+}
+
 tasks.named("test").configure {
 	useJUnitPlatform()
 }

@@ -24,7 +24,6 @@ import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfig
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Parent;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.Repository;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.FileModelSource;
-import io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelSource;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.InvalidRepositoryException;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.ModelResolver;
 import io.spring.gradle.dependencymanagement.org.apache.maven.model.resolution.UnresolvableModelException;
@@ -34,7 +33,8 @@ import org.gradle.api.artifacts.Dependency;
 
 /**
  * A {@link ModelResolver} that uses a {@link Configuration} to resolve the
- * {@link ModelSource} for a pom. requested model.
+ * {@link io.spring.gradle.dependencymanagement.org.apache.maven.model.building.ModelSource}
+ * for a pom. requested model.
  *
  * @author Andy Wilkinson
  */
