@@ -28,7 +28,7 @@ runs:
       with:
         artifact-properties: |
           /**/dependency-management-plugin-*.zip::zip.type=docs,zip.deployed=false
-        build-name: ${{ format('dependency-management-plugin-{0}', inputs.build-name-version }}
+        build-name: ${{ format('dependency-management-plugin-{0}', inputs.build-name-version) }}
         folder: 'artifactory'
         username: ${{ inputs.username }}
         password: ${{ inputs.password }}
