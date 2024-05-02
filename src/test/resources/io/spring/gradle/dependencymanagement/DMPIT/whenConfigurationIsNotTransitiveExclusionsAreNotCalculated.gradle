@@ -1,0 +1,17 @@
+plugins {
+	id("io.spring.dependency-management")
+}
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	nonTransitive {
+		transitive = false
+	}
+}
+
+dependencies {
+	nonTransitive("org.eclipse.platform:org.eclipse.swt:3.124.100")
+}

@@ -530,6 +530,14 @@ class DependencyManagementPluginIntegrationTests {
 		assertThat(readLines("resolved.txt")).containsExactly("bcprov-jdk18on-1.78.1.jar");
 	}
 
+	@Test
+	void whenConfigurationIsNotTransitiveExclusionsAreNotCalculated() {
+		BuildResult result = this.gradleBuild.runner()
+			.withArguments("dependencies", "--configuration", "nonTransitive")
+			.build();
+		assertThat(result.getOutput()).doesNotContain("Error");
+	}
+
 	private void writeLines(Path path, String... lines) {
 		try {
 			Path resolvedPath = this.gradleBuild.runner().getProjectDir().toPath().resolve(path);
