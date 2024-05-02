@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -522,6 +522,12 @@ class DependencyManagementPluginIntegrationTests {
 		assertThat(readLines("resolved.txt")).containsExactly("okhttp-4.11.0.jar", "okio-jvm-3.6.0.jar",
 				"kotlin-stdlib-jdk8-1.9.10.jar", "kotlin-stdlib-jdk7-1.9.10.jar", "kotlin-stdlib-1.9.10.jar",
 				"kotlin-stdlib-common-1.9.10.jar", "annotations-13.0.jar");
+	}
+
+	@Test
+	void whenDependencyIsSubstitutedNewCoordinatesAreUsedForDependencyManagement() {
+		this.gradleBuild.runner().withArguments("resolve").build();
+		assertThat(readLines("resolved.txt")).containsExactly("bcprov-jdk18on-1.78.1.jar");
 	}
 
 	private void writeLines(Path path, String... lines) {

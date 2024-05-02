@@ -1,0 +1,41 @@
+buildscript {
+	project.configurations.all {
+		resolutionStrategy.eachDependency {
+			if (requested.group == "org.bouncycastle" && requested.name == "bcprov-jdk15on") {
+	        	useTarget("org.bouncycastle:bcprov-jdk18on:1.78.1")
+	      	}
+	    }
+	}
+}
+
+plugins {
+	id "java"
+	id "io.spring.dependency-management"
+}
+
+/*
+configurations.all {
+	resolutionStrategy.eachDependency {
+		if (requested.group == "org.bouncycastle" && requested.name == "bcprov-jdk15on") {
+        	useTarget("org.bouncycastle:bcprov-jdk18on:1.78.1")
+      	}
+    }
+}
+*/
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+}
+
+task resolve {
+	doFirst {
+		def files = project.configurations.compileClasspath.resolve()
+		def output = new File("${buildDir}/resolved.txt")
+		output.parentFile.mkdirs()
+		files.collect { it.name }.each { output << "${it}\n" }
+	}
+}

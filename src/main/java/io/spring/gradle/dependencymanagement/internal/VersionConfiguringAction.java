@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencyResolveDetails;
+import org.gradle.api.artifacts.ModuleVersionSelector;
 import org.gradle.api.artifacts.ResolutionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,28 +60,28 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 
 	@Override
 	public void execute(DependencyResolveDetails details) {
-		logger.debug("Processing dependency '{}'", details.getRequested());
-		if (isDependencyOnLocalProject(this.project, details)) {
-			logger.debug("'{}' is a local project dependency. Dependency management has not been applied",
-					details.getRequested());
+		ModuleVersionSelector target = details.getTarget();
+		logger.debug("Processing requested dependency '{}' with target '{}", details.getRequested(), target);
+		if (isDependencyOnLocalProject(this.project, target)) {
+			logger.debug("'{}' is a local project dependency. Dependency management has not been applied", target);
 			return;
 		}
-		if (isDirectDependency(details) && Versions.isDynamic(details.getRequested().getVersion())) {
+		if (isDirectDependency(target) && Versions.isDynamic(target.getVersion())) {
 			logger.debug("'{}' is a direct dependency and has a dynamic version. "
-					+ "Dependency management has not been applied", details.getRequested());
+					+ "Dependency management has not been applied", target);
 			return;
 		}
-		String version = this.dependencyManagementContainer.getManagedVersion(this.configuration,
-				details.getRequested().getGroup(), details.getRequested().getName());
+		String version = this.dependencyManagementContainer.getManagedVersion(this.configuration, target.getGroup(),
+				target.getName());
 		if (version != null) {
-			logger.debug("Using version '{}' for dependency '{}'", version, details.getRequested());
+			logger.debug("Using version '{}' for dependency '{}'", version, target);
 			details.useVersion(version);
 			return;
 		}
-		logger.debug("No dependency management for dependency '{}'", details.getRequested());
+		logger.debug("No dependency management for dependency '{}'", target);
 	}
 
-	private boolean isDirectDependency(DependencyResolveDetails details) {
+	private boolean isDirectDependency(ModuleVersionSelector selector) {
 		if (this.directDependencies == null) {
 			Set<String> directDependencies = new HashSet<>();
 			for (Dependency dependency : this.configuration.getAllDependencies()) {
@@ -88,15 +89,15 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 			}
 			this.directDependencies = directDependencies;
 		}
-		return this.directDependencies.contains(getId(details));
+		return this.directDependencies.contains(getId(selector));
 	}
 
-	private boolean isDependencyOnLocalProject(Project project, DependencyResolveDetails details) {
-		return this.localProjects.getNames().contains(getId(details));
+	private boolean isDependencyOnLocalProject(Project project, ModuleVersionSelector selector) {
+		return this.localProjects.getNames().contains(getId(selector));
 	}
 
-	private String getId(DependencyResolveDetails details) {
-		return details.getRequested().getGroup() + ":" + details.getRequested().getName();
+	private String getId(ModuleVersionSelector selector) {
+		return selector.getGroup() + ":" + selector.getName();
 	}
 
 	ResolutionStrategy applyTo(Configuration c) {
