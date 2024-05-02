@@ -1,0 +1,27 @@
+name: Build
+description: Builds the plugin
+inputs:
+  develocity-access-key:
+    description: Access key for authentication with https://ge.spring.io
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Set up Java
+      uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
+      with:
+        distribution: 'liberica'
+        java-version: 8
+    - name: Set Up Gradle
+      uses: gradle/actions/setup-gradle@db19848a5fa7950289d3668fb053140cf3028d43 # v3.3.2
+    - name: Configure Gradle Properties
+      shell: bash
+      run: |
+        mkdir -p $HOME/.gradle
+        echo 'systemProp.user.name=spring-builds+github' >> $HOME/.gradle/gradle.properties
+        echo 'systemProp.org.gradle.internal.launcher.welcomeMessageEnabled=false' >> $HOME/.gradle/gradle.properties
+        echo 'org.gradle.daemon=false' >> $HOME/.gradle/gradle.properties
+    - name: Build and Publish
+      env:
+        DEVELOCITY_ACCESS_KEY: ${{ inputs.develocity-access-key }}
+      run: ./gradlew -PdeploymentRepository=$(pwd)/artifactory build publishAllPublicationsToDeploymentRepository

@@ -1,0 +1,38 @@
+name: Deploy to Artifactory
+description: Deploys artifacts to Artifactory
+inputs:
+  build-name-version:
+    description: 'Version to append to the build name'
+    required: true
+  repository:
+    description: 'Artifactory repository to deploy to'
+    required: false
+    default: 'plugins-snapshot-local'
+  username:
+    description: 'Username for authentication with Artifactory'
+    required: true
+  password:
+    description: 'Password for authentication with Artifactory'
+    required: true
+  signing-key:
+    description: 'Key used to sign artifacts'
+    required: true
+  signing-passphrase:
+    description: 'Passphrase for the signing key'
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Deploy
+      uses: spring-io/artifactory-deploy-action@26bbe925a75f4f863e1e529e85be2d0093cac116 # v0.0.1
+      with:
+        artifact-properties: |
+          /**/dependency-management-plugin-*.zip::zip.type=docs,zip.deployed=false
+        build-name: ${{ format('dependency-management-plugin-{0}', inputs.build-name-version }}
+        folder: 'artifactory'
+        username: ${{ inputs.username }}
+        password: ${{ inputs.password }}
+        repository: ${{ inputs.repository }}
+        signing-key: ${{ inputs.signing-key }}
+        signing-passphrase: ${{ inputs.signing-passphrase }}
+        uri: 'https://repo.spring.io'
