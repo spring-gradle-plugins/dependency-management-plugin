@@ -5,8 +5,8 @@ plugins {
 tasks.register("publishExisting", com.gradle.publish.PublishExistingTask) {
 	pluginId = "io.spring.dependency-management"
 	fileRepositoryRoot = new File("${repositoryRoot}")
-	pluginVersion = "${pluginVersion}"
-	pluginCoordinates = "io.spring.gradle:dependency-management-plugin:${pluginVersion}"
+	pluginVersion = "${dependencyManagementPluginVersion}"
+	pluginCoordinates = "io.spring.gradle:dependency-management-plugin:${dependencyManagementPluginVersion}"
 	displayName = "Dependency Management Plugin"
 	pluginDescription = "A Gradle plugin that provides Maven-like dependency management functionality"
 	website = "https://github.com/spring-gradle-plugins/dependency-management-plugin"

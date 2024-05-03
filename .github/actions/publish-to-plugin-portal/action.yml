@@ -35,4 +35,4 @@ runs:
     - name: Publish
       shell: bash
       working-directory: ${{ github.action_path }}
-      run: ${{ github.workspace }}/gradlew publishExisting -Pgradle.publish.key=${{ inputs.gradle-plugin-publish-key }} -Pgradle.publish.secret=${{ inputs.gradle-plugin-publish-secret }} -PpluginVersion=${{ inputs.plugin-version }} -PrepositoryRoot=${{ github.workspace }}/gradle-plugin-portal
+      run: ${{ github.workspace }}/gradlew publishExisting -Pgradle.publish.key=${{ inputs.gradle-plugin-publish-key }} -Pgradle.publish.secret=${{ inputs.gradle-plugin-publish-secret }} -PdependencyManagementPluginVersion=${{ inputs.plugin-version }} -PrepositoryRoot=${{ github.workspace }}/gradle-plugin-portal
