@@ -708,6 +708,12 @@ The same property from the implementation configuration's dependency management 
 ----
 dependencyManagement.implementation.importedProperties['spring-framework.version']
 ----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+dependencyManagement.implementation.importedProperties["spring-framework.version"]
+----
 NOTE: Accessing imported properties for a specific configuration is not currently supported when using the Kotlin DSL.
 
 
