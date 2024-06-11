@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.gradle.api.artifacts.ResolutionStrategy;
  * Extension that provides the entry point to the dependency management plugin's DSL.
  *
  * @author Andy Wilkinson
+ * @author Yanming Zhou
  */
 public interface DependencyManagementExtension extends DependencyManagementHandler {
 
@@ -69,6 +70,14 @@ public interface DependencyManagementExtension extends DependencyManagementHandl
 	PomDependencyManagementConfigurer getPomConfigurer();
 
 	/**
+	 * Whether or not Maven-style exclusions should be applied during dependency
+	 * resolutions. The default is {@code true}.
+	 * @return whether or not Maven-style exclusions should be applied during dependency
+	 * resolutions.
+	 */
+	boolean isApplyMavenExclusions();
+
+	/**
 	 * Set whether or not Maven-style exclusions should be applied during dependency
 	 * resolutions. The default is {@code true}.
 	 * @param applyMavenExclusions {@code true} if Maven-style exclusions should be
@@ -83,6 +92,14 @@ public interface DependencyManagementExtension extends DependencyManagementHandl
 	 * applied, otherwise {@code false}
 	 */
 	void applyMavenExclusions(boolean applyMavenExclusions);
+
+	/**
+	 * Whether dependency management should be overridden by versions declared on a
+	 * project's dependencies. The default is {@code true}.
+	 * @return Whether dependency management should be overridden by versions declared on
+	 * a project's dependencies.
+	 */
+	boolean isOverriddenByDependencies();
 
 	/**
 	 * Set whether dependency management should be overridden by versions declared on a
