@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,16 @@ package io.spring.gradle.dependencymanagement.dsl;
  * A handler for configuring the customization of generated POMs.
  *
  * @author Andy Wilkinson
+ * @author Yanming Zhou
  */
 public interface GeneratedPomCustomizationHandler {
+
+	/**
+	 * Whether or not customization of generated poms is enabled. Defaults to
+	 * {@code true}.
+	 * @return whether or not customization is enabled
+	 */
+	boolean isEnabled();
 
 	/**
 	 * Sets whether or not customization of generated poms is enabled. Defaults to
