@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ResolvableDependencies;
+import org.gradle.api.artifacts.DependencySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,11 +75,11 @@ public class DependencyManagementApplier implements Action<Configuration> {
 				.getManagedVersionsForConfiguration(configuration));
 		VersionConfiguringAction versionConfiguringAction = new VersionConfiguringAction(this.project,
 				this.dependencyManagementContainer, configuration);
-		configuration.getIncoming().beforeResolve(configureMavenExclusions(configuration, versionConfiguringAction));
+		configuration.withDependencies(configureMavenExclusions(configuration, versionConfiguringAction));
 		versionConfiguringAction.applyTo(configuration);
 	}
 
-	private Action<ResolvableDependencies> configureMavenExclusions(Configuration configuration,
+	private Action<DependencySet> configureMavenExclusions(Configuration configuration,
 			VersionConfiguringAction versionConfiguringAction) {
 		return new ExclusionConfiguringAction(this.dependencyManagementSettings, this.dependencyManagementContainer,
 				this.configurationContainer, configuration, this.exclusionResolver, versionConfiguringAction::applyTo);

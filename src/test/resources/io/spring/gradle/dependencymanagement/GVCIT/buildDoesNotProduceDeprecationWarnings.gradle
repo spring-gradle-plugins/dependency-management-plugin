@@ -1,0 +1,19 @@
+plugins {
+	id "java"
+	id "io.spring.dependency-management"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.boot:spring-boot-dependencies:2.7.15'
+	}
+}
+
+dependencies {
+	implementation("org.springframework.boot:spring-boot-starter")
+	implementation("org.keycloak:keycloak-admin-client:25.0.1")
+}

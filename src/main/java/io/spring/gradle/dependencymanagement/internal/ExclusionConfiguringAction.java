@@ -29,7 +29,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencyConstraintSet;
 import org.gradle.api.artifacts.DependencySet;
-import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.ResolvableDependencies;
 import org.gradle.api.artifacts.component.ComponentSelector;
@@ -48,7 +47,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Andy Wilkinson
  */
-class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
+class ExclusionConfiguringAction implements Action<DependencySet> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExclusionConfiguringAction.class);
 
@@ -77,21 +76,18 @@ class ExclusionConfiguringAction implements Action<ResolvableDependencies> {
 	}
 
 	@Override
-	public void execute(ResolvableDependencies resolvableDependencies) {
-		if (this.configuration.isTransitive() && this.dependencyManagementSettings.isApplyMavenExclusions()) {
-			applyMavenExclusions(resolvableDependencies);
+	public void execute(DependencySet dependencySet) {
+		if (this.configuration.isCanBeResolved() && this.configuration.isTransitive()
+				&& this.dependencyManagementSettings.isApplyMavenExclusions()) {
+			applyMavenExclusions(dependencySet);
 		}
 	}
 
-	private void applyMavenExclusions(ResolvableDependencies resolvableDependencies) {
+	private void applyMavenExclusions(DependencySet dependencySet) {
 		Set<DependencyCandidate> excludedDependencies = findExcludedDependencies();
 		logger.info("Excluding {}", excludedDependencies);
-		for (org.gradle.api.artifacts.Dependency dependency : resolvableDependencies.getDependencies()) {
-			if (dependency instanceof ModuleDependency) {
-				for (DependencyCandidate excludedDependency : excludedDependencies) {
-					((ModuleDependency) dependency).exclude(excludedDependency.asMap());
-				}
-			}
+		for (DependencyCandidate excludedDependency : excludedDependencies) {
+			this.configuration.exclude(excludedDependency.asMap());
 		}
 	}
 
