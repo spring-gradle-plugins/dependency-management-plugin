@@ -46,10 +46,12 @@ public class DependencyManagementPlugin implements Plugin<Project> {
 
 	private void configurePomCustomization(Project project,
 			DependencyManagementExtension dependencyManagementExtension) {
-		PomDependencyManagementConfigurer pomConfigurer = dependencyManagementExtension.getPomConfigurer();
-		project.getPlugins()
-			.withType(MavenPublishPlugin.class,
-					(mavenPublishPlugin) -> configurePublishingExtension(project, pomConfigurer));
+		project.afterEvaluate((evaluatedProject) -> {
+			PomDependencyManagementConfigurer pomConfigurer = dependencyManagementExtension.getPomConfigurer();
+			evaluatedProject.getPlugins()
+				.withType(MavenPublishPlugin.class,
+						(mavenPublishPlugin) -> configurePublishingExtension(evaluatedProject, pomConfigurer));
+		});
 	}
 
 	private void configurePublishingExtension(Project project, PomDependencyManagementConfigurer extension) {

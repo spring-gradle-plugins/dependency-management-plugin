@@ -17,6 +17,7 @@
 package io.spring.gradle.dependencymanagement.internal.dsl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -28,12 +29,14 @@ import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementHandler;
 import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler;
 import io.spring.gradle.dependencymanagement.dsl.ImportsHandler;
+import io.spring.gradle.dependencymanagement.internal.DependencyManagement;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.internal.StandardPomDependencyManagementConfigurer;
-import io.spring.gradle.dependencymanagement.internal.maven.MavenPomResolver;
+import io.spring.gradle.dependencymanagement.internal.properties.MapPropertySource;
+import io.spring.gradle.dependencymanagement.internal.properties.ProjectPropertySource;
 import org.codehaus.groovy.runtime.ReflectionMethodInvoker;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -139,10 +142,12 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport
 
 	@Override
 	public StandardPomDependencyManagementConfigurer getPomConfigurer() {
-		return new StandardPomDependencyManagementConfigurer(
-				this.dependencyManagementContainer.getGlobalDependencyManagement(),
-				this.dependencyManagementSettings.getPomCustomizationSettings(),
-				new MavenPomResolver(this.project, this.configurationContainer), this.project);
+		DependencyManagement dependencyManagement = this.dependencyManagementContainer.getGlobalDependencyManagement();
+		return new StandardPomDependencyManagementConfigurer(dependencyManagement.getManagedDependencies(),
+				dependencyManagement.getImportedBomReferences(),
+				dependencyManagement.getResolvedBoms(new MapPropertySource(Collections.emptyMap())),
+				dependencyManagement.getResolvedBoms(new ProjectPropertySource(this.project)),
+				this.dependencyManagementSettings.getPomCustomizationSettings());
 	}
 
 	/**

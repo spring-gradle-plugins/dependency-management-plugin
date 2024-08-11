@@ -29,11 +29,7 @@ import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
 import io.spring.gradle.dependencymanagement.internal.pom.PomReference;
-import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
-import io.spring.gradle.dependencymanagement.internal.properties.ProjectPropertySource;
-import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
 import io.spring.gradle.dependencymanagement.maven.PomDependencyManagementConfigurer;
-import org.gradle.api.Project;
 import org.gradle.api.XmlProvider;
 
 /**
@@ -43,8 +39,6 @@ import org.gradle.api.XmlProvider;
  * @author Rupert Waldron
  */
 public class StandardPomDependencyManagementConfigurer implements PomDependencyManagementConfigurer {
-
-	private static final PropertySource EMPTY_PROPERTY_SOURCE = (name) -> null;
 
 	private static final String NODE_NAME_DEPENDENCY_MANAGEMENT = "dependencyManagement";
 
@@ -68,31 +62,37 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 
 	private static final String NODE_NAME_CLASSIFIER = "classifier";
 
-	private final DependencyManagement dependencyManagement;
+	private final List<Dependency> managedDependencies;
+
+	private final List<PomReference> importedBomReferences;
+
+	private final List<Pom> resolvedBomReferencesWithoutProperties;
+
+	private final List<Pom> resolvedBomReferencesWithProperties;
 
 	private final PomCustomizationSettings settings;
-
-	private final PomResolver pomResolver;
-
-	private final Project project;
 
 	/**
 	 * Creates a new {@code StandardPomDependencyManagementConfigurer} that will configure
 	 * the pom's dependency management to reflect the given {@code dependencyManagement}.
 	 * The given {@code settings} will control how the dependency management is applied to
 	 * the pom.
-	 * @param dependencyManagement the dependency management
+	 * @param managedDependencies the managed dependencies
+	 * @param importedBomReferences the bom references
+	 * @param resolvedBomReferencesWithoutProperties the resolved bom references without
+	 * properties
+	 * @param resolvedBomReferencesWithProperties the resolved bom references with
+	 * properties
 	 * @param settings the customization settings
-	 * @param pomResolver resolves imported boms during dependency management
-	 * configuration
-	 * @param project owner of the pom that is being configured
 	 */
-	public StandardPomDependencyManagementConfigurer(DependencyManagement dependencyManagement,
-			PomCustomizationSettings settings, PomResolver pomResolver, Project project) {
-		this.dependencyManagement = dependencyManagement;
+	public StandardPomDependencyManagementConfigurer(List<Dependency> managedDependencies,
+			List<PomReference> importedBomReferences, List<Pom> resolvedBomReferencesWithoutProperties,
+			List<Pom> resolvedBomReferencesWithProperties, PomCustomizationSettings settings) {
+		this.managedDependencies = managedDependencies;
+		this.importedBomReferences = importedBomReferences;
+		this.resolvedBomReferencesWithoutProperties = resolvedBomReferencesWithoutProperties;
+		this.resolvedBomReferencesWithProperties = resolvedBomReferencesWithProperties;
 		this.settings = settings;
-		this.pomResolver = pomResolver;
-		this.project = project;
 	}
 
 	@Override
@@ -138,11 +138,10 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 	}
 
 	private void configureBomImports(Node dependencies) {
-		List<PomReference> bomReferences = this.dependencyManagement.getImportedBomReferences();
-		Map<String, Dependency> withoutPropertiesManagedDependencies = getManagedDependenciesById(bomReferences,
-				EMPTY_PROPERTY_SOURCE);
-		Map<String, Dependency> withPropertiesManagedDependencies = getManagedDependenciesById(bomReferences,
-				new ProjectPropertySource(this.project));
+		Map<String, Dependency> withoutPropertiesManagedDependencies = getManagedDependenciesById(
+				this.resolvedBomReferencesWithoutProperties);
+		Map<String, Dependency> withPropertiesManagedDependencies = getManagedDependenciesById(
+				this.resolvedBomReferencesWithProperties);
 		List<Dependency> overrides = new ArrayList<>();
 		for (Map.Entry<String, Dependency> withPropertyEntry : withPropertiesManagedDependencies.entrySet()) {
 			Dependency withoutPropertyDependency = withoutPropertiesManagedDependencies.get(withPropertyEntry.getKey());
@@ -153,17 +152,16 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 		for (Dependency override : overrides) {
 			appendDependencyNode(dependencies, override.getCoordinates(), override.getScope(), override.getType());
 		}
-		List<PomReference> importOrderBomReferences = new ArrayList<>(bomReferences);
+		List<PomReference> importOrderBomReferences = new ArrayList<>(this.importedBomReferences);
 		Collections.reverse(importOrderBomReferences);
 		for (PomReference bomReference : importOrderBomReferences) {
 			addImport(dependencies, bomReference);
 		}
 	}
 
-	private Map<String, Dependency> getManagedDependenciesById(List<PomReference> bomReferences,
-			PropertySource propertySource) {
+	private Map<String, Dependency> getManagedDependenciesById(List<Pom> resolvedReferences) {
 		Map<String, Dependency> managedDependencies = new HashMap<>();
-		for (Pom pom : this.pomResolver.resolvePoms(bomReferences, propertySource)) {
+		for (Pom pom : resolvedReferences) {
 			for (Dependency dependency : pom.getManagedDependencies()) {
 				managedDependencies.put(createId(dependency), dependency);
 			}
@@ -205,7 +203,7 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 	}
 
 	private void configureManagedDependencies(Node managedDependencies, Node dependencies) {
-		for (Dependency managedDependency : this.dependencyManagement.getManagedDependencies()) {
+		for (Dependency managedDependency : this.managedDependencies) {
 			addManagedDependency(managedDependencies, managedDependency, null);
 			if (dependencies != null) {
 				for (String classifier : findClassifiers(dependencies, managedDependency)) {

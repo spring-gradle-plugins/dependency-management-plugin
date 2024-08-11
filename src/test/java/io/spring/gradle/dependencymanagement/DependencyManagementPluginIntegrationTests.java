@@ -26,10 +26,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.gradle.testkit.runner.BuildResult;
+import org.gradle.testkit.runner.UnexpectedBuildFailure;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Integration tests for {@link DependencyManagementPlugin}.
@@ -552,6 +554,12 @@ class DependencyManagementPluginIntegrationTests {
 			.withArguments("dependencies", "--configuration", "nonTransitive")
 			.build();
 		assertThat(result.getOutput()).doesNotContain("Error");
+	}
+
+	@Test
+	void violationOfConfigurationCache() {
+		assertThatThrownBy(() -> this.gradleBuild.runner().withArguments("violate").build())
+			.isInstanceOf(UnexpectedBuildFailure.class);
 	}
 
 	private void writeLines(Path path, String... lines) {

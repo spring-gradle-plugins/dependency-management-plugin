@@ -63,6 +63,7 @@ public class GradleBuild implements BeforeEachCallback {
 			throw new IllegalStateException("No build script found for " + testClass.getName() + " " + methodName);
 		}
 		Files.copy(input, project.dir.resolve("build.gradle"));
+		Files.copy(testClass.getResourceAsStream("/gradle.properties"), project.dir.resolve("gradle.properties"));
 		copyRecursively(Paths.get("src", "test", "resources", "maven-repo"), project.dir.resolve("maven-repo"));
 	}
 
