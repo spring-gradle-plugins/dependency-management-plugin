@@ -182,11 +182,26 @@ class DependencyManagementPluginIntegrationTests {
 	@Test
 	void managedVersionsCanBeAccessedProgramatically() {
 		this.gradleBuild.runner().withArguments("verify").build();
+		assertThat(readLines("implementation-managed-versions.txt"))
+			.contains("org.springframework:spring-core -> 4.0.6.RELEASE", "com.alpha:bravo -> 1.0",
+					"com.alpha:charlie -> 1.0")
+			.doesNotContain("com.foo:bar");
+		assertThat(readLines("testRuntimeOnly-managed-versions.txt"))
+			.contains("org.springframework:spring-core -> 4.0.6.RELEASE", "com.foo:bar -> 1.2.3",
+					"com.alpha:bravo -> 1.0", "com.alpha:charlie -> 1.0")
+			.doesNotContain("com.foo:bar");
+		assertThat(readLines("managed-versions.txt"))
+			.contains("org.springframework:spring-core -> 4.0.6.RELEASE", "com.alpha:bravo -> 1.0",
+					"com.alpha:charlie -> 1.0")
+			.doesNotContain("com.foo:bar");
 	}
 
 	@Test
 	void propertiesImportedFromABomCanBeAccessed() {
 		this.gradleBuild.runner().withArguments("verify").build();
+		assertThat(readLines("imported-properties.txt")).contains("hibernate.version -> 4.3.5.Final");
+		assertThat(readLines("myConfiguration-imported-properties.txt")).contains("spring.version -> 4.1.4.RELEASE",
+				"jruby.version -> 1.7.12");
 	}
 
 	@Test
@@ -347,6 +362,7 @@ class DependencyManagementPluginIntegrationTests {
 	@Test
 	void managedVersionsOfAConfigurationCanBeAccessed() {
 		this.gradleBuild.runner().withArguments("verify").build();
+		assertThat(readLines("managed-versions.txt")).contains("org.springframework:spring-core -> 4.1.8.RELEASE");
 	}
 
 	@Test

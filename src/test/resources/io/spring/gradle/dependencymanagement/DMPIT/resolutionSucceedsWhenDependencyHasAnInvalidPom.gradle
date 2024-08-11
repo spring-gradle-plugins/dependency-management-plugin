@@ -15,9 +15,9 @@ dependencies {
 }
 
 tasks.register("resolve") {
+	def files = project.configurations.runtimeClasspath.incoming.files
+	def output = new File("${buildDir}/resolved.txt")
 	doFirst {
-		def files = project.configurations.runtimeClasspath.resolve()
-		def output = new File("${buildDir}/resolved.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }
 	}

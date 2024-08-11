@@ -17,11 +17,12 @@ dependencyManagement {
 }
 
 task managedVersions {
+	def output = new File("${buildDir}/managed-versions.txt")
+	def managedVersions = dependencyManagement.implementation.managedVersions
 	doFirst {
-		def output = new File("${buildDir}/managed-versions.txt")
 		output.parentFile.mkdirs()
 		output.createNewFile()
-		dependencyManagement.implementation.managedVersions.each { key, value ->
+		managedVersions.each { key, value ->
 			output << "${key} -> ${value}\n"
 		}
 	}

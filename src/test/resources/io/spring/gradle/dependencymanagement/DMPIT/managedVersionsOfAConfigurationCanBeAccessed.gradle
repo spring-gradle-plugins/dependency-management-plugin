@@ -15,17 +15,15 @@ dependencyManagement {
 	}
 }
 
-def verifyManagedVersion(def versions, def id, def expected) {
-	def actual = versions[id]
-	if (actual != expected) {
-		throw new GradleException("Managed version for '${id}' was '${actual}' but '${expected}' was expected")
-	}
-}
-
-
 task verify {
+	def testImplementationManagedVersions = dependencyManagement.testImplementation.managedVersions
+	def managedVersionsForTestImplementationConfiguration = dependencyManagement.getManagedVersionsForConfiguration(configurations.testImplementation)
+	def testImplementationManagedVersionsOutput = new File("${buildDir}/managed-versions.txt")
 	doFirst {
-		verifyManagedVersion(dependencyManagement.testImplementation.managedVersions, "org.springframework:spring-core", "4.1.8.RELEASE")
-		verifyManagedVersion(dependencyManagement.getManagedVersionsForConfiguration(configurations.testImplementation), "org.springframework:spring-core", null)
+		testImplementationManagedVersionsOutput.parentFile.mkdirs()
+		testImplementationManagedVersions.each { key, value ->
+			testImplementationManagedVersionsOutput << "${key} -> ${value}\n"
+		}
+		assert managedVersionsForTestImplementationConfiguration.isEmpty()
 	}
 }

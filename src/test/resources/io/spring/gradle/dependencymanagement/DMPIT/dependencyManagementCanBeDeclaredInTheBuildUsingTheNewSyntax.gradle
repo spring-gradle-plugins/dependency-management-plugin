@@ -22,20 +22,21 @@ dependencyManagement {
 
 
 task managedVersions {
+	def managedVersions = dependencyManagement.managedVersions
+	def output = new File("${buildDir}/managed-versions.txt")
 	doFirst {
-		def output = new File("${buildDir}/managed-versions.txt")
 		output.parentFile.mkdirs()
-		dependencyManagement.managedVersions.each { key, value ->
+		managedVersions.each { key, value ->
 			output << "${key} -> ${value}\n"
 		}
 	}
 }
 
 task exclusions {
+	def output = new File("${buildDir}/exclusions.txt")
+	def exclusions = project.dependencyManagement.dependencyManagementContainer.getExclusions(null)
 	doFirst {
-		def output = new File("${buildDir}/exclusions.txt")
 		output.parentFile.mkdirs()
-		def exclusions = project.dependencyManagement.dependencyManagementContainer.getExclusions(null)
 		exclusions.exclusionsByDependency.each { key, value ->
 			output << "${key} -> "
 			output << value.collect { "${it.groupId}:${it.artifactId}" }
