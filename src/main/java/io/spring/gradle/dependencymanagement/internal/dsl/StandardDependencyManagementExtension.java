@@ -141,7 +141,6 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport
 	public StandardPomDependencyManagementConfigurer getPomConfigurer() {
 		return new StandardPomDependencyManagementConfigurer(
 				this.dependencyManagementContainer.getGlobalDependencyManagement(),
-				this.dependencyManagementSettings.getPomCustomizationSettings(),
 				new MavenPomResolver(this.project, this.configurationContainer), this.project);
 	}
 

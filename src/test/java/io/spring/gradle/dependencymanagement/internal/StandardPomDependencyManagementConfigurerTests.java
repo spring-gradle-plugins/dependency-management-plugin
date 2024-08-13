@@ -24,7 +24,6 @@ import groovy.util.Node;
 import groovy.xml.XmlParser;
 import groovy.xml.XmlUtil;
 import io.spring.gradle.dependencymanagement.NodeAssert;
-import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.internal.maven.MavenPomResolver;
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
@@ -103,17 +102,6 @@ class StandardPomDependencyManagementConfigurerTests {
 		assertThat(pom).textAtPath("//project/dependencyManagement/dependencies/dependency[2]/scope")
 			.isEqualTo("import");
 		assertThat(pom).textAtPath("//project/dependencyManagement/dependencies/dependency[2]/type").isEqualTo("pom");
-	}
-
-	@Test
-	void customizationOfPublishedPomsCanBeDisabled() throws Exception {
-		this.dependencyManagement.importBom(null,
-				new Coordinates("io.spring.platform", "platform-bom", "1.0.3.RELEASE"),
-				new MapPropertySource(Collections.emptyMap()));
-		PomCustomizationSettings settings = new PomCustomizationSettings();
-		settings.setEnabled(false);
-		NodeAssert pom = configuredPom(settings);
-		assertThat(pom).nodesAtPath("//project/dependencyManagement/dependencies/dependency").isEmpty();
 	}
 
 	@Test
@@ -263,21 +251,13 @@ class StandardPomDependencyManagementConfigurerTests {
 	}
 
 	private NodeAssert configuredPom() throws Exception {
-		return configuredPom(new PomCustomizationSettings());
+		return configuredPom(PROJECT_TAG + "</project>");
 	}
 
 	private NodeAssert configuredPom(String existingPom) throws Exception {
-		return configuredPom(existingPom, new PomCustomizationSettings());
-	}
-
-	private NodeAssert configuredPom(PomCustomizationSettings settings) throws Exception {
-		return configuredPom(PROJECT_TAG + "</project>", settings);
-	}
-
-	private NodeAssert configuredPom(String existingPom, PomCustomizationSettings settings) throws Exception {
 		Node pom = new XmlParser().parseText(existingPom);
 		new StandardPomDependencyManagementConfigurer(this.dependencyManagement.getGlobalDependencyManagement(),
-				settings, this.pomResolver, this.project)
+				this.pomResolver, this.project)
 			.configurePom(pom);
 		return new NodeAssert(XmlUtil.serialize(pom));
 	}

@@ -24,7 +24,6 @@ import java.util.Map;
 
 import groovy.namespace.QName;
 import groovy.util.Node;
-import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
@@ -70,8 +69,6 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 
 	private final DependencyManagement dependencyManagement;
 
-	private final PomCustomizationSettings settings;
-
 	private final PomResolver pomResolver;
 
 	private final Project project;
@@ -82,15 +79,13 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 	 * The given {@code settings} will control how the dependency management is applied to
 	 * the pom.
 	 * @param dependencyManagement the dependency management
-	 * @param settings the customization settings
 	 * @param pomResolver resolves imported boms during dependency management
 	 * configuration
 	 * @param project owner of the pom that is being configured
 	 */
-	public StandardPomDependencyManagementConfigurer(DependencyManagement dependencyManagement,
-			PomCustomizationSettings settings, PomResolver pomResolver, Project project) {
+	public StandardPomDependencyManagementConfigurer(DependencyManagement dependencyManagement, PomResolver pomResolver,
+			Project project) {
 		this.dependencyManagement = dependencyManagement;
-		this.settings = settings;
 		this.pomResolver = pomResolver;
 		this.project = project;
 	}
@@ -102,12 +97,6 @@ public class StandardPomDependencyManagementConfigurer implements PomDependencyM
 
 	@Override
 	public void configurePom(Node pom) {
-		if (this.settings.isEnabled()) {
-			doConfigurePom(pom);
-		}
-	}
-
-	private void doConfigurePom(Node pom) {
 		Node dependencyManagementNode = findChild(pom, NODE_NAME_DEPENDENCY_MANAGEMENT);
 		if (dependencyManagementNode == null) {
 			dependencyManagementNode = pom.appendNode(NODE_NAME_DEPENDENCY_MANAGEMENT);
