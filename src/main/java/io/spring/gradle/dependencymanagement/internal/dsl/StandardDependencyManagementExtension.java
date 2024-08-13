@@ -28,12 +28,12 @@ import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementHandler;
 import io.spring.gradle.dependencymanagement.dsl.GeneratedPomCustomizationHandler;
 import io.spring.gradle.dependencymanagement.dsl.ImportsHandler;
+import io.spring.gradle.dependencymanagement.internal.DependencyManagement;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementConfigurationContainer;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings;
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementSettings.PomCustomizationSettings;
 import io.spring.gradle.dependencymanagement.internal.StandardPomDependencyManagementConfigurer;
-import io.spring.gradle.dependencymanagement.internal.maven.MavenPomResolver;
 import org.codehaus.groovy.runtime.ReflectionMethodInvoker;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -139,9 +139,9 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport
 
 	@Override
 	public StandardPomDependencyManagementConfigurer getPomConfigurer() {
-		return new StandardPomDependencyManagementConfigurer(
-				this.dependencyManagementContainer.getGlobalDependencyManagement(),
-				new MavenPomResolver(this.project, this.configurationContainer), this.project);
+		DependencyManagement dependencyManagement = this.dependencyManagementContainer.getGlobalDependencyManagement();
+		return new StandardPomDependencyManagementConfigurer(dependencyManagement.getManagedDependencies(),
+				dependencyManagement::getOverriddenDependencies, dependencyManagement.getImportedBomReferences());
 	}
 
 	/**
@@ -231,6 +231,14 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport
 	 */
 	public PomCustomizationSettings getPomCustomizationSettings() {
 		return this.dependencyManagementSettings.getPomCustomizationSettings();
+	}
+
+	/**
+	 * Returns the {@link DependencyManagementContainer}.
+	 * @return the container
+	 */
+	public DependencyManagementContainer getDependencyManagementContainer() {
+		return this.dependencyManagementContainer;
 	}
 
 }
