@@ -31,8 +31,7 @@ import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
 import io.spring.gradle.dependencymanagement.internal.pom.PomReference;
 import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
-import org.gradle.api.artifacts.ModuleVersionIdentifier;
-import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.result.ResolvedComponentResult;
 
 /**
@@ -58,17 +57,16 @@ class ExclusionResolver {
 		List<PomReference> pomReferences = new ArrayList<>();
 		Map<String, Exclusions> exclusionsById = new HashMap<>();
 		for (ResolvedComponentResult resolvedComponent : resolvedComponents) {
-			ModuleVersionIdentifier moduleVersion = resolvedComponent.getModuleVersion();
-			if (!(resolvedComponent.getId() instanceof ProjectComponentIdentifier) && moduleVersion.getGroup() != null
-					&& moduleVersion.getName() != null) {
-				String id = moduleVersion.getGroup() + ":" + moduleVersion.getName();
+			if (resolvedComponent.getId() instanceof ModuleComponentIdentifier) {
+				ModuleComponentIdentifier identifier = (ModuleComponentIdentifier) resolvedComponent.getId();
+				String id = identifier.getGroup() + ":" + identifier.getModule();
 				Exclusions exclusions = this.exclusionsCache.get(id);
 				if (exclusions != null) {
 					exclusionsById.put(id, exclusions);
 				}
 				else {
-					pomReferences.add(new PomReference(new Coordinates(moduleVersion.getGroup(),
-							moduleVersion.getName(), moduleVersion.getVersion())));
+					pomReferences.add(new PomReference(
+							new Coordinates(identifier.getGroup(), identifier.getModule(), identifier.getVersion())));
 				}
 			}
 		}
