@@ -25,18 +25,18 @@ dependencies {
 }
 
 task resolveManaged {
+	def files = project.configurations.managed.incoming.files
+	def output = new File("${buildDir}/resolved-managed.txt")
 	doFirst {
-		def files = project.configurations.managed.resolve()
-		def output = new File("${buildDir}/resolved-managed.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }
 	}
 }
 
 task resolveUnmanaged {
+	def files = project.configurations.unmanaged.incoming.files
+	def output = new File("${buildDir}/resolved-unmanaged.txt")
 	doFirst {
-		def files = project.configurations.unmanaged.resolve()
-		def output = new File("${buildDir}/resolved-unmanaged.txt")
 		output.parentFile.mkdirs()
 		files.collect { it.name }.each { output << "${it}\n" }
 	}

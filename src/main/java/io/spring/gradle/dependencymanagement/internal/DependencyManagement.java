@@ -22,12 +22,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import io.spring.gradle.dependencymanagement.internal.pom.Coordinates;
 import io.spring.gradle.dependencymanagement.internal.pom.Dependency;
 import io.spring.gradle.dependencymanagement.internal.pom.Pom;
 import io.spring.gradle.dependencymanagement.internal.pom.PomReference;
 import io.spring.gradle.dependencymanagement.internal.pom.PomResolver;
+import io.spring.gradle.dependencymanagement.internal.properties.MapPropertySource;
 import io.spring.gradle.dependencymanagement.internal.properties.ProjectPropertySource;
 import io.spring.gradle.dependencymanagement.internal.properties.PropertySource;
 import org.gradle.api.GradleException;
@@ -80,7 +82,11 @@ public class DependencyManagement {
 		this.importedBoms.add(new PomReference(coordinates, properties));
 	}
 
-	List<PomReference> getImportedBomReferences() {
+	/**
+	 * Returns the imported bom references.
+	 * @return the imported bom references
+	 */
+	public List<PomReference> getImportedBomReferences() {
 		return Collections.unmodifiableList(this.importedBoms);
 	}
 
@@ -125,6 +131,54 @@ public class DependencyManagement {
 		return managedDependencies;
 	}
 
+	/**
+	 * Returns the overridden dependencies.
+	 * @return the overridden dependencies
+	 */
+	public List<Dependency> getOverriddenDependencies() {
+		Map<String, Dependency> withoutPropertiesManagedDependencies = getManagedDependenciesById(
+				new MapPropertySource(Collections.emptyMap()));
+		Map<String, Dependency> withPropertiesManagedDependencies = getManagedDependenciesById(
+				new ProjectPropertySource(this.project));
+		List<Dependency> overrides = new ArrayList<>();
+		for (Map.Entry<String, Dependency> withPropertyEntry : withPropertiesManagedDependencies.entrySet()) {
+			Dependency withoutPropertyDependency = withoutPropertiesManagedDependencies.get(withPropertyEntry.getKey());
+			if (differentVersions(withoutPropertyDependency, withPropertyEntry.getValue())) {
+				overrides.add(withPropertyEntry.getValue());
+			}
+		}
+		return overrides;
+	}
+
+	private boolean differentVersions(Dependency dependency1, Dependency dependency2) {
+		if (dependency1 == null) {
+			return true;
+		}
+		String version1 = dependency1.getCoordinates().getVersion();
+		String version2 = dependency2.getCoordinates().getVersion();
+		return !Objects.equals(version1, version2);
+	}
+
+	private Map<String, Dependency> getManagedDependenciesById(PropertySource propertySource) {
+		Map<String, Dependency> managedDependencies = new HashMap<>();
+		for (Pom pom : getResolvedBoms(propertySource)) {
+			for (Dependency dependency : pom.getManagedDependencies()) {
+				managedDependencies.put(createId(dependency), dependency);
+			}
+		}
+		return managedDependencies;
+	}
+
+	private String createId(Dependency dependency) {
+		Coordinates coordinates = dependency.getCoordinates();
+		return String.format("%s:%s:%s:%s", coordinates.getGroupAndArtifactId(), dependency.getScope(),
+				dependency.getType(), dependency.getClassifier());
+	}
+
+	private List<Pom> getResolvedBoms(PropertySource propertySource) {
+		return this.pomResolver.resolvePoms(this.importedBoms, propertySource);
+	}
+
 	private String createKey(String group, String name) {
 		return group + ":" + name;
 	}
@@ -166,9 +220,7 @@ public class DependencyManagement {
 		}
 		Map<String, String> existingVersions = new LinkedHashMap<>(this.versions);
 		logger.debug("Preserving existing versions: {}", existingVersions);
-		List<Pom> resolvedBoms = this.pomResolver.resolvePoms(this.importedBoms,
-				new ProjectPropertySource(this.project));
-		for (Pom resolvedBom : resolvedBoms) {
+		for (Pom resolvedBom : getResolvedBoms(new ProjectPropertySource(this.project))) {
 			for (Dependency dependency : resolvedBom.getManagedDependencies()) {
 				resolve(resolvedBom, dependency);
 			}
