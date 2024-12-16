@@ -25,6 +25,7 @@ import io.spring.gradle.dependencymanagement.internal.DependencyManagementContai
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.tasks.TaskAction;
 
 /**
@@ -44,11 +45,14 @@ public class DependencyManagementReportTask extends DefaultTask {
 
 	private final boolean rootProject;
 
+	private final ConfigurationContainer configurationContainer;
+
 	public DependencyManagementReportTask() {
 		Project project = getProject();
 		this.projectPath = project.getPath();
 		this.projectDescription = project.getDescription();
 		this.rootProject = project.getRootProject().equals(project);
+		this.configurationContainer = project.getConfigurations();
 	}
 
 	void setRenderer(DependencyManagementReportRenderer renderer) {
@@ -73,7 +77,7 @@ public class DependencyManagementReportTask extends DefaultTask {
 			.getManagedVersionsForConfiguration(null);
 		this.renderer.renderGlobalManagedVersions(globalManagedVersions);
 		Set<Configuration> configurations = new TreeSet<>(Comparator.comparing(Configuration::getName));
-		configurations.addAll(getProject().getConfigurations());
+		configurations.addAll(this.configurationContainer);
 		for (Configuration configuration : configurations) {
 			Map<String, String> managedVersions = this.dependencyManagementContainer
 				.getManagedVersionsForConfiguration(configuration);
