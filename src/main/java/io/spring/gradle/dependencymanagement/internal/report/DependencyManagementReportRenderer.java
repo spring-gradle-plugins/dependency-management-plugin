@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,12 +41,12 @@ class DependencyManagementReportRenderer {
 		this.output = writer;
 	}
 
-	void startProject(Project project) {
+	void startProject(String path, String description, boolean root) {
 		this.output.println();
 		this.output.println("------------------------------------------------------------");
-		String heading = (project.getRootProject().equals(project)) ? "Root project" : "Project " + project.getPath();
-		if (project.getDescription() != null) {
-			heading += " - " + project.getDescription();
+		String heading = root ? "Root project" : ("Project " + path);
+		if (description != null) {
+			heading += " - " + description;
 		}
 		this.output.println(heading);
 		this.output.println("------------------------------------------------------------");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ class DependencyManagementReportRendererTests {
 	@Test
 	void projectHeaderForRootProject() {
 		Project rootProject = ProjectBuilder.builder().build();
-		this.renderer.startProject(rootProject);
+		this.renderer.startProject(rootProject.getPath(), rootProject.getDescription(), true);
 		assertThat(outputLines()).containsExactly("", "------------------------------------------------------------",
 				"Root project", "------------------------------------------------------------", "");
 	}
@@ -61,7 +61,7 @@ class DependencyManagementReportRendererTests {
 			.withParent(ProjectBuilder.builder().build())
 			.withName("alpha")
 			.build();
-		this.renderer.startProject(subproject);
+		this.renderer.startProject(subproject.getPath(), subproject.getDescription(), false);
 		assertThat(outputLines()).containsExactly("", "------------------------------------------------------------",
 				"Project :alpha", "------------------------------------------------------------", "");
 	}
@@ -73,7 +73,7 @@ class DependencyManagementReportRendererTests {
 			.withName("alpha")
 			.build();
 		subproject.setDescription("description of alpha project");
-		this.renderer.startProject(subproject);
+		this.renderer.startProject(subproject.getPath(), subproject.getDescription(), false);
 		assertThat(outputLines()).containsExactly("", "------------------------------------------------------------",
 				"Project :alpha - description of alpha project",
 				"------------------------------------------------------------", "");

@@ -55,7 +55,7 @@ class DependencyManagementReportTaskTests {
 	@SuppressWarnings("unchecked")
 	void basicReport() {
 		this.task.report();
-		then(this.renderer).should().startProject(this.project);
+		then(this.renderer).should().startProject(this.project.getPath(), this.project.getDescription(), true);
 		then(this.renderer).should().renderGlobalManagedVersions(any(Map.class));
 		then(this.renderer).shouldHaveNoMoreInteractions();
 	}
@@ -66,7 +66,7 @@ class DependencyManagementReportTaskTests {
 		Configuration configurationOne = this.project.getConfigurations().create("second");
 		Configuration configurationTwo = this.project.getConfigurations().create("first");
 		this.task.report();
-		then(this.renderer).should().startProject(this.project);
+		then(this.renderer).should().startProject(this.project.getPath(), this.project.getDescription(), true);
 		then(this.renderer).should().renderGlobalManagedVersions(any(Map.class));
 		then(this.renderer).should()
 			.renderConfigurationManagedVersions(any(Map.class), eq(configurationTwo), any(Map.class));

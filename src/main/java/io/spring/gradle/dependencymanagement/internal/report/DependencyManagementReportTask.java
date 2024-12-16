@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.TreeSet;
 
 import io.spring.gradle.dependencymanagement.internal.DependencyManagementContainer;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.TaskAction;
 
@@ -36,6 +37,19 @@ public class DependencyManagementReportTask extends DefaultTask {
 	private DependencyManagementContainer dependencyManagementContainer;
 
 	private DependencyManagementReportRenderer renderer = new DependencyManagementReportRenderer();
+
+	private final String projectPath;
+
+	private final String projectDescription;
+
+	private final boolean rootProject;
+
+	public DependencyManagementReportTask() {
+		Project project = getProject();
+		this.projectPath = project.getPath();
+		this.projectDescription = project.getDescription();
+		this.rootProject = project.getRootProject().equals(project);
+	}
 
 	void setRenderer(DependencyManagementReportRenderer renderer) {
 		this.renderer = renderer;
@@ -54,7 +68,7 @@ public class DependencyManagementReportTask extends DefaultTask {
 	 */
 	@TaskAction
 	public void report() {
-		this.renderer.startProject(getProject());
+		this.renderer.startProject(this.projectPath, this.projectDescription, this.rootProject);
 		Map<String, String> globalManagedVersions = this.dependencyManagementContainer
 			.getManagedVersionsForConfiguration(null);
 		this.renderer.renderGlobalManagedVersions(globalManagedVersions);
