@@ -41,15 +41,20 @@ public class DependencyManagementPlugin implements Plugin<Project> {
 		internalComponents.createDependencyManagementReportTask("dependencyManagement");
 		project.getConfigurations().all(internalComponents.getImplicitDependencyManagementCollector());
 		project.getConfigurations().all(internalComponents.getDependencyManagementApplier());
-		configurePomCustomization(project, dependencyManagementExtension);
+		configurePomCustomization(internalComponents, project, dependencyManagementExtension);
 	}
 
-	private void configurePomCustomization(Project project,
+	private void configurePomCustomization(InternalComponents internalComponents, Project project,
 			DependencyManagementExtension dependencyManagementExtension) {
-		PomDependencyManagementConfigurer pomConfigurer = dependencyManagementExtension.getPomConfigurer();
-		project.getPlugins()
-			.withType(MavenPublishPlugin.class,
-					(mavenPublishPlugin) -> configurePublishingExtension(project, pomConfigurer));
+		project.afterEvaluate((evaluatedProject) -> {
+			if (!internalComponents.getDependencyManagementSettings().getPomCustomizationSettings().isEnabled()) {
+				return;
+			}
+			PomDependencyManagementConfigurer pomConfigurer = dependencyManagementExtension.getPomConfigurer();
+			evaluatedProject.getPlugins()
+				.withType(MavenPublishPlugin.class,
+						(mavenPublishPlugin) -> configurePublishingExtension(evaluatedProject, pomConfigurer));
+		});
 	}
 
 	private void configurePublishingExtension(Project project, PomDependencyManagementConfigurer extension) {

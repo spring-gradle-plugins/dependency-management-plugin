@@ -24,30 +24,25 @@ dependencyManagement {
 	}
 }
 
-def verifyManagedVersion(def versions, def id, def expected) {
-	def actual = versions[id]
-	if (actual != expected) {
-		throw new GradleException("Managed version for '${id}' was '${actual}' but '${expected}' was expected")
-	}
-}
-
-
 task verify {
+	def implementationManagedVersions = dependencyManagement.implementation.managedVersions
+	def implementationManagedVersionsOutput = new File("${buildDir}/implementation-managed-versions.txt")
+	def testRuntimeOnlyManagedVersions = dependencyManagement.testRuntimeOnly.managedVersions
+	def testRuntimeOnlyManagedVersionsOutput = new File("${buildDir}/testRuntimeOnly-managed-versions.txt")
+	def managedVersions = dependencyManagement.managedVersions
+	def managedVersionsOutput = new File("${buildDir}/managed-versions.txt")
 	doFirst {
-		verifyManagedVersion(dependencyManagement.implementation.managedVersions, "org.springframework:spring-core", "4.0.6.RELEASE")
-		verifyManagedVersion(dependencyManagement.testRuntimeOnly.managedVersions, "org.springframework:spring-core", "4.0.6.RELEASE")
-		verifyManagedVersion(dependencyManagement.managedVersions, "org.springframework:spring-core", "4.0.6.RELEASE")
-		
-		verifyManagedVersion(dependencyManagement.implementation.managedVersions, "com.foo:bar", null)
-		verifyManagedVersion(dependencyManagement.testRuntimeOnly.managedVersions, "com.foo:bar", "1.2.3")
-		verifyManagedVersion(dependencyManagement.managedVersions, "com.foo:bar", null)
-		
-		verifyManagedVersion(dependencyManagement.implementation.managedVersions, "com.alpha:bravo", "1.0")
-		verifyManagedVersion(dependencyManagement.testRuntimeOnly.managedVersions, "com.alpha:bravo", "1.0")
-		verifyManagedVersion(dependencyManagement.managedVersions, "com.alpha:bravo", "1.0")
-		
-		verifyManagedVersion(dependencyManagement.implementation.managedVersions, "com.alpha:charlie", "1.0")
-		verifyManagedVersion(dependencyManagement.testRuntimeOnly.managedVersions, "com.alpha:charlie", "1.0")
-		verifyManagedVersion(dependencyManagement.managedVersions, "com.alpha:charlie", "1.0")
+		implementationManagedVersionsOutput.parentFile.mkdirs()
+		implementationManagedVersions.each { key, value ->
+			implementationManagedVersionsOutput << "${key} -> ${value}\n"
+		}
+		testRuntimeOnlyManagedVersionsOutput.parentFile.mkdirs()
+		testRuntimeOnlyManagedVersions.each { key, value ->
+			testRuntimeOnlyManagedVersionsOutput << "${key} -> ${value}\n"
+		}
+		managedVersionsOutput.parentFile.mkdirs()
+		managedVersions.each { key, value ->
+			managedVersionsOutput << "${key} -> ${value}\n"
+		}
 	}
 }
