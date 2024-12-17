@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ package io.spring.gradle.dependencymanagement.internal;
  * Settings that control dependency management behaviour.
  *
  * @author Andy Wilkinson
+ * @author Yanming Zhou
  */
 public class DependencyManagementSettings {
 
@@ -35,7 +36,7 @@ public class DependencyManagementSettings {
 	 * @return {@code true} if Maven-style exclusions should be applied, otherwise
 	 * {@code false}
 	 */
-	boolean isApplyMavenExclusions() {
+	public boolean isApplyMavenExclusions() {
 		return this.applyMavenExclusions;
 	}
 
@@ -56,7 +57,7 @@ public class DependencyManagementSettings {
 	 * versions, otherwise {@code
 	 * false}
 	 */
-	boolean isOverriddenByDependencies() {
+	public boolean isOverriddenByDependencies() {
 		return this.overriddenByDependencies;
 	}
 
