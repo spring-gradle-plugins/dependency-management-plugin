@@ -10,13 +10,12 @@ This project adheres to the Contributor Covenant [code of conduct][1]. By partic
 you are expected to uphold this code. Please report unacceptable behavior to
 spring-code-of-conduct@pivotal.io.
 
-## Sign the contributor license agreement
+## Include a Signed-off-by Trailer
 
-Before we accept a non-trivial patch or pull request we will need you to sign the
-[contributor's license agreement (CLA)][2]. Signing the contributor's agreement does not
-grant anyone commit rights to the main repository, but it does mean that we can accept
-your contributions, and you will get an author credit if we do.
-
+All commits must include a _Signed-off-by_ trailer at the end of each commit message to
+indicate that the contributor agrees to the [Developer Certificate of Origin (DCO)][2].
+For additional details, please refer to the ["Hello DCO, Goodbye CLA: Simplifying
+Contributions to Spring"][3] blog post.
 
 ## Code conventions and housekeeping
 
@@ -33,7 +32,7 @@ None of these is essential for a pull request, but they will all help
 - Add unit tests that covers and new or modified functionality
 - Whenever possible, please rebase your branch against the current main (or other
   target branch in the main project).
-- When writing a commit message please follow [these conventions][3]. Also, if you are
+- When writing a commit message please follow [these conventions][4]. Also, if you are
   fixing an existing issue please add `Fixes gh-nnn` at the end of the commit message
   (where nnn is the issue number).
 
@@ -48,5 +47,6 @@ $ ./gradlew build
 ```
 
 [1]: CODE_OF_CONDUCT.md
-[2]: https://cla.pivotal.io/sign/spring
-[3]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
+[2]: https://en.wikipedia.org/wiki/Developer_Certificate_of_Origin
+[3]: https://spring.io/blog/2025/01/06/hello-dco-goodbye-cla-simplifying-contributions-to-spring
+[4]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
