@@ -22,18 +22,19 @@ dependencyManagement {
 	}
 }
 
-def verifyImportedProperty(def properties, def name, def expected) {
-	def actual = properties[name]
-	if (actual != expected) {
-		throw new GradleException("Property named '${name}' was '${actual}' but '${expected}' was expected")
-	}
-}
-
-
 task verify {
+	def importedProperties = dependencyManagement.importedProperties
+	def importedPropertiesOutput = new File("${buildDir}/imported-properties.txt")
+	def myConfigurationImportedProperties = dependencyManagement.myConfiguration.importedProperties
+	def myConfigurationImportedPropertiesOutput = new File("${buildDir}/myConfiguration-imported-properties.txt")
 	doFirst {
-		verifyImportedProperty(dependencyManagement.importedProperties, "hibernate.version", "4.3.5.Final")
-		verifyImportedProperty(dependencyManagement.myConfiguration.importedProperties, "spring.version", "4.1.4.RELEASE")
-		verifyImportedProperty(dependencyManagement.myConfiguration.importedProperties, "jruby.version", "1.7.12")
+		importedPropertiesOutput.parentFile.mkdirs()
+		importedProperties.each { key, value ->
+			importedPropertiesOutput << "${key} -> ${value}\n"
+		}
+		myConfigurationImportedPropertiesOutput.parentFile.mkdirs()
+		myConfigurationImportedProperties.each { key, value ->
+			myConfigurationImportedPropertiesOutput << "${key} -> ${value}\n"
+		}
 	}
 }

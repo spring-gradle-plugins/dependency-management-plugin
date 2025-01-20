@@ -41,6 +41,8 @@ public class InternalComponents {
 
 	private final DependencyManagementExtension dependencyManagementExtension;
 
+	private final DependencyManagementSettings dependencyManagementSettings;
+
 	private final Action<Configuration> implicitDependencyManagementCollector;
 
 	private final Action<Configuration> dependencyManagementApplier;
@@ -58,13 +60,13 @@ public class InternalComponents {
 				project);
 		MavenPomResolver pomResolver = new MavenPomResolver(project, configurationContainer);
 		this.dependencyManagementContainer = new DependencyManagementContainer(project, pomResolver);
-		DependencyManagementSettings dependencyManagementSettings = new DependencyManagementSettings();
+		this.dependencyManagementSettings = new DependencyManagementSettings();
 		this.dependencyManagementExtension = new StandardDependencyManagementExtension(
-				this.dependencyManagementContainer, configurationContainer, project, dependencyManagementSettings);
+				this.dependencyManagementContainer, configurationContainer, project, this.dependencyManagementSettings);
 		this.implicitDependencyManagementCollector = new ImplicitDependencyManagementCollector(
-				this.dependencyManagementContainer, dependencyManagementSettings);
+				this.dependencyManagementContainer, this.dependencyManagementSettings);
 		this.dependencyManagementApplier = new DependencyManagementApplier(project, this.dependencyManagementContainer,
-				configurationContainer, dependencyManagementSettings, pomResolver);
+				configurationContainer, this.dependencyManagementSettings, pomResolver);
 	}
 
 	/**
@@ -73,6 +75,14 @@ public class InternalComponents {
 	 */
 	public DependencyManagementExtension getDependencyManagementExtension() {
 		return this.dependencyManagementExtension;
+	}
+
+	/**
+	 * Returns the {@link DependencyManagementSettings}.
+	 * @return the settings
+	 */
+	public DependencyManagementSettings getDependencyManagementSettings() {
+		return this.dependencyManagementSettings;
 	}
 
 	/**
