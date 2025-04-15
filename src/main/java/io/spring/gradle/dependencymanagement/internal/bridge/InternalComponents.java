@@ -99,7 +99,7 @@ public class InternalComponents {
 	 * @param taskName the task name
 	 */
 	public void createDependencyManagementReportTask(String taskName) {
-		this.project.getTasks().create(taskName, DependencyManagementReportTask.class, this::setupTask);
+		this.project.getTasks().register(taskName, DependencyManagementReportTask.class, this::setupTask);
 	}
 
 	private void setupTask(DependencyManagementReportTask task) {
