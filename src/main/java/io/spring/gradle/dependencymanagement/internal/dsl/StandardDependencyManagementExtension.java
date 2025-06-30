@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import org.gradle.api.artifacts.ResolutionStrategy;
  * Standard implementation of {@link DependencyManagementExtension}.
  *
  * @author Andy Wilkinson
+ * @author Yanming Zhou
  */
 public class StandardDependencyManagementExtension extends GroovyObjectSupport
 		implements DependencyManagementExtension {
@@ -207,6 +208,11 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport
 	}
 
 	@Override
+	public boolean isApplyMavenExclusions() {
+		return this.dependencyManagementSettings.isApplyMavenExclusions();
+	}
+
+	@Override
 	public void setApplyMavenExclusions(boolean applyMavenExclusions) {
 		this.dependencyManagementSettings.setApplyMavenExclusions(applyMavenExclusions);
 	}
@@ -214,6 +220,11 @@ public class StandardDependencyManagementExtension extends GroovyObjectSupport
 	@Override
 	public void applyMavenExclusions(boolean applyMavenExclusions) {
 		this.dependencyManagementSettings.setApplyMavenExclusions(applyMavenExclusions);
+	}
+
+	@Override
+	public boolean isOverriddenByDependencies() {
+		return this.dependencyManagementSettings.isOverriddenByDependencies();
 	}
 
 	@Override

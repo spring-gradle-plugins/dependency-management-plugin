@@ -590,7 +590,7 @@ dependencyManagement {
 .Kotlin
 ----
 dependencyManagement {
-    overriddenByDependencies(false)
+    isOverriddenByDependencies = false
 }
 ----
 
@@ -782,7 +782,7 @@ dependencyManagement {
 .Kotlin
 ----
 dependencyManagement {
-    applyMavenExclusions(false)
+    isApplyMavenExclusions = false
 }
 ----
 
@@ -864,7 +864,7 @@ dependencyManagement {
 ----
 dependencyManagement {
     generatedPomCustomization {
-        enabled(false)
+        isEnabled = false
     }
 }
 ----
